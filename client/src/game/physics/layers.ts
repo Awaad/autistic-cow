@@ -22,6 +22,7 @@ export const CollisionGroups = {
   child: (Group.CHILD << 16) | (Group.TERRAIN), // children collide with terrain ONLY
   camel: (Group.CAMEL << 16) | (Group.COW | Group.SMASHABLE | Group.TERRAIN),
   smashable: (Group.SMASHABLE << 16) | (Group.COW | Group.CAMEL | Group.TERRAIN | Group.SMASHABLE),
+  pickup: (Group.PICKUP << 16) | (Group.COW), // sensor: sensed by the cow only
 } as const;
 
 export function cowCanContact(otherMembership: number): boolean {
