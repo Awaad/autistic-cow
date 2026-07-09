@@ -1,0 +1,17 @@
+{
+  "landing.play": "Jetzt spielen",
+  "wall.title": "Sie erinnert sich an Sie.",
+  "wall.body": "Registrieren Sie sich, damit sie Sie nicht vergisst.",
+  "maxrage.prompt": "Sie ist weg. Nur eines holt sie zurück. Zeigen Sie ihr etwas Weiches.",
+  "maxrage.reject_not_animal": "Das ist ein belegtes Brot. Belegte Brote beruhigen sie nicht.",
+  "maxrage.low_authenticity": "Recycelte Liebe. Sie merkt das.",
+  "cameld.title": "VERKAMELT.",
+  "judge.title.menace": "Aktenkundige Gefahr",
+  "judge.title.enthusiast": "Überzeugungstäterin",
+  "judge.title.flexible": "Moralisch flexibel",
+  "judge.title.hero": "Widerwillige Heldin",
+  "judge.title.whisperer": "Kuhflüsterin",
+  "settings.consent.herd_album": "Meine Fotos im Herden-Album speichern",
+  "settings.consent.marketing_profiling": "Meine Daten mit Sponsoren teilen",
+  "settings.consent.real_location_ar": "AR-Missionen mit echtem Standort aktivieren"
+}

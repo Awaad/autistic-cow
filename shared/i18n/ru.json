@@ -1,0 +1,17 @@
+{
+  "landing.play": "Играть",
+  "wall.title": "Она тебя запомнила.",
+  "wall.body": "Зарегистрируйся, чтобы она не забыла.",
+  "maxrage.prompt": "Всё. Её больше нет. Вернуть её может только одно. Покажи ей что-нибудь мягкое.",
+  "maxrage.reject_not_animal": "Это бутерброд. Бутерброды её не успокаивают.",
+  "maxrage.low_authenticity": "Любовь из интернета. Она чувствует разницу.",
+  "cameld.title": "ОВЕРБЛЮЖЕНО.",
+  "judge.title.menace": "Официально опасна",
+  "judge.title.enthusiast": "Энтузиастка",
+  "judge.title.flexible": "Морально гибкая",
+  "judge.title.hero": "Героиня поневоле",
+  "judge.title.whisperer": "Заклинательница коров",
+  "settings.consent.herd_album": "Сохранять мои фото в альбом «Стадо»",
+  "settings.consent.marketing_profiling": "Делиться данными со спонсорами",
+  "settings.consent.real_location_ar": "AR-миссии по реальной геолокации"
+}
