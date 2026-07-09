@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "autistic-cow:api:session_start_response",
+  "title": "SessionStartResponse",
+  "type": "object",
+  "required": ["session_id", "spawn_seed", "session_token", "tuning_version", "district_slug"],
+  "properties": {
+    "session_id": { "type": "string", "format": "uuid" },
+    "spawn_seed": { "type": "integer" },
+    "session_token": { "type": "string" },
+    "tuning_version": { "type": "string" },
+    "district_slug": { "type": "string" }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "autistic-cow:events:judge_event",
+  "title": "JudgeEvent",
+  "type": "object",
+  "required": ["event_id", "seq_in_session", "event_type", "rage_at_event", "client_ts"],
+  "additionalProperties": false,
+  "properties": {
+    "event_id": { "type": "string", "format": "uuid" },
+    "seq_in_session": { "type": "integer", "minimum": 0 },
+    "event_type": { "enum": ["rescue_completed","rescue_ignored","child_scared","child_helped","destruction_spree","photo_calm_used","cameld","lure_executed","wine_found","mission_completed","mission_abandoned","hesitation"] },
+    "target_kind": { "type": ["string","null"] },
+    "rage_at_event": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "payload": { "type": "object" },
+    "client_ts": { "type": "string", "format": "date-time" }
+  }
+}
