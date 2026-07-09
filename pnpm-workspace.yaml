@@ -1,0 +1,7 @@
+packages:
+  - client
+  - shared
+allowBuilds:
+  esbuild: true
+minimumReleaseAgeExclude:
+  - '@types/node@26.1.1'

@@ -1,0 +1,10 @@
+{
+  "name": "autistic-cow-root",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter client dev",
+    "typecheck": "pnpm --filter client typecheck",
+    "i18n:check": "node tools/i18n-parity.mjs",
+    "tuning:check": "node tools/tuning-validate.mjs"
+  }
+}
