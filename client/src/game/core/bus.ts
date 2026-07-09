@@ -6,6 +6,7 @@
 export type GameEvent =
   | { type: "rageChanged"; value: number; band: RageBand }
   | { type: "scoreChanged"; destruction: number; rescue: number }
+  | { type: "timerTick"; remainingS: number }
   | { type: "judgeCommentQueued"; i18nKey: string }
   | { type: "maxRageResolutionStarted"; timerS: number }
   | { type: "sessionEnded"; reason: "timer" | "cameld" | "player_exit" };
