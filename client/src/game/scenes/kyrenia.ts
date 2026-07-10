@@ -18,6 +18,8 @@ export interface SceneHandles {
   scene: THREE.Scene;
   cowEid: number;
   cowBody: RAPIER.RigidBody;
+  /** unbreakable city: contact at speed punishes (rage + heat), never scores */
+  buildingColliders: Set<number>;
 }
 
 export function buildKyrenia(
@@ -28,6 +30,7 @@ export function buildKyrenia(
 ): SceneHandles {
   const { world, R } = physics;
   const rng = seededRng(seed);
+  const buildingColliders = new Set<number>();
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(PALETTE.sky);
   scene.fog = new THREE.Fog(PALETTE.sky, 90, 190);
@@ -107,7 +110,12 @@ export function buildKyrenia(
     scene.add(g);
 
     const bBody = world.createRigidBody(R.RigidBodyDesc.fixed().setTranslation(spec.x, spec.h / 2, spec.z));
-    world.createCollider(R.ColliderDesc.cuboid(spec.w / 2, spec.h / 2, spec.d / 2), bBody);
+    const bCol = world.createCollider(
+      R.ColliderDesc.cuboid(spec.w / 2, spec.h / 2, spec.d / 2)
+        .setActiveEvents(R.ActiveEvents.COLLISION_EVENTS),
+      bBody,
+    );
+    buildingColliders.add(bCol.handle);
   }
 
   // palms
@@ -145,7 +153,7 @@ export function buildKyrenia(
   );
   reg.register(cowEid, cowBody, cowGroup, cowCollider);
 
-  // smashables: stalls, crates, scooters 
+  // --- smashables: stalls, crates, scooters ---
   const addSmashable = (
     mesh: THREE.Object3D, x: number, z: number,
     hx: number, hy: number, hz: number, points: number,
@@ -216,7 +224,7 @@ export function buildKyrenia(
     addSmashable(g, x, z, 0.3, 0.55, 0.85, 18);
   }
 
-  // pickups 
+  // --- pickups ---
   const addPickup = (x: number, z: number, kind: 0 | 1): void => {
     const eid = addEntity(ecs);
     addComponent(ecs, Pickup, eid);
@@ -239,7 +247,7 @@ export function buildKyrenia(
     reg.register(eid, body, mesh, col);
   };
 
-  // rescueables (sensors: she can't crush what she can save) 
+  // --- rescueables (sensors: she can't crush what she can save) ---
   const RESCUE_POINTS = [30, 30, 45, 20] as const; // dog, cat, cart, dropped ice cream
   const builders = [buildDog, buildCat, buildIceCreamCart];
   for (const spot of KYRENIA.rescueSpots) {
@@ -257,7 +265,7 @@ export function buildKyrenia(
     reg.register(eid, body, mesh, col);
   }
 
-  //  children (kinematic, terrain-only collisions —  mechanism #1) 
+  // --- children (kinematic, terrain-only collisions — Repo Law 4 mechanism #1) ---
   for (const zone of KYRENIA.childZones) {
     const eid = addEntity(ecs);
     addComponent(ecs, ChildTag, eid);
@@ -279,5 +287,5 @@ export function buildKyrenia(
     addPickup(hide.x, hide.z, 1);
   }
 
-  return { scene, cowEid, cowBody };
+  return { scene, cowEid, cowBody, buildingColliders };
 }

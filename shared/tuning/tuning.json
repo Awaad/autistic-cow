@@ -8,7 +8,7 @@
       "furious":   { "max": 79, "speed": 1.3, "damage": 1.6, "drift": 0.3 },
       "berserk":   { "max": 99, "speed": 1.6, "damage": 2.2, "drift": 0.8, "camel_attraction_mult": 2.0 }
     },
-    "triggers": { "car_alarm": 8, "children_giggling": 5, "camel_silhouette": 15, "wedding_music": 6, "scooter_horn": 4, "unbroken_collision": 3 },
+    "triggers": { "car_alarm": 8, "children_giggling": 5, "camel_silhouette": 15, "wedding_music": 6, "scooter_horn": 4, "unbroken_collision": 3, "building_hit": 6 },
     "sinks": { "beer_generic": -25, "wine": -100, "petting_zoo": -15, "petting_zoo_cooldown_s": 90, "pet_photo": -100 }
   },
   "maxrage": { "decision_timer_s": 15, "photo_retry_allowed": 1, "low_authenticity_rage_floor": 60, "photo_rage_floor": 35 },

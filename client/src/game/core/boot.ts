@@ -56,7 +56,7 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
       const ecs = createWorld();
       const reg = new Registry();
       const seed = Math.floor(Math.random() * 2 ** 31); // Stage 3: server-issued
-      const { scene, cowBody } = buildKyrenia(physics, ecs, reg, seed);
+      const { scene, cowBody, buildingColliders } = buildKyrenia(physics, ecs, reg, seed);
 
       const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
       const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 300);
@@ -95,6 +95,7 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
       let camelBody: import("@dimforge/rapier3d-compat").RigidBody | null = null;
       let camelScheduledAt = SESSION_S * tuning.camel.scheduled_beat_pct;
       let camelSighted = false;
+      let buildingHitCooldown = 0;
       let timeScale = 1;    // slam cinematic slow-mo
       let slamT = 0;        // cinematic recovery countdown (real seconds)
 
@@ -325,16 +326,22 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
           // --- rescueables: serene-band dwell to rescue; hesitation watched ---
           if (!waiting && slamT <= 0) {
             const cpr = cowBody.translation();
+            let hintState: "none" | "calm_needed" | "soothing" = "none";
+            let hintPct = 0;
             for (const eid of rescueQuery(ecs)) {
               const b = reg.bodies.get(eid);
               if (!b) continue;
               const p = b.translation();
               const dist = Math.hypot(p.x - cpr.x, p.z - cpr.z);
 
+              if (dist < 4.5 && hintState === "none") {
+                hintState = rage.band === "serene" ? "soothing" : "calm_needed";
+              }
               let rescuedNow = false;
               if (rage.band === "serene" && dist < 2.5) {
                 const d = (rescueDwell.get(eid) ?? 0) + dt;
                 rescueDwell.set(eid, d);
+                hintPct = Math.min(1, (rescueDwell.get(eid) ?? 0) / 1.2);
                 if (d >= 1.2) {
                   rescuedNow = true;
                   const isTreat = Rescueable.kind[eid] === 3;
@@ -357,6 +364,7 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
                 if (verdict) record(verdict, elapsed);
               }
             }
+            bus.emit({ type: "rescueHint", state: hintState, pct: hintPct });
 
             // --- children: flee brains; scaring is seen; treats get dropped ---
             const cowSpd = Math.hypot(cowBody.linvel().x, cowBody.linvel().z);
@@ -442,6 +450,26 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
               if (!started || ended) return;
               const e1 = reg.colliderToEid.get(h1);
               const e2 = reg.colliderToEid.get(h2);
+
+              // the city bites back: buildings punish speed, never score
+              if (buildingColliders.has(h1) || buildingColliders.has(h2)) {
+                const otherEid = buildingColliders.has(h1) ? e2 : e1;
+                if (
+                  otherEid !== undefined &&
+                  reg.bodies.get(otherEid) === cowBody &&
+                  !waiting &&
+                  buildingHitCooldown <= 0
+                ) {
+                  const v = cowBody.linvel();
+                  if (Math.hypot(v.x, v.z) >= 5) {
+                    buildingHitCooldown = 0.5;
+                    rage.add(tuning.rage.triggers.building_hit);
+                    heat += 14; // walls are loud; he hears
+                    trauma = Math.min(1, trauma + 0.2);
+                  }
+                }
+                return;
+              }
               if (e1 === undefined || e2 === undefined) return;
 
               // the Lure: his collisions score for you at 1.5x (01_GAME_LOOP §6.2)
@@ -487,6 +515,7 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
             (d.mesh.material as THREE.MeshStandardMaterial).opacity = d.life / 0.7;
           }
           trauma = Math.max(0, trauma - 1.8 * rawDt);
+          buildingHitCooldown -= rawDt;
         }
 
         for (const [eid, body] of reg.bodies) {
