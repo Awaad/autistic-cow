@@ -11,13 +11,20 @@ import { tuning } from "./tuning";
 import { seededRng } from "./rng";
 import { createPhysics } from "../physics/world";
 import { Registry } from "../ecs/registry";
-import { Pickup, Smashable } from "../ecs/components";
+import { ChildTag, Pickup, Rescueable, Smashable } from "../ecs/components";
 import { buildKyrenia } from "../scenes/kyrenia";
+import { KYRENIA } from "../assets/kyrenia-harbor";
+import { addComponent, addEntity } from "bitecs";
 import { spawnCamelEntity } from "../scenes/camelSpawn";
 import { RageMeter } from "../systems/rage";
 import { ComboTracker } from "../systems/combo";
 import { MaxRageDirector } from "../systems/maxrage";
 import { CamelBrain } from "../systems/camel";
+import { ChildBrain } from "../systems/children";
+import { JudgeLog } from "../judge/log";
+import { HesitationDetector } from "../judge/hesitation";
+import { CommentEngine } from "../judge/engine";
+import { buildIceCream } from "../art/critters";
 
 const SESSION_S = tuning.session.target_minutes_min * 60;
 const SMASH_MIN_SPEED = 3;
@@ -25,7 +32,10 @@ const BASE_SPEED = 9;
 const NERVES_START = 3;
 const FIELD_EDGE = 66;
 
+const KYRENIA_HALF = KYRENIA.bounds.halfW;
 const smashQuery = defineQuery([Smashable]);
+const rescueQuery = defineQuery([Rescueable]);
+const childQuery = defineQuery([ChildTag]);
 
 const lerpAngle = (a: number, b: number, t: number): number => {
   let d = (b - a) % (Math.PI * 2);
@@ -63,9 +73,18 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
       const combo = new ComboTracker();
       const maxRage = new MaxRageDirector();
       const camel = new CamelBrain(BASE_SPEED);
+      const judge = new JudgeLog();
+      const comments = new CommentEngine();
+      const childBrains = new Map<number, ChildBrain>();
+      const childScareCooldown = new Map<number, number>();
+      const childDroppedTreat = new Set<number>();
+      const hesitations = new Map<number, HesitationDetector>();
+      const rescueDwell = new Map<number, number>();
       void seededRng; // seeded challenge modes reuse this later
 
       let destructionScore = 0;
+      let rescueScore = 0;
+      let sinceSpreeEvent = 0;
       let elapsed = 0;
       let ended = false;
       let heading = 0;
@@ -78,7 +97,6 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
       let camelSighted = false;
       let timeScale = 1;    // slam cinematic slow-mo
       let slamT = 0;        // cinematic recovery countdown (real seconds)
-      let exhaustion = 0;
 
       interface Debris { mesh: THREE.Mesh; vel: THREE.Vector3; life: number }
       const debris: Debris[] = [];
@@ -114,11 +132,36 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
         if (b) spawnDebris(b.translation(), Smashable.points[eid]);
         reg.remove(eid, physics.world, scene);
         removeEntity(ecs, eid);
-        bus.emit({ type: "scoreChanged", destruction: destructionScore, rescue: 0 });
+        bus.emit({ type: "scoreChanged", destruction: destructionScore, rescue: rescueScore });
+        if (byCamel) record("lure_executed", t);
+        else if (combo.chain >= 8 && elapsed - sinceSpreeEvent > 20) {
+          sinceSpreeEvent = elapsed;
+          record("destruction_spree", t);
+        }
+      };
+
+      const addEntityLocal = (): number => {
+        const eid = addEntity(ecs);
+        addComponent(ecs, Rescueable, eid);
+        Rescueable.kind[eid] = 3; // dropped ice cream
+        Rescueable.points[eid] = 20;
+        return eid;
+      };
+
+      const record = (type: Parameters<JudgeLog["add"]>[0], t: number): void => {
+        const n = judge.add(type, rage.rage, t);
+        // escalating triggers: third scare, second camel'd, etc.
+        const trigger =
+          type === "child_scared" && n >= 3 ? "child_scared_x3" :
+          type === "cameld" && n >= 2 ? "cameld_x2" : type;
+        const line = comments.serve(trigger, judge.band(), t);
+        if (line) bus.emit({ type: "judgeCommentQueued", i18nKey: line });
       };
 
       const consume = (eid: number): void => {
-        rage.sink(Pickup.kind[eid] === 0 ? "beer_generic" : "wine");
+        const isWine = Pickup.kind[eid] === 1;
+        rage.sink(isWine ? "wine" : "beer_generic");
+        if (isWine) record("wine_found", elapsed);
         reg.remove(eid, physics.world, scene);
         removeEntity(ecs, eid);
       };
@@ -179,6 +222,7 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
         } else {
           rage.setTo(40); // dazed respawn — ADR-013
           bus.emit({ type: "maxRageResolved", via: "camel" });
+          record("cameld", elapsed);
         }
         maxRage.reset();
       };
@@ -188,6 +232,7 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
           maxRage.calm();
           rage.setTo(tuning.maxrage.photo_rage_floor); // saved, still simmering
           bus.emit({ type: "maxRageResolved", via: "photo" });
+          record("photo_calm_used", elapsed);
           maxRage.reset();
         }
         if (c.type === "refusePhoto") {
@@ -223,8 +268,6 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
             if (elapsed >= SESSION_S) endSession("timer");
             bus.emit({ type: "timerTick", remainingS: Math.max(0, SESSION_S - elapsed) });
             rage.tick(dt);
-            if (rage.rage >= 100) exhaustion = Math.min(1, exhaustion + dt / 8);   // spent in ~8s
-            else exhaustion = Math.max(0, exhaustion - dt / 3); 
           } else if (maxRage.tick(rawDt) === "timeout") {
             spawnCamel(true); // she is on her own now
           }
@@ -274,18 +317,97 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
               heading = lerpAngle(heading, want, 1 - Math.exp(-AUTHORITY * dt));
             }
 
-            const speed = BASE_SPEED * params.speed * (1 - 0.55 * exhaustion);
+            const speed = BASE_SPEED * params.speed;
             const vy = cowBody.linvel().y;
             cowBody.setLinvel({ x: Math.sin(heading) * speed, y: vy, z: Math.cos(heading) * speed }, true);
           }
 
-          // heat decays; a real rampage summons him early (150 now)
+          // --- rescueables: serene-band dwell to rescue; hesitation watched ---
+          if (!waiting && slamT <= 0) {
+            const cpr = cowBody.translation();
+            for (const eid of rescueQuery(ecs)) {
+              const b = reg.bodies.get(eid);
+              if (!b) continue;
+              const p = b.translation();
+              const dist = Math.hypot(p.x - cpr.x, p.z - cpr.z);
+
+              let rescuedNow = false;
+              if (rage.band === "serene" && dist < 2.5) {
+                const d = (rescueDwell.get(eid) ?? 0) + dt;
+                rescueDwell.set(eid, d);
+                if (d >= 1.2) {
+                  rescuedNow = true;
+                  const isTreat = Rescueable.kind[eid] === 3;
+                  rescueScore += Rescueable.points[eid];
+                  record(isTreat ? "child_helped" : "rescue_completed", elapsed);
+                  bus.emit({ type: "scoreChanged", destruction: destructionScore, rescue: rescueScore });
+                  reg.remove(eid, physics.world, scene);
+                  removeEntity(ecs, eid);
+                  rescueDwell.delete(eid);
+                  hesitations.delete(eid);
+                }
+              } else if (dist > 3.5) {
+                rescueDwell.delete(eid);
+              }
+
+              if (!rescuedNow) {
+                let det = hesitations.get(eid);
+                if (!det) { det = new HesitationDetector(); hesitations.set(eid, det); }
+                const verdict = det.step(dt, dist, false);
+                if (verdict) record(verdict, elapsed);
+              }
+            }
+
+            // --- children: flee brains; scaring is seen; treats get dropped ---
+            const cowSpd = Math.hypot(cowBody.linvel().x, cowBody.linvel().z);
+            for (const eid of childQuery(ecs)) {
+              const b = reg.bodies.get(eid);
+              if (!b) continue;
+              let brain = childBrains.get(eid);
+              if (!brain) { brain = new ChildBrain(eid * 1.7); childBrains.set(eid, brain); }
+              const p = b.translation();
+              const step = brain.step(dt, { x: p.x, z: p.z }, { x: cpr.x, z: cpr.z }, cowSpd);
+              const hw = KYRENIA_HALF - 3;
+              b.setNextKinematicTranslation({
+                x: Math.max(-hw, Math.min(hw, p.x + step.vx * dt)),
+                y: 0,
+                z: Math.max(-hw, Math.min(38, p.z + step.vz * dt)),
+              });
+              const m = reg.meshes.get(eid);
+              if (m && (step.vx || step.vz)) m.lookAt(p.x + step.vx, 0, p.z + step.vz);
+
+              const cool = (childScareCooldown.get(eid) ?? 0) - dt;
+              childScareCooldown.set(eid, cool);
+              if (step.scared && cool <= 0) {
+                childScareCooldown.set(eid, 12);
+                record("child_scared", elapsed);
+                if (!childDroppedTreat.has(eid)) {
+                  childDroppedTreat.add(eid);
+                  // the dropped ice cream becomes a rescueable — the redemption object
+                  const tEid = addEntityLocal();
+                  const mesh = buildIceCream();
+                  mesh.position.set(p.x, 0, p.z);
+                  scene.add(mesh);
+                  const tBody = physics.world.createRigidBody(
+                    physics.R.RigidBodyDesc.fixed().setTranslation(p.x, 0, p.z),
+                  );
+                  const tCol = physics.world.createCollider(
+                    physics.R.ColliderDesc.cuboid(0.3, 0.3, 0.3).setSensor(true),
+                    tBody,
+                  );
+                  reg.register(tEid, tBody, mesh, tCol);
+                }
+              }
+            }
+          }
+
+          // heat decays; a real rampage summons him early (450 ≈ 30 boxes net)
           heat = Math.max(0, heat - 8 * dt);
           if (camelEid === -1 && heat >= tuning.camel.heat_early_spawn_threshold) {
             heat = 0;
             spawnCamel(false);
           }
-          // scheduled beat — guaranteed once per session 
+          // scheduled beat — guaranteed once per session (01_GAME_LOOP §3.1)
           if (camelEid === -1 && elapsed >= camelScheduledAt) {
             camelScheduledAt = Infinity;
             spawnCamel(false);
@@ -322,7 +444,7 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
               const e2 = reg.colliderToEid.get(h2);
               if (e1 === undefined || e2 === undefined) return;
 
-              // the Lure: his collisions score for you at 1.5x 
+              // the Lure: his collisions score for you at 1.5x (01_GAME_LOOP §6.2)
               if ((e1 === camelEid || e2 === camelEid) && camelEid !== -1) {
                 const other = e1 === camelEid ? e2 : e1;
                 if (hasComponent(ecs, Smashable, other)) smash(other, elapsed, true);
