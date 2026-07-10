@@ -24,5 +24,7 @@
   "cameld.respawn": "Sie ist aufgestanden. Gerade so.",
   "hud.score": "PUNKTE",
   "session.over": "SITZUNG BEENDET",
-  "session.again": "nochmal"
+  "session.again": "nochmal",
+  "hud.havoc": "CHAOS",
+  "hud.grace": "GNADE"
 }

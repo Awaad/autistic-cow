@@ -24,5 +24,7 @@
   "cameld.respawn": "She got up. Barely.",
   "hud.score": "SCORE",
   "session.over": "SESSION OVER",
-  "session.again": "again"
+  "session.again": "again",
+  "hud.havoc": "HAVOC",
+  "hud.grace": "GRACE"
 }

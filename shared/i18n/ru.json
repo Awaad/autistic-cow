@@ -24,5 +24,7 @@
   "cameld.respawn": "Она встала. Еле-еле.",
   "hud.score": "СЧЁТ",
   "session.over": "СЕАНС ОКОНЧЕН",
-  "session.again": "ещё раз"
+  "session.again": "ещё раз",
+  "hud.havoc": "ХАОС",
+  "hud.grace": "МИЛОСТЬ"
 }
