@@ -23,28 +23,39 @@ describe("the camel (GAME_LOOP)", () => {
     expect(Math.hypot(cow.x - self.x, cow.z - self.z)).toBeLessThan(d0);
   });
 
-  it("slams within reach, then leaves", () => {
-    const c = new CamelBrain(COW_SPEED);
-    c.spawn();
-    const s = c.step(1 / 60, { x: 0, z: 0 }, { x: 1, z: 0 });
-    expect(s.slam).toBe(true);
-    expect(c.state).toBe("leaving");
-  });
+  it("slams within reach, then STANDS over her before leaving", () => {
+      const c = new CamelBrain(COW_SPEED);
+      c.spawn();
+      const s = c.step(1 / 60, { x: 0, z: 0 }, { x: 1, z: 0 });
+      expect(s.slam).toBe(true);
+      expect(c.state).toBe("standing");
+      // motionless while standing
+      const mid = c.step(0.5, { x: 0, z: 0 }, { x: 1, z: 0 });
+      expect(mid.vx).toBe(0);
+      expect(mid.vz).toBe(0);
+      expect(c.state).toBe("standing");
+      // stand timer elapses -> leaving
+      c.step(1.2, { x: 0, z: 0 }, { x: 1, z: 0 });
+      expect(c.state).toBe("leaving");
+    });
+  
 
   it("loses interest after the pursuit window", () => {
-    const c = new CamelBrain(COW_SPEED);
-    c.spawn();
-    // cow keeps pace forever: he should give up, not chase eternally
-    for (let i = 0; i < 26 * 60; i++) c.step(1 / 60, { x: 0, z: 0 }, { x: 50, z: 0 });
-    expect(c.state).toBe("leaving");
-  });
+      const c = new CamelBrain(COW_SPEED);
+      c.spawn();
+      for (let i = 0; i < 26 * 60; i++) c.step(1 / 60, { x: 0, z: 0 }, { x: 50, z: 0 });
+      expect(c.state).toBe("leaving");
+    });
+
 
   it("despawns far from the cow while leaving", () => {
-    const c = new CamelBrain(COW_SPEED);
-    c.spawn();
-    c.step(1 / 60, { x: 0, z: 0 }, { x: 1, z: 0 }); // slam -> leaving
-    const s = c.step(1 / 60, { x: 200, z: 0 }, { x: 0, z: 0 });
-    expect(s.despawn).toBe(true);
-    expect(c.state).toBe("absent");
+      const c = new CamelBrain(COW_SPEED);
+      c.spawn();
+      c.step(1 / 60, { x: 0, z: 0 }, { x: 1, z: 0 }); // slam -> standing
+      c.step(2, { x: 0, z: 0 }, { x: 1, z: 0 });      // stand timer -> leaving
+      const s = c.step(1 / 60, { x: 200, z: 0 }, { x: 0, z: 0 });
+      expect(s.despawn).toBe(true);
+      expect(c.state).toBe("absent");
+    });
   });
-});
+  
