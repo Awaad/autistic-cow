@@ -1,5 +1,4 @@
-/** Engine entry — Stage 2 Drop 1, revision B (post-founder-playtest).
- * Changes vs A: heat guarded (his noise doesn't summon him), sighting spike
+/** Engine entry — (post-playtest).
  * fires once per encounter, prompt gated on camel absence (when he's present,
  * HE is the resolution), photo floor 35 (wine is the only true zero),
  * trauma-based shake, slam cinematic (slow-mo + ragdoll + he stands over her). */
@@ -46,7 +45,7 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
 
       const ecs = createWorld();
       const reg = new Registry();
-      const seed = Math.floor(Math.random() * 2 ** 31); // Stage 3: server-issued
+      const seed = Math.floor(Math.random() * 2 ** 31); // Later: server-issued
       const { scene, cowBody } = buildGreybox(physics, ecs, reg, seed, {
         smashables: 80,
         beer: 6,
@@ -83,6 +82,7 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
       let camelSighted = false;
       let timeScale = 1;    // slam cinematic slow-mo
       let slamT = 0;        // cinematic recovery countdown (real seconds)
+      let exhaustion = 0;
 
       interface Debris { mesh: THREE.Mesh; vel: THREE.Vector3; life: number }
       const debris: Debris[] = [];
@@ -227,6 +227,8 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
             if (elapsed >= SESSION_S) endSession("timer");
             bus.emit({ type: "timerTick", remainingS: Math.max(0, SESSION_S - elapsed) });
             rage.tick(dt);
+            if (rage.rage >= 100) exhaustion = Math.min(1, exhaustion + dt / 8);   // spent in ~8s
+            else exhaustion = Math.max(0, exhaustion - dt / 3); 
           } else if (maxRage.tick(rawDt) === "timeout") {
             spawnCamel(true); // she is on her own now
           }
@@ -276,18 +278,18 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
               heading = lerpAngle(heading, want, 1 - Math.exp(-AUTHORITY * dt));
             }
 
-            const speed = BASE_SPEED * params.speed;
+            const speed = BASE_SPEED * params.speed * (1 - 0.55 * exhaustion);
             const vy = cowBody.linvel().y;
             cowBody.setLinvel({ x: Math.sin(heading) * speed, y: vy, z: Math.cos(heading) * speed }, true);
           }
 
-          // heat decays; a real rampage summons him early (450 ≈ 30 boxes net)
+          // heat decays; a real rampage summons him early (150 now)
           heat = Math.max(0, heat - 8 * dt);
           if (camelEid === -1 && heat >= tuning.camel.heat_early_spawn_threshold) {
             heat = 0;
             spawnCamel(false);
           }
-          // scheduled beat — guaranteed once per session (01_GAME_LOOP §3.1)
+          // scheduled beat — guaranteed once per session 
           if (camelEid === -1 && elapsed >= camelScheduledAt) {
             camelScheduledAt = Infinity;
             spawnCamel(false);
@@ -324,7 +326,7 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
               const e2 = reg.colliderToEid.get(h2);
               if (e1 === undefined || e2 === undefined) return;
 
-              // the Lure: his collisions score for you at 1.5x (01_GAME_LOOP §6.2)
+              // the Lure: his collisions score for you at 1.5x 
               if ((e1 === camelEid || e2 === camelEid) && camelEid !== -1) {
                 const other = e1 === camelEid ? e2 : e1;
                 if (hasComponent(ecs, Smashable, other)) smash(other, elapsed, true);
