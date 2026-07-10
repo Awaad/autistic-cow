@@ -1,6 +1,8 @@
-/** Engine entry — Stage 2: max-rage resolution, the camel, Nerves.
- * Berserk is a corridor, not a room: rage 100 now RESOLVES (photo or camel).
- * ADR-012 steering; ADR-013 economy (nerves are amoral). */
+/** Engine entry — Stage 2 Drop 1, revision B (post-founder-playtest).
+ * Changes vs A: heat guarded (his noise doesn't summon him), sighting spike
+ * fires once per encounter, prompt gated on camel absence (when he's present,
+ * HE is the resolution), photo floor 35 (wine is the only true zero),
+ * trauma-based shake, slam cinematic (slow-mo + ragdoll + he stands over her). */
 import * as THREE from "three";
 import { createWorld, defineQuery, hasComponent, removeEntity } from "bitecs";
 import { bus, commands } from "./bus";
@@ -18,7 +20,7 @@ import { ComboTracker } from "../systems/combo";
 import { MaxRageDirector } from "../systems/maxrage";
 import { CamelBrain } from "../systems/camel";
 
-const SESSION_S = tuning.session.target_minutes_min * 30;
+const SESSION_S = tuning.session.target_minutes_min * 60;
 const SMASH_MIN_SPEED = 3;
 const BASE_SPEED = 9;
 const NERVES_START = 3;
@@ -72,13 +74,15 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
       let elapsed = 0;
       let ended = false;
       let heading = 0;
-      let shake = 0;
+      let trauma = 0;       // camera shake energy (squared on application)
+      let heat = 0;         // her noise; summons him at threshold
       let nerves = NERVES_START;
-      let camelSighted = false;
       let camelEid = -1;
       let camelBody: import("@dimforge/rapier3d-compat").RigidBody | null = null;
       let camelScheduledAt = SESSION_S * tuning.camel.scheduled_beat_pct;
-      let heat = 0;
+      let camelSighted = false;
+      let timeScale = 1;    // slam cinematic slow-mo
+      let slamT = 0;        // cinematic recovery countdown (real seconds)
 
       interface Debris { mesh: THREE.Mesh; vel: THREE.Vector3; life: number }
       const debris: Debris[] = [];
@@ -105,13 +109,11 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
         const params = bandParams(rage.band);
         const lure = byCamel ? tuning.camel.lure_score_mult : 1;
         destructionScore += Math.round(Smashable.points[eid] * params.damage * combo.multiplier(t) * lure);
-        if (!byCamel) rage.add(2); // her spiral, not his — tuning.json: rage.triggers.smash
-        
         if (!byCamel) {
-          rage.add(2);
+          rage.add(2); // her spiral, not his — migrate to tuning: rage.triggers.smash
           heat += Smashable.points[eid]; // her noise summons him; his doesn't
         }
-        shake = Math.min(1, shake + 0.25 * params.damage);
+        trauma = Math.min(1, trauma + 0.25 * params.damage);
         const b = reg.bodies.get(eid);
         if (b) spawnDebris(b.translation(), Smashable.points[eid]);
         reg.remove(eid, physics.world, scene);
@@ -142,7 +144,7 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
         camelEid = spawned.eid;
         camelBody = spawned.body;
         camel.spawn();
-        camelSighted = false;
+        camelSighted = false; // the spike is per-encounter
         bus.emit({ type: "camelStateChanged", state: "approaching" });
       };
 
@@ -162,13 +164,17 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
       };
 
       const slamCow = (): void => {
-        // slapstick: up and away, stars implied (real animation: Stage 4)
+        // THE moment: slow-motion, ragdoll tumble, he stands over her.
         const cv = camelBody?.translation();
         const cp = cowBody.translation();
         const dir = cv ? { x: cp.x - cv.x, z: cp.z - cv.z } : { x: 1, z: 0 };
         const len = Math.hypot(dir.x, dir.z) || 1;
+        cowBody.lockRotations(false, true); // ragdoll: she tumbles
         cowBody.applyImpulse({ x: (dir.x / len) * 60, y: 45, z: (dir.z / len) * 60 }, true);
-        shake = 1;
+        cowBody.applyTorqueImpulse({ x: 25, y: 10, z: 25 }, true);
+        timeScale = 0.3;
+        slamT = 1.8;
+        trauma = 1;
         nerves -= 1;
         bus.emit({ type: "nervesChanged", remaining: nerves });
         combo.break_();
@@ -184,7 +190,7 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
       const unsubCommands = commands.subscribe((c) => {
         if (c.type === "photoProvided" && maxRage.current === "waiting") {
           maxRage.calm();
-          rage.setTo(0);
+          rage.setTo(tuning.maxrage.photo_rage_floor); // saved, still simmering
           bus.emit({ type: "maxRageResolved", via: "photo" });
           maxRage.reset();
         }
@@ -199,8 +205,19 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
       let raf = 0;
 
       const frame = (now: number): void => {
-        const dt = Math.min(0.1, (now - last) / 1000);
+        const rawDt = Math.min(0.1, (now - last) / 1000);
         last = now;
+        const dt = rawDt * timeScale; // slam cinematic slows the world, not the wall clock
+
+        // cinematic recovery runs on real time
+        if (slamT > 0) {
+          slamT -= rawDt;
+          if (slamT <= 0) {
+            timeScale = 1;
+            cowBody.lockRotations(true, true);
+            cowBody.setRotation({ x: 0, y: 0, z: 0, w: 1 }, true);
+          }
+        }
 
         const waiting = maxRage.current === "waiting";
 
@@ -210,19 +227,20 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
             if (elapsed >= SESSION_S) endSession("timer");
             bus.emit({ type: "timerTick", remainingS: Math.max(0, SESSION_S - elapsed) });
             rage.tick(dt);
-          } else if (maxRage.tick(dt) === "timeout") {
+          } else if (maxRage.tick(rawDt) === "timeout") {
             spawnCamel(true); // she is on her own now
           }
 
           const params = bandParams(rage.band);
 
-          if (maxRage.maybeStart(rage.rage)) {
+          // mercy is only offered while he's away; when present, HE resolves it
+          if (camelEid === -1 && maxRage.maybeStart(rage.rage)) {
             cowBody.setLinvel({ x: 0, y: cowBody.linvel().y, z: 0 }, true);
             bus.emit({ type: "maxRageResolutionStarted", timerS: tuning.maxrage.decision_timer_s });
           }
 
-          if (!waiting) {
-            // ADR-012: her will first, your authority last
+          if (!waiting && slamT <= 0) {
+            // ADR-012: her will first, her fear second, your authority last
             const SEEK = { serene: 0.4, irritated: 1.2, furious: 2.2, berserk: 4.5 }[rage.band];
             const AUTHORITY = { serene: 7, irritated: 4.5, furious: 3.4, berserk: 1.1 }[rage.band];
 
@@ -241,11 +259,8 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
               const toward = Math.atan2(best.x - cp0.x, best.z - cp0.z);
               heading = lerpAngle(heading, toward, 1 - Math.exp(-SEEK * dt));
             }
-            if (Math.hypot(input.state.x, input.state.z) > 0.01) {
-              const want = Math.atan2(input.state.x, input.state.z);
-              heading = lerpAngle(heading, want, 1 - Math.exp(-AUTHORITY * dt));
-            }
 
+            // her one fear outranks her appetite
             if (camelEid !== -1 && camel.state === "approaching" && camelBody) {
               const cv = camelBody.translation();
               const d = Math.hypot(cv.x - cp0.x, cv.z - cp0.z);
@@ -256,23 +271,29 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
               }
             }
 
+            if (Math.hypot(input.state.x, input.state.z) > 0.01) {
+              const want = Math.atan2(input.state.x, input.state.z);
+              heading = lerpAngle(heading, want, 1 - Math.exp(-AUTHORITY * dt));
+            }
+
             const speed = BASE_SPEED * params.speed;
             const vy = cowBody.linvel().y;
             cowBody.setLinvel({ x: Math.sin(heading) * speed, y: vy, z: Math.cos(heading) * speed }, true);
           }
 
-          // scheduled camel beat — guaranteed once per session (GAME_LOOP)
+          // heat decays; a real rampage summons him early (450 ≈ 30 boxes net)
           heat = Math.max(0, heat - 8 * dt);
           if (camelEid === -1 && heat >= tuning.camel.heat_early_spawn_threshold) {
             heat = 0;
             spawnCamel(false);
           }
+          // scheduled beat — guaranteed once per session (01_GAME_LOOP §3.1)
           if (camelEid === -1 && elapsed >= camelScheduledAt) {
             camelScheduledAt = Infinity;
             spawnCamel(false);
           }
 
-          // camel update (walks during play AND during the cinematic aftermath)
+          // camel update
           if (camelEid !== -1 && camelBody) {
             const cvp = camelBody.translation();
             const cpp = cowBody.translation();
@@ -285,7 +306,7 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
             if (step.slam) slamCow();
             if (step.despawn) despawnCamel();
 
-            // sight of him feeds her fear (which feeds him) — cooldown-gated
+            // first sighting spikes her — once per encounter, not a drumbeat
             if (camel.state === "approaching" && !camelSighted && !waiting) {
               const d = Math.hypot(cvp.x - cpp.x, cvp.z - cpp.z);
               if (d < 45) {
@@ -303,7 +324,7 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
               const e2 = reg.colliderToEid.get(h2);
               if (e1 === undefined || e2 === undefined) return;
 
-              // the Lure: his collisions score for you at 1.5x (GAME_LOOP)
+              // the Lure: his collisions score for you at 1.5x (01_GAME_LOOP §6.2)
               if ((e1 === camelEid || e2 === camelEid) && camelEid !== -1) {
                 const other = e1 === camelEid ? e2 : e1;
                 if (hasComponent(ecs, Smashable, other)) smash(other, elapsed, true);
@@ -329,7 +350,7 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
             acc -= FIXED;
           }
 
-          // debris: confetti, not physics
+          // debris: confetti, not physics (slows with the world — free slow-mo juice)
           for (let i = debris.length - 1; i >= 0; i--) {
             const d = debris[i];
             d.life -= dt;
@@ -345,7 +366,7 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
             d.mesh.rotation.z += 6 * dt;
             (d.mesh.material as THREE.MeshStandardMaterial).opacity = d.life / 0.7;
           }
-          shake *= Math.exp(-6 * dt);
+          trauma = Math.max(0, trauma - 1.8 * rawDt);
         }
 
         for (const [eid, body] of reg.bodies) {
@@ -364,9 +385,13 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
 
         const cp = cowBody.translation();
         camera.position.lerp(new THREE.Vector3(cp.x, cp.y + 12, cp.z + 16), 0.08);
-        camera.position.x += (Math.random() - 0.5) * shake;
-        camera.position.y += (Math.random() - 0.5) * shake;
         camera.lookAt(cp.x, cp.y, cp.z);
+        // trauma shake: smooth oscillation + roll (impact, not malfunction)
+        const sh = trauma * trauma;
+        const tms = now / 1000;
+        camera.position.x += Math.sin(tms * 47) * sh * 0.5;
+        camera.position.y += Math.cos(tms * 39) * sh * 0.4;
+        camera.rotation.z += Math.sin(tms * 53) * sh * 0.03;
 
         renderer.render(scene, camera);
         raf = requestAnimationFrame(frame);
