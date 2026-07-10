@@ -26,5 +26,7 @@
   "session.over": "SITZUNG BEENDET",
   "session.again": "nochmal",
   "hud.havoc": "CHAOS",
-  "hud.grace": "GNADE"
+  "hud.grace": "GNADE",
+   "rescue.too_worked_up": "Sie ist zu aufgewühlt für Sanftmut. Finden Sie Bier.",
+  "rescue.soothing": "Ruhig halten... sie ist gerade sanft."
 }

@@ -12,6 +12,7 @@ export type GameEvent =
   | { type: "maxRageResolutionStarted"; timerS: number }
   | { type: "maxRageResolved"; via: "photo" | "camel" }
   | { type: "judgeCommentQueued"; i18nKey: string }
+  | { type: "rescueHint"; state: "none" | "calm_needed" | "soothing"; pct: number }
   | { type: "bootError"; message: string }
   | { type: "sessionEnded"; reason: "timer" | "cameld" | "player_exit" };
 

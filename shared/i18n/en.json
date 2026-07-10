@@ -26,5 +26,7 @@
   "session.over": "SESSION OVER",
   "session.again": "again",
   "hud.havoc": "HAVOC",
-  "hud.grace": "GRACE"
+  "hud.grace": "GRACE",
+  "rescue.too_worked_up": "She's too worked up to be gentle. Find beer.",
+  "rescue.soothing": "Hold still... she's being gentle."
 }

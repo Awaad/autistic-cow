@@ -26,5 +26,8 @@
   "session.over": "СЕАНС ОКОНЧЕН",
   "session.again": "ещё раз",
   "hud.havoc": "ХАОС",
-  "hud.grace": "МИЛОСТЬ"
+  "hud.grace": "МИЛОСТЬ",
+  "rescue.too_worked_up": "Она слишком взвинчена для нежностей. Найди пиво.",
+  "rescue.soothing": "Замри... она сейчас нежная."
 }
+
