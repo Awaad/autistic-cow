@@ -9,6 +9,7 @@ export interface BuildingSpec {
   venue?: string; // matches venues.slug for missions later
 }
 
+
 export interface Vec2 { x: number; z: number }
 
 export const KYRENIA = {
@@ -60,6 +61,16 @@ export const KYRENIA = {
   // wine hides (one chosen per session by seed): behind, between, forgotten
   wineHides: [
     { x: -55, z: -35 }, { x: 58, z: 12 }, { x: 0, z: -28 }, { x: -33, z: 18 },
+  ] as Vec2[],
+
+  rescueSpots: [
+    { x: -34, z: 22, kind: 0 }, { x: 24, z: 18, kind: 1 }, { x: 2, z: 24, kind: 2 },
+    { x: -10, z: -8, kind: 0 }, { x: 40, z: -4, kind: 1 }, { x: -50, z: -8, kind: 0 },
+    { x: 16, z: -14, kind: 1 }, { x: -24, z: 14, kind: 2 },
+  ] as Array<Vec2 & { kind: number }>,
+
+  childZones: [
+    { x: -6, z: 20 }, { x: 8, z: 24 }, { x: -30, z: 36 }, { x: 30, z: 36 },
   ] as Vec2[],
 
   cowStart: { x: 0, z: -5 } as Vec2,
