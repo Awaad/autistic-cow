@@ -42,10 +42,10 @@ export const KYRENIA = {
   ] as BuildingSpec[],
 
   // the market square: dense smashables between the arms (her buffet)
-  marketBounds: { x0: -12, x1: 12, z0: 12, z1: 28 },
-  stallCount: 10,
-  crateCount: 26,
-  scooterCount: 6,
+  marketBounds: { x0: -12, x1: 12, z0: 12, z1: 38 },
+  stallCount: 20,
+  crateCount: 36,
+  scooterCount: 16,
 
   palms: [
     { x: -58, z: 38 }, { x: -22, z: 39 }, { x: 0, z: 40 }, { x: 22, z: 39 }, { x: 58, z: 38 },
