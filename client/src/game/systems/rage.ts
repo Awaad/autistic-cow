@@ -29,6 +29,12 @@ export class RageMeter {
     if (typeof d === "number") this.add(d);
   }
 
+  /** Hard set (max-rage resolution outcomes: photo -> 0, dazed respawn -> 40). */
+  setTo(v: number): void {
+    this.value = Math.max(0, Math.min(100, v));
+    this.add(0); // reuse clamp+emit path
+  }
+
   get rage(): number {
     return this.value;
   }
