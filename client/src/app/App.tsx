@@ -11,6 +11,7 @@ export function App() {
   const [score, setScore] = useState(0);
   const [grace, setGrace] = useState(0);
   const [judgeLine, setJudgeLine] = useState<string | null>(null);
+  const [rescueHint, setRescueHint] = useState<{ state: string; pct: number }>({ state: "none", pct: 0 });
   const [remaining, setRemaining] = useState<number | null>(null);
   const [nerves, setNerves] = useState(3);
   const [camelNear, setCamelNear] = useState(false);
@@ -30,6 +31,7 @@ export function App() {
       if (e.type === "rageChanged") { setRage(e.value); setBand(e.band); }
       if (e.type === "scoreChanged") { setScore(e.destruction); setGrace(e.rescue); }
       if (e.type === "judgeCommentQueued") setJudgeLine(e.i18nKey);
+      if (e.type === "rescueHint") setRescueHint({ state: e.state, pct: e.pct });
       if (e.type === "timerTick") setRemaining(e.remainingS);
       if (e.type === "nervesChanged") setNerves(e.remaining);
       if (e.type === "camelStateChanged") setCamelNear(e.state === "approaching");
@@ -74,6 +76,17 @@ export function App() {
 
       {judgeLine && <div style={judgeToast}>{judgeLine}</div>}
 
+      {rescueHint.state !== "none" && !promptTimer && !endedReason && (
+        <div style={rescueHintBox}>
+          {rescueHint.state === "calm_needed" ? t("rescue.too_worked_up") : t("rescue.soothing")}
+          {rescueHint.state === "soothing" && (
+            <div style={soothTrack}>
+              <div style={{ ...soothFill, width: `${Math.round(rescueHint.pct * 100)}%` }} />
+            </div>
+          )}
+        </div>
+      )}
+
       <div style={rageWrap}>
         <div style={{ marginBottom: 4, textTransform: "uppercase" }}>rage {Math.round(rage)} — {band}</div>
         <div style={rageTrack}>
@@ -115,8 +128,15 @@ const mono: React.CSSProperties = { color: "#fff", fontFamily: "monospace" };
 const hud: React.CSSProperties = { ...mono, position: "absolute", top: 16, left: 16, right: 16,
   display: "flex", justifyContent: "space-between", fontSize: 18 };
 const judgeToast: React.CSSProperties = { color: "#d8d4e8", fontFamily: "monospace",
-  position: "absolute", bottom: 90, left: 0, right: 0, textAlign: "center",
-  fontSize: 15, fontStyle: "italic", opacity: 0.9, padding: "0 40px" };
+  position: "absolute", top: 84, left: 0, right: 0, textAlign: "center",
+  fontSize: 16, fontStyle: "italic", opacity: 0.95, padding: "0 40px",
+  textShadow: "0 1px 6px #000" };
+const rescueHintBox: React.CSSProperties = { color: "#fff", fontFamily: "monospace",
+  position: "absolute", bottom: 96, left: 0, right: 0, textAlign: "center", fontSize: 15 };
+const soothTrack: React.CSSProperties = { height: 6, width: 180, margin: "6px auto 0",
+  background: "#00000066", borderRadius: 3, overflow: "hidden" };
+const soothFill: React.CSSProperties = { height: "100%", background: "#7ac74f",
+  transition: "width 80ms linear" };
 const camelBanner: React.CSSProperties = { ...mono, position: "absolute", top: 56, left: 0, right: 0,
   textAlign: "center", fontSize: 16, letterSpacing: 4, opacity: 0.85 };
 const rageWrap: React.CSSProperties = { ...mono, position: "absolute", left: 40, right: 40, bottom: 28 };
