@@ -178,7 +178,7 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
         // HER WILL: always seeking the nearest smashable — grows with rage
         const SEEK      = { serene: 0.4, irritated: 1.3, furious: 2.6, berserk: 4.5 }[rage.band];
         // YOUR AUTHORITY: counter-steer strength — shrinks with rage
-        const AUTHORITY = { serene: 7,   irritated: 4.5, furious: 2.4, berserk: 1.001 }[rage.band];
+        const AUTHORITY = { serene: 7,   irritated: 4.5, furious: 2.4, berserk: 1.51 }[rage.band];
 
         // her intent first
         const cp0 = cowBody.translation();
