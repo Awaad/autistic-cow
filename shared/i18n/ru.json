@@ -13,5 +13,16 @@
   "judge.title.whisperer": "Заклинательница коров",
   "settings.consent.herd_album": "Сохранять мои фото в альбом «Стадо»",
   "settings.consent.marketing_profiling": "Делиться данными со спонсорами",
-  "settings.consent.real_location_ar": "AR-миссии по реальной геолокации"
+  "settings.consent.real_location_ar": "AR-миссии по реальной геолокации",
+  "cow.default_name": "Eina",
+  "naming.unlock": "Уровень 3. Она заслужила имя. И ты тоже.",
+  "naming.placeholder": "Назови её",
+  "maxrage.show_button": "Покажи ей",
+  "maxrage.refuse_button": "Отпусти её",
+  "camel.warning": "Что-то приближается.",
+  "nerves.label": "НЕРВ",
+  "cameld.respawn": "Она встала. Еле-еле.",
+  "hud.score": "СЧЁТ",
+  "session.over": "СЕАНС ОКОНЧЕН",
+  "session.again": "ещё раз"
 }

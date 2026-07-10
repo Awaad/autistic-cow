@@ -13,5 +13,16 @@
   "judge.title.whisperer": "Kuhflüsterin",
   "settings.consent.herd_album": "Meine Fotos im Herden-Album speichern",
   "settings.consent.marketing_profiling": "Meine Daten mit Sponsoren teilen",
-  "settings.consent.real_location_ar": "AR-Missionen mit echtem Standort aktivieren"
+  "settings.consent.real_location_ar": "AR-Missionen mit echtem Standort aktivieren",
+  "cow.default_name": "Eina",
+  "naming.unlock": "Stufe 3. Sie hat sich einen Namen verdient. Sie auch.",
+  "naming.placeholder": "Geben Sie ihr einen Namen",
+  "maxrage.show_button": "Zeigen Sie es ihr",
+  "maxrage.refuse_button": "Lassen Sie sie gehen",
+  "camel.warning": "Etwas kommt.",
+  "nerves.label": "NERV",
+  "cameld.respawn": "Sie ist aufgestanden. Gerade so.",
+  "hud.score": "PUNKTE",
+  "session.over": "SITZUNG BEENDET",
+  "session.again": "nochmal"
 }

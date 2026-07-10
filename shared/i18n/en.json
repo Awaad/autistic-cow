@@ -13,5 +13,16 @@
   "judge.title.whisperer": "Cow Whisperer",
   "settings.consent.herd_album": "Save my photos to my Herd album",
   "settings.consent.marketing_profiling": "Share my vibe",
-  "settings.consent.real_location_ar": "Enable real-world AR missions"
+  "settings.consent.real_location_ar": "Enable real-world AR missions",
+  "cow.default_name": "Eina", 
+  "naming.unlock": "Level 3. She's earned a name. So have you.",
+  "naming.placeholder": "Name her",
+  "maxrage.show_button": "Show her",
+  "maxrage.refuse_button": "Let her go",
+  "camel.warning": "Something is coming.",
+  "nerves.label": "NERVE",
+  "cameld.respawn": "She got up. Barely.",
+  "hud.score": "SCORE",
+  "session.over": "SESSION OVER",
+  "session.again": "again"
 }
