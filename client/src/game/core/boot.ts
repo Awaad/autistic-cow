@@ -12,7 +12,7 @@ import { seededRng } from "./rng";
 import { createPhysics } from "../physics/world";
 import { Registry } from "../ecs/registry";
 import { Pickup, Smashable } from "../ecs/components";
-import { buildGreybox } from "../scenes/greybox";
+import { buildKyrenia } from "../scenes/kyrenia";
 import { spawnCamelEntity } from "../scenes/camelSpawn";
 import { RageMeter } from "../systems/rage";
 import { ComboTracker } from "../systems/combo";
@@ -45,12 +45,8 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
 
       const ecs = createWorld();
       const reg = new Registry();
-      const seed = Math.floor(Math.random() * 2 ** 31); // Later: server-issued
-      const { scene, cowBody } = buildGreybox(physics, ecs, reg, seed, {
-        smashables: 80,
-        beer: 6,
-        wine_chance: 0.33,
-      });
+      const seed = Math.floor(Math.random() * 2 ** 31); // Stage 3: server-issued
+      const { scene, cowBody } = buildKyrenia(physics, ecs, reg, seed);
 
       const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
       const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 300);
