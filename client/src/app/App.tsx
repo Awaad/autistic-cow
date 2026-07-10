@@ -3,12 +3,14 @@ import { bootGame } from "@game/core/boot";
 import { bus, commands, type RageBand } from "../game/core/bus";
 import { t } from "../i18n";
 
-/** React shell. The engine below the canvas is a React-free zone. */
+/** React shell. The engine below the canvas is a React-free zone (Repo Law 1). */
 export function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [rage, setRage] = useState(20);
   const [band, setBand] = useState<RageBand>("irritated");
   const [score, setScore] = useState(0);
+  const [grace, setGrace] = useState(0);
+  const [judgeLine, setJudgeLine] = useState<string | null>(null);
   const [remaining, setRemaining] = useState<number | null>(null);
   const [nerves, setNerves] = useState(3);
   const [camelNear, setCamelNear] = useState(false);
@@ -26,7 +28,8 @@ export function App() {
     const dispose = bootGame(canvasRef.current);
     const unsub = bus.subscribe((e) => {
       if (e.type === "rageChanged") { setRage(e.value); setBand(e.band); }
-      if (e.type === "scoreChanged") setScore(e.destruction);
+      if (e.type === "scoreChanged") { setScore(e.destruction); setGrace(e.rescue); }
+      if (e.type === "judgeCommentQueued") setJudgeLine(e.i18nKey);
       if (e.type === "timerTick") setRemaining(e.remainingS);
       if (e.type === "nervesChanged") setNerves(e.remaining);
       if (e.type === "camelStateChanged") setCamelNear(e.state === "approaching");
@@ -45,6 +48,12 @@ export function App() {
     return () => clearInterval(id);
   }, [promptTimer !== null]);
 
+  useEffect(() => {
+    if (judgeLine === null) return;
+    const id = setTimeout(() => setJudgeLine(null), 6000);
+    return () => clearTimeout(id);
+  }, [judgeLine]);
+
   const onPhotoPicked = (): void => commands.emit({ type: "photoProvided" });
   const onRefuse = (): void => commands.emit({ type: "refusePhoto" });
 
@@ -56,12 +65,14 @@ export function App() {
       <canvas key={runKey} ref={canvasRef} style={{ width: "100%", height: "100%" }} />
 
       <div style={hud}>
-        <div>{t("hud.score")} {score}</div>
+        <div>{t("hud.havoc")} {score} · {t("hud.grace")} {grace}</div>
         <div>{t("nerves.label")} {"♥".repeat(Math.max(0, nerves))}{"♡".repeat(Math.max(0, 3 - nerves))}</div>
         <div>{mm}:{ss}</div>
       </div>
 
       {camelNear && !promptTimer && <div style={camelBanner}>{t("camel.warning")}</div>}
+
+      {judgeLine && <div style={judgeToast}>{judgeLine}</div>}
 
       <div style={rageWrap}>
         <div style={{ marginBottom: 4, textTransform: "uppercase" }}>rage {Math.round(rage)} — {band}</div>
@@ -103,6 +114,9 @@ export function App() {
 const mono: React.CSSProperties = { color: "#fff", fontFamily: "monospace" };
 const hud: React.CSSProperties = { ...mono, position: "absolute", top: 16, left: 16, right: 16,
   display: "flex", justifyContent: "space-between", fontSize: 18 };
+const judgeToast: React.CSSProperties = { color: "#d8d4e8", fontFamily: "monospace",
+  position: "absolute", bottom: 90, left: 0, right: 0, textAlign: "center",
+  fontSize: 15, fontStyle: "italic", opacity: 0.9, padding: "0 40px" };
 const camelBanner: React.CSSProperties = { ...mono, position: "absolute", top: 56, left: 0, right: 0,
   textAlign: "center", fontSize: 16, letterSpacing: 4, opacity: 0.85 };
 const rageWrap: React.CSSProperties = { ...mono, position: "absolute", left: 40, right: 40, bottom: 28 };
