@@ -1,28 +1,40 @@
 /**
  * Game -> UI event bus.
- * The engine emits; React subscribes through a zustand adapter in src/state.
- * UI never reaches into the ECS world; the engine never imports React.
+ * bus: game emits, React subscribes. commands: React emits, game subscribes.
+ * Two one-way channels; the engine still never imports React.
  */
 export type GameEvent =
   | { type: "rageChanged"; value: number; band: RageBand }
   | { type: "scoreChanged"; destruction: number; rescue: number }
   | { type: "timerTick"; remainingS: number }
-  | { type: "judgeCommentQueued"; i18nKey: string }
+  | { type: "nervesChanged"; remaining: number }
+  | { type: "camelStateChanged"; state: "approaching" | "gone" }
   | { type: "maxRageResolutionStarted"; timerS: number }
+  | { type: "maxRageResolved"; via: "photo" | "camel" }
+  | { type: "judgeCommentQueued"; i18nKey: string }
+  | { type: "bootError"; message: string }
   | { type: "sessionEnded"; reason: "timer" | "cameld" | "player_exit" };
+
 
 export type RageBand = "serene" | "irritated" | "furious" | "berserk";
 
-type Listener = (e: GameEvent) => void;
+export type GameCommand =
+  | { type: "photoProvided" }   // any file accepted; Later: real pipeline
+  | { type: "refusePhoto" };
 
-const listeners = new Set<Listener>();
 
-export const bus = {
-  emit(e: GameEvent): void {
-    for (const l of listeners) l(e);
-  },
-  subscribe(l: Listener): () => void {
-    listeners.add(l);
-    return () => listeners.delete(l);
-  },
-};
+function channel<T>() {
+  const listeners = new Set<(m: T) => void>();
+  return {
+    emit(m: T): void {
+      for (const l of listeners) l(m);
+    },
+    subscribe(l: (m: T) => void): () => void {
+      listeners.add(l);
+      return () => listeners.delete(l);
+    },
+  };
+}
+
+export const bus = channel<GameEvent>();
+export const commands = channel<GameCommand>();
