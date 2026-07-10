@@ -7,9 +7,10 @@ import { addComponent, addEntity, type IWorld } from "bitecs";
 import { CollisionGroups } from "../physics/layers";
 import type { Physics } from "../physics/world";
 import { Registry } from "../ecs/registry";
-import { Pickup, Smashable } from "../ecs/components";
+import { ChildTag, Pickup, Rescueable, Smashable } from "../ecs/components";
 import { PALETTE, flat } from "../art/palette";
 import { buildCowMesh } from "../art/cow";
+import { buildCat, buildChild, buildDog, buildIceCreamCart } from "../art/critters";
 import { KYRENIA } from "../assets/kyrenia-harbor";
 import { seededRng } from "../core/rng";
 
@@ -144,7 +145,7 @@ export function buildKyrenia(
   );
   reg.register(cowEid, cowBody, cowGroup, cowCollider);
 
-  // --- smashables: stalls, crates, scooters ---
+  // smashables: stalls, crates, scooters 
   const addSmashable = (
     mesh: THREE.Object3D, x: number, z: number,
     hx: number, hy: number, hz: number, points: number,
@@ -215,7 +216,7 @@ export function buildKyrenia(
     addSmashable(g, x, z, 0.3, 0.55, 0.85, 18);
   }
 
-  // --- pickups ---
+  // pickups 
   const addPickup = (x: number, z: number, kind: 0 | 1): void => {
     const eid = addEntity(ecs);
     addComponent(ecs, Pickup, eid);
@@ -237,6 +238,40 @@ export function buildKyrenia(
     );
     reg.register(eid, body, mesh, col);
   };
+
+  // rescueables (sensors: she can't crush what she can save) 
+  const RESCUE_POINTS = [30, 30, 45, 20] as const; // dog, cat, cart, dropped ice cream
+  const builders = [buildDog, buildCat, buildIceCreamCart];
+  for (const spot of KYRENIA.rescueSpots) {
+    const eid = addEntity(ecs);
+    addComponent(ecs, Rescueable, eid);
+    Rescueable.kind[eid] = spot.kind;
+    Rescueable.points[eid] = RESCUE_POINTS[spot.kind];
+    const mesh = builders[spot.kind]();
+    scene.add(mesh);
+    const body = world.createRigidBody(R.RigidBodyDesc.fixed().setTranslation(spot.x, 0, spot.z));
+    const col = world.createCollider(
+      R.ColliderDesc.cuboid(0.6, 0.8, 0.6).setSensor(true).setCollisionGroups(CollisionGroups.pickup),
+      body,
+    );
+    reg.register(eid, body, mesh, col);
+  }
+
+  //  children (kinematic, terrain-only collisions —  mechanism #1) 
+  for (const zone of KYRENIA.childZones) {
+    const eid = addEntity(ecs);
+    addComponent(ecs, ChildTag, eid);
+    const mesh = buildChild();
+    scene.add(mesh);
+    const body = world.createRigidBody(
+      R.RigidBodyDesc.kinematicPositionBased().setTranslation(zone.x, 0, zone.z),
+    );
+    const col = world.createCollider(
+      R.ColliderDesc.cuboid(0.25, 0.7, 0.2).setTranslation(0, 0.7, 0).setCollisionGroups(CollisionGroups.child),
+      body,
+    );
+    reg.register(eid, body, mesh, col);
+  }
 
   for (const b of KYRENIA.beerSpots) addPickup(b.x, b.z, 0);
   if (rng() < 0.33) {
