@@ -11,9 +11,9 @@
     "triggers": { "car_alarm": 8, "children_giggling": 5, "camel_silhouette": 15, "wedding_music": 6, "scooter_horn": 4, "unbroken_collision": 3 },
     "sinks": { "beer_generic": -25, "wine": -100, "petting_zoo": -15, "petting_zoo_cooldown_s": 90, "pet_photo": -100 }
   },
-  "maxrage": { "decision_timer_s": 15, "photo_retry_allowed": 1, "low_authenticity_rage_floor": 30 },
+  "maxrage": { "decision_timer_s": 15, "photo_retry_allowed": 1, "low_authenticity_rage_floor": 60, "photo_rage_floor": 35 },
   "combo": { "chain_window_s": 4 },
-  "camel": { "walk_speed_ratio": 0.95, "lure_score_mult": 1.5, "scheduled_beat_pct": 0.7, "heat_early_spawn_threshold": 350 },
+  "camel": { "walk_speed_ratio": 0.95, "lure_score_mult": 1.5, "scheduled_beat_pct": 0.7, "heat_early_spawn_threshold": 150 },
   "session": { "target_minutes_min": 5, "target_minutes_max": 8, "rescueables_min": 6, "rescueables_max": 10, "children_min": 3, "children_max": 6 },
   "energy": { "max": 5, "regen_hours": 3, "pet_photo_bonus_daily_cap": 1, "streak_bonus_day": 3 },
   "judge": { "comment_min_interval_s": 90, "recency_sessions": 5, "recency_weight": 0.7,
