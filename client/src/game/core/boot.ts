@@ -74,10 +74,11 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
       let heading = 0;
       let shake = 0;
       let nerves = NERVES_START;
+      let camelSighted = false;
       let camelEid = -1;
       let camelBody: import("@dimforge/rapier3d-compat").RigidBody | null = null;
       let camelScheduledAt = SESSION_S * tuning.camel.scheduled_beat_pct;
-      let camelSightCooldown = 0;
+      let heat = 0;
 
       interface Debris { mesh: THREE.Mesh; vel: THREE.Vector3; life: number }
       const debris: Debris[] = [];
@@ -105,6 +106,11 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
         const lure = byCamel ? tuning.camel.lure_score_mult : 1;
         destructionScore += Math.round(Smashable.points[eid] * params.damage * combo.multiplier(t) * lure);
         if (!byCamel) rage.add(2); // her spiral, not his — tuning.json: rage.triggers.smash
+        
+        if (!byCamel) {
+          rage.add(2);
+          heat += Smashable.points[eid]; // her noise summons him; his doesn't
+        }
         shake = Math.min(1, shake + 0.25 * params.damage);
         const b = reg.bodies.get(eid);
         if (b) spawnDebris(b.translation(), Smashable.points[eid]);
@@ -136,6 +142,7 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
         camelEid = spawned.eid;
         camelBody = spawned.body;
         camel.spawn();
+        camelSighted = false;
         bus.emit({ type: "camelStateChanged", state: "approaching" });
       };
 
@@ -239,12 +246,27 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
               heading = lerpAngle(heading, want, 1 - Math.exp(-AUTHORITY * dt));
             }
 
+            if (camelEid !== -1 && camel.state === "approaching" && camelBody) {
+              const cv = camelBody.translation();
+              const d = Math.hypot(cv.x - cp0.x, cv.z - cp0.z);
+              if (d < 35) {
+                const away = Math.atan2(cp0.x - cv.x, cp0.z - cv.z);
+                const FEAR = 3.5 * (1 - d / 35);
+                heading = lerpAngle(heading, away, 1 - Math.exp(-FEAR * dt));
+              }
+            }
+
             const speed = BASE_SPEED * params.speed;
             const vy = cowBody.linvel().y;
             cowBody.setLinvel({ x: Math.sin(heading) * speed, y: vy, z: Math.cos(heading) * speed }, true);
           }
 
           // scheduled camel beat — guaranteed once per session (GAME_LOOP)
+          heat = Math.max(0, heat - 8 * dt);
+          if (camelEid === -1 && heat >= tuning.camel.heat_early_spawn_threshold) {
+            heat = 0;
+            spawnCamel(false);
+          }
           if (camelEid === -1 && elapsed >= camelScheduledAt) {
             camelScheduledAt = Infinity;
             spawnCamel(false);
@@ -264,12 +286,11 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
             if (step.despawn) despawnCamel();
 
             // sight of him feeds her fear (which feeds him) — cooldown-gated
-            camelSightCooldown -= dt;
-            if (camel.state === "approaching" && camelSightCooldown <= 0 && !waiting) {
+            if (camel.state === "approaching" && !camelSighted && !waiting) {
               const d = Math.hypot(cvp.x - cpp.x, cvp.z - cpp.z);
               if (d < 45) {
                 rage.add(tuning.rage.triggers.camel_silhouette);
-                camelSightCooldown = 5;
+                camelSighted = true;
               }
             }
           }
