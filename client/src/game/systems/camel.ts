@@ -1,11 +1,13 @@
 /** The camel. He never runs. He is never explained.
- * Pure brain: positions in, movement + events out; boot owns bodies/meshes. */
+ * Pure brain: positions in, movement + events out; boot owns bodies/meshes.
+ * After the slam he STANDS over her (1.5s) before leaving — the moment. */
 import { tuning } from "../core/tuning";
 
-export type CamelState = "absent" | "approaching" | "leaving";
+export type CamelState = "absent" | "approaching" | "standing" | "leaving";
 
 const SLAM_RADIUS = 1.9;
-const LEAVE_AFTER_S = 25;   // pursuit patience before he loses interest
+const STAND_S = 1.5;
+const LEAVE_AFTER_S = 25;
 const DESPAWN_DIST = 90;
 
 export interface CamelStep {
@@ -18,7 +20,7 @@ export interface CamelStep {
 export class CamelBrain {
   state: CamelState = "absent";
   private pursuitT = 0;
-  /** walk speed: fraction of the cow's irritated-band speed — dread, not chase */
+  private standT = 0;
   readonly speed: number;
 
   constructor(cowBaseSpeed: number) {
@@ -41,7 +43,8 @@ export class CamelBrain {
     if (this.state === "approaching") {
       this.pursuitT += dt;
       if (dist <= SLAM_RADIUS) {
-        this.state = "leaving";
+        this.state = "standing";
+        this.standT = STAND_S;
         return { vx: 0, vz: 0, slam: true, despawn: false };
       }
       if (this.pursuitT > LEAVE_AFTER_S) {
@@ -51,7 +54,14 @@ export class CamelBrain {
       return { vx: (dx / dist) * this.speed, vz: (dz / dist) * this.speed, slam: false, despawn: false };
     }
 
-    // leaving: walk away from the cow, despawn far out
+    if (this.state === "standing") {
+      // motionless over her — let it sink in
+      this.standT -= dt;
+      if (this.standT <= 0) this.state = "leaving";
+      return none;
+    }
+
+    // leaving
     if (dist > DESPAWN_DIST) {
       this.state = "absent";
       return { ...none, despawn: true };
