@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { bootGame } from "@game/core/boot";
 import { bus, commands, type RageBand } from "../game/core/bus";
-import { t } from "../i18n";
+import { t, setLocale, type Locale  } from "../i18n";
+import { startSync } from "@net/sync";
 
 /** React shell. The engine below the canvas is a React-free zone (Repo Law 1). */
 export function App() {
@@ -19,18 +20,35 @@ export function App() {
   const [endedReason, setEndedReason] = useState<string | null>(null);
   const [bootError, setBootError] = useState<string | null>(null);
   const [runKey, setRunKey] = useState(0);
+  const [verdict, setVerdict] = useState<{ xp: number; level: number; levelUp: boolean; axisBand: string } | null>(null);
+  
 
   useEffect(() => {
     if (!canvasRef.current) return;
     setEndedReason(null);
     setScore(0);
+    setGrace(0);
+    setVerdict(null);
     setPromptTimer(null);
     setCamelNear(false);
-    const dispose = bootGame(canvasRef.current);
+    const canvas = canvasRef.current;
+
+    const locale = navigator.language.startsWith("de") ? "de"
+             : navigator.language.startsWith("ru") ? "ru" : "en";
+
+    let disposeGame: (() => void) | null = null;
+    let disposeSync: (() => void) | null = null;
+    let cancelled = false;
+    setLocale(locale);
+    void startSync(locale).then((sync) => {
+      if (cancelled) { sync.dispose(); return; }
+      disposeSync = sync.dispose;
+      disposeGame = bootGame(canvas, { seed: sync.seed, locale });
+    });
     const unsub = bus.subscribe((e) => {
       if (e.type === "rageChanged") { setRage(e.value); setBand(e.band); }
       if (e.type === "scoreChanged") { setScore(e.destruction); setGrace(e.rescue); }
-      if (e.type === "judgeCommentQueued") setJudgeLine(e.i18nKey);
+      if (e.type === "judgeComment") setJudgeLine(e.text);
       if (e.type === "rescueHint") setRescueHint({ state: e.state, pct: e.pct });
       if (e.type === "timerTick") setRemaining(e.remainingS);
       if (e.type === "nervesChanged") setNerves(e.remaining);
@@ -39,8 +57,9 @@ export function App() {
       if (e.type === "maxRageResolved") setPromptTimer(null);
       if (e.type === "sessionEnded") { setEndedReason(e.reason); setPromptTimer(null); }
       if (e.type === "bootError") setBootError(e.message);
+      if (e.type === "serverVerdict") setVerdict({ xp: e.xp, level: e.level, levelUp: e.levelUp, axisBand: e.axisBand });
     });
-    return () => { unsub(); dispose(); };
+    return () => { cancelled = true; unsub(); disposeGame?.(); disposeSync?.(); };
   }, [runKey]);
 
   // countdown display while the prompt is open (engine owns the real timer)
@@ -116,7 +135,13 @@ export function App() {
       {endedReason && (
         <div style={overlay}>
           <h1 style={{ margin: 0 }}>{endedReason === "cameld" ? t("cameld.title") : t("session.over")}</h1>
-          <p>{t("hud.score").toLowerCase()}: {score}</p>
+          <p>{t("hud.havoc")} {score} · {t("hud.grace")} {grace}</p>
+          {verdict && (
+            <p style={{ opacity: 0.85 }}>
+              {t("end.level")} {verdict.level} · {verdict.xp} XP
+              {verdict.levelUp ? ` — ${t("end.level_up")}` : ""} · {t(`judge.title.${verdict.axisBand}`)}
+            </p>
+          )}
           <button style={btn} onClick={() => setRunKey((k) => k + 1)}>{t("session.again")}</button>
         </div>
       )}

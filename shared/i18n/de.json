@@ -28,5 +28,7 @@
   "hud.havoc": "CHAOS",
   "hud.grace": "GNADE",
    "rescue.too_worked_up": "Sie ist zu aufgewühlt für Sanftmut. Finden Sie Bier.",
-  "rescue.soothing": "Ruhig halten... sie ist gerade sanft."
+  "rescue.soothing": "Ruhig halten... sie ist gerade sanft.",
+  "end.level": "Stufe",
+  "end.level_up": "AUFGESTIEGEN"
 }
