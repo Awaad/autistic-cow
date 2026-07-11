@@ -98,17 +98,33 @@ async def end_session(
     destruction: int, rescue: int, peak_rage: int, nerves_lost: int,
     end_reason: str,
 ) -> dict[str, Any]:
-    await conn.execute(
+    from app.domain.economy.levels import level_for
+    from app.domain.judge.axis import band_for
+ 
+    res = await conn.execute(
         text("""UPDATE sessions SET ended_at = now(), end_reason = :reason,
                   destruction_score = :d, rescue_score = :r,
                   peak_rage = :pr, nerves_lost = :nl
-                WHERE id = :sid AND ended_at IS NULL"""),
+                WHERE id = :sid AND player_id = :pid AND ended_at IS NULL"""),
         {"reason": end_reason, "d": destruction, "r": rescue,
-         "pr": peak_rage, "nl": nerves_lost, "sid": session_id},
+         "pr": peak_rage, "nl": nerves_lost, "sid": session_id, "pid": player_id},
     )
-    from app.domain.economy.levels import level_for
-    from app.domain.judge.axis import band_for
-
+    if res.rowcount == 0:
+        # already ended, or not this player's session: idempotent replay —
+        # return current truth, award NOTHING twice.
+        row = (
+            await conn.execute(
+                text("""SELECT xp, level, moral_axis, axis_band
+                        FROM player_profiles WHERE player_id = :pid"""),
+                {"pid": player_id},
+            )
+        ).first()
+        if row is None:
+            return {"xp": 0, "level": 1, "level_up": False,
+                    "moral_axis": 0.0, "axis_band": "flexible"}
+        return {"xp": int(row[0]), "level": int(row[1]), "level_up": False,
+                "moral_axis": float(row[2]), "axis_band": str(row[3])}
+ 
     xp_gain = max(0, destruction) + max(0, rescue)  # direction-blind (ADR-013)
     axis = await session_axis(conn, player_id)
     row = (

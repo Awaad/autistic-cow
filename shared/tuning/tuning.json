@@ -20,6 +20,6 @@
     "karma_weights": { "rescue_completed": 0.08, "rescue_ignored": -0.05, "child_scared": -0.06, "child_helped": 0.1, "destruction_spree": -0.03, "photo_calm_used": 0.02, "cameld": 0.0, "lure_executed": -0.04, "wine_found": 0.0, "mission_completed": 0.03, "mission_abandoned": -0.01, "hesitation": -0.02 } },
   "integrity": { "max_rescues_per_min": 6, "min_s_between_wine": 60, "events_batch_max": 20, "events_flush_interval_s": 5, "max_session_score": 200000 },
   "photos": { "per_session_limit": 3, "quarantine_ttl_h": 24, "meta_purge_days": 30 },
-  "levels": { "xp_per_level": 400, "max_level": 30, "naming_unlock_level": 3
+  "levels": { "xp_per_level": 1500, "max_level": 30, "naming_unlock_level": 3
   }
 }
