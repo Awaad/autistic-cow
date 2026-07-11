@@ -152,3 +152,70 @@ async def end_session(
         )
     return {"xp": xp, "level": new_level, "level_up": new_level > old_level,
             "moral_axis": axis, "axis_band": band_for(axis)}
+
+
+async def upgrade_anon_to_registered(
+    conn: AsyncConnection, player_id: UUID, email: str, password_hash: str,
+    birth_year: int, display_name: str, locale: str,
+) -> bool:
+    res = await conn.execute(
+        text("""UPDATE players SET email = :em, password_hash = :ph,
+                  birth_year = :by, display_name = :dn, locale = :loc,
+                  is_anonymous = false, auth_provider = 'email'
+                WHERE id = :pid AND is_anonymous"""),
+        {"em": email, "ph": password_hash, "by": birth_year,
+         "dn": display_name, "loc": locale, "pid": player_id},
+    )
+    return bool(res.rowcount)
+
+
+async def create_registered_player(
+    conn: AsyncConnection, email: str, password_hash: str,
+    birth_year: int, display_name: str, locale: str,
+) -> UUID:
+    pid = new_id()
+    await conn.execute(
+        text("""INSERT INTO players (id, email, password_hash, birth_year,
+                                     display_name, locale, is_anonymous, auth_provider)
+                VALUES (:id, :em, :ph, :by, :dn, :loc, false, 'email')"""),
+        {"id": pid, "em": email, "ph": password_hash, "by": birth_year,
+         "dn": display_name, "loc": locale},
+    )
+    await conn.execute(
+        text("INSERT INTO player_profiles (player_id) VALUES (:id)"), {"id": pid},
+    )
+    return pid
+
+
+async def player_by_email(conn: AsyncConnection, email: str) -> dict[str, Any] | None:
+    row = (
+        await conn.execute(
+            text("""SELECT id, password_hash, display_name, status FROM players
+                    WHERE email = :em AND NOT is_anonymous"""),
+            {"em": email},
+        )
+    ).first()
+    if row is None:
+        return None
+    return {"id": row[0], "password_hash": row[1], "display_name": row[2], "status": row[3]}
+
+
+async def set_consent(
+    conn: AsyncConnection, player_id: UUID, key: str, granted: bool,
+    source: str, policy_version: str,
+) -> None:
+    await conn.execute(
+        text("""INSERT INTO consents (player_id, consent_key, granted, source, policy_version)
+                VALUES (:pid, :key, :g, :src, :pv)"""),
+        {"pid": player_id, "key": key, "g": granted, "src": source, "pv": policy_version},
+    )
+
+
+async def latest_consents(conn: AsyncConnection, player_id: UUID) -> dict[str, bool]:
+    rows = await conn.execute(
+        text("""SELECT DISTINCT ON (consent_key) consent_key, granted
+                FROM consents WHERE player_id = :pid
+                ORDER BY consent_key, created_at DESC"""),
+        {"pid": player_id},
+    )
+    return {str(k): bool(g) for k, g in rows}
