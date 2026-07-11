@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "autistic-cow:api:consents",
+  "title": "Consents",
+  "definitions": {
+    "ConsentKey": {
+      "title": "ConsentKey",
+      "type": "string",
+      "enum": [
+        "functional_tos",
+        "herd_album",
+        "product_analytics",
+        "personalized_comments",
+        "marketing_profiling",
+        "real_location_ar",
+        "photo_promotional",
+        "paid_processing"
+      ]
+    },
+    "ConsentSetRequest": {
+      "title": "ConsentSetRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "consent_key",
+        "granted"
+      ],
+      "properties": {
+        "consent_key": {
+          "$ref": "#/definitions/ConsentKey"
+        },
+        "granted": {
+          "type": "boolean"
+        },
+        "source": {
+          "type": "string",
+          "default": "settings"
+        }
+      }
+    },
+    "ConsentState": {
+      "title": "ConsentState",
+      "type": "object",
+      "required": [
+        "consents"
+      ],
+      "properties": {
+        "consents": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  },
+  "anyOf": [
+    {
+      "$ref": "#/definitions/ConsentKey"
+    },
+    {
+      "$ref": "#/definitions/ConsentSetRequest"
+    },
+    {
+      "$ref": "#/definitions/ConsentState"
+    }
+  ]
+}

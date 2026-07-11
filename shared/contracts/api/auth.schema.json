@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "autistic-cow:api:auth",
+  "title": "Auth",
+  "definitions": {
+    "AnonRequest": {
+      "title": "AnonRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "locale": {
+          "type": "string",
+          "enum": [
+            "en",
+            "de",
+            "ru"
+          ],
+          "default": "en"
+        }
+      }
+    },
+    "AnonResponse": {
+      "title": "AnonResponse",
+      "type": "object",
+      "required": [
+        "player_id",
+        "access_token",
+        "merge_token"
+      ],
+      "properties": {
+        "player_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "access_token": {
+          "type": "string"
+        },
+        "merge_token": {
+          "type": "string"
+        }
+      }
+    },
+    "SignupRequest": {
+      "title": "SignupRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "email",
+        "password",
+        "birth_year",
+        "display_name"
+      ],
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "password": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 128
+        },
+        "birth_year": {
+          "type": "integer",
+          "minimum": 1900,
+          "maximum": 2100
+        },
+        "display_name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 32
+        },
+        "locale": {
+          "type": "string",
+          "enum": [
+            "en",
+            "de",
+            "ru"
+          ],
+          "default": "en"
+        },
+        "merge_token": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "LoginRequest": {
+      "title": "LoginRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "email",
+        "password"
+      ],
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "password": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      }
+    },
+    "AuthTokens": {
+      "title": "AuthTokens",
+      "type": "object",
+      "required": [
+        "player_id",
+        "access_token",
+        "refresh_token",
+        "display_name"
+      ],
+      "properties": {
+        "player_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "access_token": {
+          "type": "string"
+        },
+        "refresh_token": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        }
+      }
+    },
+    "RefreshRequest": {
+      "title": "RefreshRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "refresh_token"
+      ],
+      "properties": {
+        "refresh_token": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "anyOf": [
+    {
+      "$ref": "#/definitions/AnonRequest"
+    },
+    {
+      "$ref": "#/definitions/AnonResponse"
+    },
+    {
+      "$ref": "#/definitions/SignupRequest"
+    },
+    {
+      "$ref": "#/definitions/LoginRequest"
+    },
+    {
+      "$ref": "#/definitions/AuthTokens"
+    },
+    {
+      "$ref": "#/definitions/RefreshRequest"
+    }
+  ]
+}

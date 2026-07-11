@@ -1,0 +1,198 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "autistic-cow:api:sessions",
+  "title": "Sessions",
+  "definitions": {
+    "SessionStartResponse": {
+      "title": "SessionStartResponse",
+      "type": "object",
+      "required": [
+        "session_id",
+        "spawn_seed",
+        "session_token",
+        "tuning_version",
+        "district_slug"
+      ],
+      "properties": {
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "spawn_seed": {
+          "type": "integer"
+        },
+        "session_token": {
+          "type": "string"
+        },
+        "tuning_version": {
+          "type": "string"
+        },
+        "district_slug": {
+          "type": "string"
+        }
+      }
+    },
+    "JudgeEvent": {
+      "title": "JudgeEvent",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_id",
+        "seq_in_session",
+        "event_type",
+        "rage_at_event"
+      ],
+      "properties": {
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "seq_in_session": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "event_type": {
+          "type": "string",
+          "enum": [
+            "rescue_completed",
+            "rescue_ignored",
+            "child_scared",
+            "child_helped",
+            "destruction_spree",
+            "photo_calm_used",
+            "cameld",
+            "lure_executed",
+            "wine_found",
+            "mission_completed",
+            "mission_abandoned",
+            "hesitation"
+          ]
+        },
+        "target_kind": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rage_at_event": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "payload": {
+          "type": "object"
+        },
+        "client_ts": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      }
+    },
+    "EventBatch": {
+      "title": "EventBatch",
+      "type": "object",
+      "required": [
+        "events"
+      ],
+      "properties": {
+        "events": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/definitions/JudgeEvent"
+          }
+        }
+      }
+    },
+    "SessionEndRequest": {
+      "title": "SessionEndRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "destruction_score",
+        "rescue_score",
+        "peak_rage",
+        "nerves_lost",
+        "end_reason"
+      ],
+      "properties": {
+        "destruction_score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "rescue_score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "peak_rage": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "nerves_lost": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "end_reason": {
+          "type": "string",
+          "enum": [
+            "timer",
+            "cameld",
+            "player_exit"
+          ]
+        }
+      }
+    },
+    "SessionEndResponse": {
+      "title": "SessionEndResponse",
+      "type": "object",
+      "required": [
+        "xp",
+        "level",
+        "level_up",
+        "moral_axis",
+        "axis_band"
+      ],
+      "properties": {
+        "xp": {
+          "type": "integer"
+        },
+        "level": {
+          "type": "integer"
+        },
+        "level_up": {
+          "type": "boolean"
+        },
+        "moral_axis": {
+          "type": "number"
+        },
+        "axis_band": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "anyOf": [
+    {
+      "$ref": "#/definitions/SessionStartResponse"
+    },
+    {
+      "$ref": "#/definitions/JudgeEvent"
+    },
+    {
+      "$ref": "#/definitions/EventBatch"
+    },
+    {
+      "$ref": "#/definitions/SessionEndRequest"
+    },
+    {
+      "$ref": "#/definitions/SessionEndResponse"
+    }
+  ]
+}
