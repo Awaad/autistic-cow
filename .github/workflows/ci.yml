@@ -1,0 +1,40 @@
+name: ci
+on: [push, pull_request]
+
+jobs:
+  laws:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: node tools/i18n-parity.mjs        # Repo Law 3
+      - run: node tools/no-react-in-game.mjs   # Repo Law 1
+      - run: node tools/tuning-validate.mjs
+      - name: codegen drift (repo law 2)
+        run: |
+          pip install datamodel-code-generator
+          cd client && npm i --no-audit --no-fund -D json-schema-to-typescript && cd ..
+          bash tools/codegen.sh
+          git diff --exit-code server/app/schemas client/src/net/gen
+
+  client:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile=false
+      - run: pnpm --filter cowgame-client typecheck
+      - run: pnpm --filter cowgame-client test   # includes child-safety.test.ts (Repo Law 4)
+
+  server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+      - run: cd server && uv sync
+      - run: cd server && uv run ruff check .
+      - run: cd server && uv run pytest -q
