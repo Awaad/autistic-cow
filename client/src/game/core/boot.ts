@@ -24,6 +24,7 @@ import { ChildBrain } from "../systems/children";
 import { JudgeLog } from "../judge/log";
 import { HesitationDetector } from "../judge/hesitation";
 import { CommentEngine } from "../judge/engine";
+import { poolFor } from "../judge/pools";
 import { buildIceCream } from "../art/critters";
 
 const SESSION_S = tuning.session.target_minutes_min * 60;
@@ -44,7 +45,7 @@ const lerpAngle = (a: number, b: number, t: number): number => {
   return a + d * t;
 };
 
-export function bootGame(canvas: HTMLCanvasElement): () => void {
+export function bootGame(canvas: HTMLCanvasElement, opts?:{ seed: number; locale: string }): () => void {
   let disposed = false;
   let cleanup: (() => void) | null = null;
 
@@ -74,7 +75,7 @@ export function bootGame(canvas: HTMLCanvasElement): () => void {
       const maxRage = new MaxRageDirector();
       const camel = new CamelBrain(BASE_SPEED);
       const judge = new JudgeLog();
-      const comments = new CommentEngine();
+      const comments = new CommentEngine(poolFor(opts?.locale ?? "en"));
       const childBrains = new Map<number, ChildBrain>();
       const childScareCooldown = new Map<number, number>();
       const childDroppedTreat = new Set<number>();
