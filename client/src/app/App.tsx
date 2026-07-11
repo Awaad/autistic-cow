@@ -3,6 +3,10 @@ import { bootGame } from "@game/core/boot";
 import { bus, commands, type RageBand } from "../game/core/bus";
 import { t, setLocale, type Locale  } from "../i18n";
 import { startSync } from "@net/sync";
+import { bumpSessionsPlayed, getIdentity, sessionsPlayed } from "@net/account";
+import { CookieBanner } from "@ui/CookieBanner";
+import { Wall } from "@ui/Wall";
+import { ConsentSettings } from "@ui/ConsentSettings";
 
 /** React shell. The engine below the canvas is a React-free zone (Repo Law 1). */
 export function App() {
@@ -20,6 +24,8 @@ export function App() {
   const [endedReason, setEndedReason] = useState<string | null>(null);
   const [bootError, setBootError] = useState<string | null>(null);
   const [runKey, setRunKey] = useState(0);
+  const [showSettings, setShowSettings] = useState(false);
+  const [pettingAvail, setPettingAvail] = useState(false);
   const [verdict, setVerdict] = useState<{ xp: number; level: number; levelUp: boolean; axisBand: string } | null>(null);
   
 
@@ -121,6 +127,11 @@ export function App() {
             {t("maxrage.show_button")}
             <input type="file" accept="image/*" style={{ display: "none" }} onChange={onPhotoPicked} />
           </label>
+          {pettingAvail && (
+            <button style={btn} onClick={() => commands.emit({ type: "pettingZoo" })}>
+              {t("maxrage.petting_button")}
+            </button>
+          )}
           <button style={{ ...btn, opacity: 0.6 }} onClick={onRefuse}>{t("maxrage.refuse_button")}</button>
         </div>
       )}
@@ -132,7 +143,12 @@ export function App() {
         </div>
       )}
 
-      {endedReason && (
+       {endedReason && (getIdentity()?.anon ?? false) && sessionsPlayed() >= 1 ? (
+        <Wall
+          locale={navigator.language.startsWith("de") ? "de" : navigator.language.startsWith("ru") ? "ru" : "en"}
+          onDone={() => setRunKey((k) => k + 1)}
+        />
+      ) : endedReason && (
         <div style={overlay}>
           <h1 style={{ margin: 0 }}>{endedReason === "cameld" ? t("cameld.title") : t("session.over")}</h1>
           <p>{t("hud.havoc")} {score} · {t("hud.grace")} {grace}</p>
@@ -145,9 +161,15 @@ export function App() {
           <button style={btn} onClick={() => setRunKey((k) => k + 1)}>{t("session.again")}</button>
         </div>
       )}
+      {!getIdentity()?.anon && getIdentity() && !showSettings && (
+        <button style={gear} onClick={() => setShowSettings(true)}>⚙</button>
+      )}
+      {showSettings && <ConsentSettings onClose={() => setShowSettings(false)} />}
+      <CookieBanner />
     </div>
   );
 }
+
 
 const mono: React.CSSProperties = { color: "#fff", fontFamily: "monospace" };
 const hud: React.CSSProperties = { ...mono, position: "absolute", top: 16, left: 16, right: 16,
@@ -170,3 +192,5 @@ const rageFill: React.CSSProperties = { height: "100%", transition: "width 120ms
 const overlay: React.CSSProperties = { ...mono, position: "absolute", inset: 0, display: "flex",
   flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#1a1a2ecc", gap: 12 };
 const btn: React.CSSProperties = { fontFamily: "monospace", fontSize: 18, padding: "8px 24px", cursor: "pointer" };
+const gear: React.CSSProperties = { position: "absolute", top: 12, right: 12, fontSize: 20,
+  background: "transparent", color: "#fff", border: "none", cursor: "pointer", zIndex: 20 };
