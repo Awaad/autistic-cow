@@ -135,6 +135,27 @@ export function buildKyrenia(
     scene.add(g);
   }
 
+  // --- petting zoo (max-rage fallback §5.4: survival, not victory) ---
+  {
+    const pz = KYRENIA.pettingZoo;
+    const pen = new THREE.Group();
+    for (const [dx, dz, w, d] of [[0, -3, 6, 0.2], [0, 3, 6, 0.2], [-3, 0, 0.2, 6], [3, 0, 0.2, 6]] as const) {
+      const rail = new THREE.Mesh(new THREE.BoxGeometry(w, 1, d), flat(PALETTE.palmTrunk));
+      rail.position.set(dx, 0.5, dz);
+      pen.add(rail);
+    }
+    const goat = new THREE.Group();
+    const gBody = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.45, 0.9), flat(0xd8d3c8));
+    gBody.position.y = 0.55;
+    goat.add(gBody);
+    const gHead = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.35), flat(0xd8d3c8));
+    gHead.position.set(0, 0.85, 0.55);
+    goat.add(gHead);
+    pen.add(goat);
+    pen.position.set(pz.x, 0, pz.z);
+    scene.add(pen);
+  }
+
   // --- the cow ---
   const cowEid = addEntity(ecs);
   const cowGroup = buildCowMesh();

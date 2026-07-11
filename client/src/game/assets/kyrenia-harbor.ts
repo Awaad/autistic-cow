@@ -73,5 +73,7 @@ export const KYRENIA = {
     { x: -6, z: 20 }, { x: 8, z: 24 }, { x: -30, z: 36 }, { x: 30, z: 36 },
   ] as Vec2[],
 
+   pettingZoo: { x: -58, z: -22 } as Vec2,
+
   cowStart: { x: 0, z: -5 } as Vec2,
 } as const;

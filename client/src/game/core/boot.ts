@@ -249,6 +249,12 @@ export function bootGame(canvas: HTMLCanvasElement, opts?: { seed?: number; loca
         if (c.type === "refusePhoto") {
           if (maxRage.refuse() === "timeout") spawnCamel(true);
         }
+        if (c.type === "pettingZoo" && maxRage.current === "waiting") {
+          maxRage.calm();
+          rage.setTo(40); // survival, not victory (01_GAME_LOOP §5.4)
+          bus.emit({ type: "maxRageResolved", via: "petting" });
+          maxRage.reset();
+        }
       });
 
       const FIXED = 1 / 60;
@@ -289,7 +295,10 @@ export function bootGame(canvas: HTMLCanvasElement, opts?: { seed?: number; loca
           // mercy is only offered while he's away; when present, HE resolves it
           if (camelEid === -1 && maxRage.maybeStart(rage.rage)) {
             cowBody.setLinvel({ x: 0, y: cowBody.linvel().y, z: 0 }, true);
-            bus.emit({ type: "maxRageResolutionStarted", timerS: tuning.maxrage.decision_timer_s });
+            const pz = KYRENIA.pettingZoo;
+            const cpz = cowBody.translation();
+            const pzNear = Math.hypot(pz.x - cpz.x, pz.z - cpz.z) < 22;
+            bus.emit({ type: "maxRageResolutionStarted", timerS: tuning.maxrage.decision_timer_s, pettingZoo: pzNear });
           }
 
           if (!waiting && slamT <= 0) {

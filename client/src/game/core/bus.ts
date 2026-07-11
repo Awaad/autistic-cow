@@ -9,8 +9,8 @@ export type GameEvent =
   | { type: "timerTick"; remainingS: number }
   | { type: "nervesChanged"; remaining: number }
   | { type: "camelStateChanged"; state: "approaching" | "gone" }
-  | { type: "maxRageResolutionStarted"; timerS: number }
-  | { type: "maxRageResolved"; via: "photo" | "camel" }
+  | { type: "maxRageResolutionStarted"; timerS: number; pettingZoo: boolean }
+  | { type: "maxRageResolved"; via: "photo" | "camel" | "petting" }
   | { type: "judgeComment"; text: string }
   | { type: "rescueHint"; state: "none" | "calm_needed" | "soothing"; pct: number }
   | { type: "judgeEventRecorded"; etype: string; rage: number }
@@ -24,7 +24,8 @@ export type RageBand = "serene" | "irritated" | "furious" | "berserk";
 
 export type GameCommand =
   | { type: "photoProvided" }   // any file accepted; Later: real pipeline
-  | { type: "refusePhoto" };
+  | { type: "refusePhoto" }
+  | { type: "pettingZoo" };
 
 
 function channel<T>() {
