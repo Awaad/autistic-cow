@@ -27,7 +27,7 @@ services:
       DATABASE_URL: postgresql+asyncpg://autistic-cow:autistic-cow@postgres:5444/autistic-cow
       REDIS_URL: redis://redis:6379/0
       S3_ENDPOINT: http://minio:9000
-    ports: ["8008:8000"]
+    ports: ["8008:8008"]
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_started }

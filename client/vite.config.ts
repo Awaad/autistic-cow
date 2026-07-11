@@ -11,5 +11,5 @@ export default defineConfig({
       "@net": fileURLToPath(new URL("./src/net", import.meta.url)),
     },
   },
-  server: { proxy: { "/api": "http://localhost:8000" } },
+  server: { proxy: { "/api": "http://localhost:8008" } },
 });
