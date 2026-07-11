@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     jwt_access_ttl_s: int = 900          # 15 min
     jwt_refresh_ttl_s: int = 60 * 60 * 24 * 30
     tuning_version: str = "0.1.0"
+    policy_version: str = "pp-2026-07"
 
     model_config = {"env_file": (".env", "../.env"), "extra": "ignore"}
 
