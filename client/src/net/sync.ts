@@ -5,22 +5,10 @@
  * The session ALWAYS ends exactly once: normal end, pagehide, or the server's
  * stale sweep — whichever comes first (server end is idempotent regardless). */
 import { bus } from "../game/core/bus";
-import { api, type AnonIdentity } from "./api";
+import { api } from "./api";
 import { EventBatcher } from "./batcher";
+import { ensureAnon } from "./account";
 
-const LS_KEY = "autistic-cow.identity";
-
-async function identity(locale: string): Promise<AnonIdentity | null> {
-  const stored = localStorage.getItem(LS_KEY);
-  if (stored) return JSON.parse(stored) as AnonIdentity;
-  try {
-    const id = await api.anon(locale);
-    localStorage.setItem(LS_KEY, JSON.stringify(id));
-    return id;
-  } catch {
-    return null; // offline: local play
-  }
-}
 
 export interface SyncHandle {
   seed: number | undefined;
@@ -28,7 +16,7 @@ export interface SyncHandle {
 }
 
 export async function startSync(locale: string): Promise<SyncHandle> {
-  const id = await identity(locale);
+  const id = await ensureAnon(locale);
   if (!id) return { seed: undefined, dispose: () => undefined };
 
   let session: { session_id: string; spawn_seed: number } | null = null;
