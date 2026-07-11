@@ -5,12 +5,12 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 rm -rf server/app/schemas/gen
-datamodel-codegen \
-  --input shared/contracts/api \
+(cd server && uv run datamodel-codegen \
+  --input ../shared/contracts/api \
   --input-file-type jsonschema \
-  --output server/app/schemas/gen \
+  --output app/schemas/gen \
   --output-model-type pydantic_v2.BaseModel \
-  --disable-timestamp
+  --disable-timestamp)
 
 cat > server/app/schemas/__init__.py << 'PYEOF'
 """GENERATED contract models — regenerate via tools/codegen.sh."""
