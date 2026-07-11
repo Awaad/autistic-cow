@@ -11,8 +11,11 @@ export type GameEvent =
   | { type: "camelStateChanged"; state: "approaching" | "gone" }
   | { type: "maxRageResolutionStarted"; timerS: number }
   | { type: "maxRageResolved"; via: "photo" | "camel" }
-  | { type: "judgeCommentQueued"; i18nKey: string }
+  | { type: "judgeComment"; text: string }
   | { type: "rescueHint"; state: "none" | "calm_needed" | "soothing"; pct: number }
+  | { type: "judgeEventRecorded"; etype: string; rage: number }
+  | { type: "sessionStats"; destruction: number; rescue: number; peakRage: number; nervesLost: number }
+  | { type: "serverVerdict"; xp: number; level: number; levelUp: boolean; axisBand: string }
   | { type: "bootError"; message: string }
   | { type: "sessionEnded"; reason: "timer" | "cameld" | "player_exit" };
 

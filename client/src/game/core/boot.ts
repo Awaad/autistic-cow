@@ -45,7 +45,7 @@ const lerpAngle = (a: number, b: number, t: number): number => {
   return a + d * t;
 };
 
-export function bootGame(canvas: HTMLCanvasElement, opts?:{ seed: number; locale: string }): () => void {
+export function bootGame(canvas: HTMLCanvasElement, opts?: { seed?: number; locale?: string  }): () => void {
   let disposed = false;
   let cleanup: (() => void) | null = null;
 
@@ -56,7 +56,7 @@ export function bootGame(canvas: HTMLCanvasElement, opts?:{ seed: number; locale
 
       const ecs = createWorld();
       const reg = new Registry();
-      const seed = Math.floor(Math.random() * 2 ** 31); // Stage 3: server-issued
+      const seed = opts?.seed ?? Math.floor(Math.random() * 2 ** 31); // server-issued when online
       const { scene, cowBody, buildingColliders } = buildKyrenia(physics, ecs, reg, seed);
 
       const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -91,6 +91,7 @@ export function bootGame(canvas: HTMLCanvasElement, opts?:{ seed: number; locale
       let heading = 0;
       let trauma = 0;       // camera shake energy (squared on application)
       let heat = 0;         // her noise; summons him at threshold
+      let peakRage = 0;
       let nerves = NERVES_START;
       let camelEid = -1;
       let camelBody: import("@dimforge/rapier3d-compat").RigidBody | null = null;
@@ -152,12 +153,13 @@ export function bootGame(canvas: HTMLCanvasElement, opts?:{ seed: number; locale
 
       const record = (type: Parameters<JudgeLog["add"]>[0], t: number): void => {
         const n = judge.add(type, rage.rage, t);
+        bus.emit({ type: "judgeEventRecorded", etype: type, rage: Math.round(rage.rage) });
         // escalating triggers: third scare, second camel'd, etc.
         const trigger =
           type === "child_scared" && n >= 3 ? "child_scared_x3" :
           type === "cameld" && n >= 2 ? "cameld_x2" : type;
         const line = comments.serve(trigger, judge.band(), t);
-        if (line) bus.emit({ type: "judgeCommentQueued", i18nKey: line });
+        if (line) bus.emit({ type: "judgeComment", text: line });
       };
 
       const consume = (eid: number): void => {
@@ -201,6 +203,13 @@ export function bootGame(canvas: HTMLCanvasElement, opts?:{ seed: number; locale
       const endSession = (reason: "timer" | "cameld" | "player_exit"): void => {
         if (ended) return;
         ended = true;
+        bus.emit({
+          type: "sessionStats",
+          destruction: destructionScore,
+          rescue: rescueScore,
+          peakRage,
+          nervesLost: NERVES_START - nerves,
+        });
         bus.emit({ type: "sessionEnded", reason });
       };
 
@@ -270,6 +279,7 @@ export function bootGame(canvas: HTMLCanvasElement, opts?:{ seed: number; locale
             if (elapsed >= SESSION_S) endSession("timer");
             bus.emit({ type: "timerTick", remainingS: Math.max(0, SESSION_S - elapsed) });
             rage.tick(dt);
+            if (rage.rage > peakRage) peakRage = Math.round(rage.rage);
           } else if (maxRage.tick(rawDt) === "timeout") {
             spawnCamel(true); // she is on her own now
           }
@@ -324,7 +334,7 @@ export function bootGame(canvas: HTMLCanvasElement, opts?:{ seed: number; locale
             cowBody.setLinvel({ x: Math.sin(heading) * speed, y: vy, z: Math.cos(heading) * speed }, true);
           }
 
-          // --- rescueables: serene-band dwell to rescue; hesitation watched ---
+          // rescueables: serene-band dwell to rescue; hesitation watched
           if (!waiting && slamT <= 0) {
             const cpr = cowBody.translation();
             let hintState: "none" | "calm_needed" | "soothing" = "none";
@@ -367,7 +377,7 @@ export function bootGame(canvas: HTMLCanvasElement, opts?:{ seed: number; locale
             }
             bus.emit({ type: "rescueHint", state: hintState, pct: hintPct });
 
-            // --- children: flee brains; scaring is seen; treats get dropped ---
+            // children: flee brains; scaring is seen; treats get dropped
             const cowSpd = Math.hypot(cowBody.linvel().x, cowBody.linvel().z);
             for (const eid of childQuery(ecs)) {
               const b = reg.bodies.get(eid);
@@ -416,7 +426,7 @@ export function bootGame(canvas: HTMLCanvasElement, opts?:{ seed: number; locale
             heat = 0;
             spawnCamel(false);
           }
-          // scheduled beat — guaranteed once per session (01_GAME_LOOP §3.1)
+          // scheduled beat — guaranteed once per session 
           if (camelEid === -1 && elapsed >= camelScheduledAt) {
             camelScheduledAt = Infinity;
             spawnCamel(false);
@@ -473,7 +483,7 @@ export function bootGame(canvas: HTMLCanvasElement, opts?:{ seed: number; locale
               }
               if (e1 === undefined || e2 === undefined) return;
 
-              // the Lure: his collisions score for you at 1.5x (01_GAME_LOOP §6.2)
+              // the Lure: his collisions score for you at 1.5x 
               if ((e1 === camelEid || e2 === camelEid) && camelEid !== -1) {
                 const other = e1 === camelEid ? e2 : e1;
                 if (hasComponent(ecs, Smashable, other)) smash(other, elapsed, true);
