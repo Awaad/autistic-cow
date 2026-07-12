@@ -7,6 +7,7 @@ import { bumpSessionsPlayed, getIdentity, sessionsPlayed } from "@net/account";
 import { CookieBanner } from "@ui/CookieBanner";
 import { Wall } from "@ui/Wall";
 import { ConsentSettings } from "@ui/ConsentSettings";
+import { TitleScreen } from "@ui/TitleScreen";
 
 /** React shell. The engine below the canvas is a React-free zone (Repo Law 1). */
 export function App() {
@@ -25,11 +26,13 @@ export function App() {
   const [bootError, setBootError] = useState<string | null>(null);
   const [runKey, setRunKey] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
+  const [phase, setPhase] = useState<"title" | "playing">("title");
+  const [noEnergyIn, setNoEnergyIn] = useState<number | null>(null);
   const [pettingAvail, setPettingAvail] = useState(false);
   const [verdict, setVerdict] = useState<{ xp: number; level: number; levelUp: boolean; axisBand: string } | null>(null);
   
-
   useEffect(() => {
+    if (phase !== "playing") return;
     if (!canvasRef.current) return;
     setEndedReason(null);
     setScore(0);
@@ -38,10 +41,7 @@ export function App() {
     setPromptTimer(null);
     setCamelNear(false);
     const canvas = canvasRef.current;
-
-    const locale = navigator.language.startsWith("de") ? "de"
-             : navigator.language.startsWith("ru") ? "ru" : "en";
-
+    const locale = navigator.language.startsWith("de") ? "de" : navigator.language.startsWith("ru") ? "ru" : "en";
     let disposeGame: (() => void) | null = null;
     let disposeSync: (() => void) | null = null;
     let cancelled = false;
@@ -70,7 +70,7 @@ export function App() {
       if (e.type === "serverVerdict") setVerdict({ xp: e.xp, level: e.level, levelUp: e.levelUp, axisBand: e.axisBand });
     });
     return () => { cancelled = true; unsub(); disposeGame?.(); disposeSync?.(); };
-  }, [runKey]);
+  }, [runKey, phase]);
 
   // countdown display while the prompt is open (engine owns the real timer)
   useEffect(() => {
@@ -91,20 +91,35 @@ export function App() {
   const mm = remaining === null ? "-" : String(Math.floor(remaining / 60));
   const ss = remaining === null ? "--" : String(Math.floor(remaining % 60)).padStart(2, "0");
 
+  if (phase === "title") {
+    return (
+      <div style={{ position: "fixed", inset: 0 }}>
+        <TitleScreen onPlay={() => { setNoEnergyIn(null); setPhase("playing"); setRunKey((k) => k + 1); }} />
+        {noEnergyIn !== null && (
+          <div style={{ position: "absolute", bottom: 60, left: 0, right: 0, textAlign: "center",
+                        color: "#ffd28a", fontFamily: "monospace" }}>
+            {t("energy.empty")} — {Math.ceil(noEnergyIn / 60)} min
+          </div>
+        )}
+        <CookieBanner />
+      </div>
+    );
+  }
+
   return (
     <div style={{ position: "fixed", inset: 0 }}>
       <canvas key={runKey} ref={canvasRef} style={{ width: "100%", height: "100%" }} />
- 
+
       <div style={hud}>
         <div>{t("hud.havoc")} {score} · {t("hud.grace")} {grace}</div>
         <div>{t("nerves.label")} {"♥".repeat(Math.max(0, nerves))}{"♡".repeat(Math.max(0, 3 - nerves))}</div>
         <div>{mm}:{ss}</div>
       </div>
- 
+
       {camelNear && !promptTimer && <div style={camelBanner}>{t("camel.warning")}</div>}
- 
+
       {judgeLine && <div style={judgeToast}>{judgeLine}</div>}
- 
+
       {rescueHint.state !== "none" && !promptTimer && !endedReason && (
         <div style={rescueHintBox}>
           {rescueHint.state === "calm_needed" ? t("rescue.too_worked_up") : t("rescue.soothing")}
@@ -115,14 +130,14 @@ export function App() {
           )}
         </div>
       )}
- 
+
       <div style={rageWrap}>
         <div style={{ marginBottom: 4, textTransform: "uppercase" }}>rage {Math.round(rage)} — {band}</div>
         <div style={rageTrack}>
           <div style={{ ...rageFill, width: `${rage}%`, background: `hsl(${120 - rage * 1.2}, 80%, 50%)` }} />
         </div>
       </div>
- 
+
       {promptTimer !== null && (
         <div style={{ ...overlay, background: "#0d0d18ee" }}>
           <p style={{ maxWidth: 480, textAlign: "center", fontSize: 20 }}>{t("maxrage.prompt")}</p>
@@ -139,14 +154,14 @@ export function App() {
           <button style={{ ...btn, opacity: 0.6 }} onClick={onRefuse}>{t("maxrage.refuse_button")}</button>
         </div>
       )}
- 
+
       {bootError && (
         <div style={{ ...overlay, background: "#5c1a1acc" }}>
           <h2 style={{ margin: 0 }}>ENGINE FAILED TO BOOT</h2>
           <p style={{ maxWidth: 600, textAlign: "center" }}>{bootError}</p>
         </div>
       )}
- 
+
       {endedReason && (getIdentity()?.anon ?? false) && sessionsPlayed() >= 1 ? (
         <Wall
           locale={navigator.language.startsWith("de") ? "de" : navigator.language.startsWith("ru") ? "ru" : "en"}
@@ -173,7 +188,7 @@ export function App() {
     </div>
   );
 }
- 
+
 const mono: React.CSSProperties = { color: "#fff", fontFamily: "monospace" };
 const hud: React.CSSProperties = { ...mono, position: "absolute", top: 16, left: 16, right: 16,
   display: "flex", justifyContent: "space-between", fontSize: 18 };
@@ -195,5 +210,5 @@ const rageFill: React.CSSProperties = { height: "100%", transition: "width 120ms
 const overlay: React.CSSProperties = { ...mono, position: "absolute", inset: 0, display: "flex",
   flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#1a1a2ecc", gap: 12 };
 const btn: React.CSSProperties = { fontFamily: "monospace", fontSize: 18, padding: "8px 24px", cursor: "pointer" };
-const gear: React.CSSProperties = { position: "absolute", top: 12, right: 12, fontSize: 20,
+const gear: React.CSSProperties = { position: "absolute", top: 46, right: 12, fontSize: 20,
   background: "transparent", color: "#fff", border: "none", cursor: "pointer", zIndex: 20 };

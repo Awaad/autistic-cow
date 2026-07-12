@@ -9,7 +9,6 @@ import { api } from "./api";
 import { EventBatcher } from "./batcher";
 import { ensureAnon } from "./account";
 
-
 export interface SyncHandle {
   seed: number | undefined;
   dispose: () => void;
@@ -22,7 +21,8 @@ export async function startSync(locale: string): Promise<SyncHandle> {
   let session: { session_id: string; spawn_seed: number } | null = null;
   try {
     session = await api.startSession(id.access_token);
-  } catch {
+  } catch (err) {
+    if ((err as { status?: number }).status === 409) throw err; // no energy: caller shows countdown
     return { seed: undefined, dispose: () => undefined };
   }
 
