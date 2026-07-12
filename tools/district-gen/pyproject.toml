@@ -1,0 +1,32 @@
+[project]
+name = "district-gen"
+version = "0.1.0"
+description = "Offline real-map district generation pipeline for cowgame (ADR-015)."
+requires-python = ">=3.14"
+# Extract + IR stages: ZERO third-party runtime deps (stdlib urllib for Overpass;
+# Overture via the `overturemaps` CLI, an optional extra). Geometry deps
+# (shapely, pyproj) arrive with the simplify stage — see ADR-017.
+dependencies = []
+
+# Real optional feature: only needed to extract the Overture provider.
+[project.optional-dependencies]
+overture = ["overturemaps>=0.9"]
+
+[project.scripts]
+district-gen = "district_gen.cli:main"
+
+# Dev tooling as a PEP 735 group — `uv sync` installs it by default,
+# `uv sync --no-dev` for a lean prod install. Not a pip-style extra.
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["uv_build>=0.9,<0.12"]
+build-backend = "uv_build"
+
+# Package lives at tools/district-gen/district_gen (no src/ layout).
+[tool.uv.build-backend]
+module-root = ""
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
