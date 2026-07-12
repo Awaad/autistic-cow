@@ -219,3 +219,102 @@ async def latest_consents(conn: AsyncConnection, player_id: UUID) -> dict[str, b
         {"pid": player_id},
     )
     return {str(k): bool(g) for k, g in rows}
+
+
+
+async def spend_energy(conn: AsyncConnection, player_id: UUID) -> tuple[int, int] | None:
+    """Compute regen, spend 1. Returns (remaining, next_in_s) or None if broke."""
+    from app.domain.economy.energy import energy_now
+
+    row = (
+        await conn.execute(
+            text("""SELECT energy, energy_updated_at FROM player_profiles
+                    WHERE player_id = :pid FOR UPDATE"""),
+            {"pid": player_id},
+        )
+    ).first()
+    if row is None:
+        return None
+    current, next_in = energy_now(int(row[0]), row[1])
+    if current <= 0:
+        return None if next_in else None
+    await conn.execute(
+        text("""UPDATE player_profiles SET energy = :e, energy_updated_at = now()
+                WHERE player_id = :pid"""),
+        {"e": current - 1, "pid": player_id},
+    )
+    return current - 1, next_in
+
+
+async def profile_me(conn: AsyncConnection, player_id: UUID) -> dict[str, Any] | None:
+    row = (
+        await conn.execute(
+            text("""SELECT p.display_name, p.is_anonymous, pr.level, pr.xp,
+                           pr.axis_band, pr.cow_name, pr.energy, pr.energy_updated_at
+                    FROM players p JOIN player_profiles pr ON pr.player_id = p.id
+                    WHERE p.id = :pid"""),
+            {"pid": player_id},
+        )
+    ).first()
+    if row is None:
+        return None
+    from app.domain.economy.energy import energy_now
+    from app.core.tuning import tuning
+    e, nxt = energy_now(int(row[6]), row[7])
+    return {
+        "player_id": str(player_id),
+        "display_name": row[0] or "Anonymous",
+        "is_anonymous": bool(row[1]),
+        "level": int(row[2]), "xp": int(row[3]),
+        "axis_band": str(row[4]), "cow_name": row[5],
+        "energy": {"energy": e, "energy_max": int(tuning()["energy"]["max"]),
+                   "next_energy_in_s": nxt},
+    }
+
+
+async def orphan_player(conn: AsyncConnection, player_id: UUID) -> None:
+    """User-initiated deletion: same procedure as the retention sweep."""
+    await conn.execute(
+        text("""UPDATE players SET email = NULL, password_hash = NULL,
+                  display_name = 'deleted_' || left(id::text, 8),
+                  status = 'orphaned', orphaned_at = now()
+                WHERE id = :pid"""),
+        {"pid": player_id},
+    )
+    await conn.execute(
+        text("UPDATE player_profiles SET cow_name = NULL WHERE player_id = :pid"),
+        {"pid": player_id},
+    )
+
+
+async def export_bundle(conn: AsyncConnection, player_id: UUID) -> dict[str, Any]:
+    prof = await profile_me(conn, player_id)
+    sessions = [
+        dict(r._mapping) for r in await conn.execute(
+            text("""SELECT id, started_at, ended_at, end_reason, destruction_score,
+                           rescue_score, peak_rage, nerves_lost FROM sessions
+                    WHERE player_id = :pid ORDER BY started_at"""),
+            {"pid": player_id},
+        )
+    ]
+    events = [
+        dict(r._mapping) for r in await conn.execute(
+            text("""SELECT event_type, target_kind, rage_at_event, seq_in_session,
+                           created_at FROM judge_events
+                    WHERE player_id = :pid ORDER BY id LIMIT 10000"""),
+            {"pid": player_id},
+        )
+    ]
+    consents = await latest_consents(conn, player_id)
+    return {"profile": prof, "sessions": sessions, "judge_events": events,
+            "consents": consents}
+
+
+async def display_names(conn: AsyncConnection, ids: list[UUID]) -> dict[str, str]:
+    if not ids:
+        return {}
+    rows = await conn.execute(
+        text("SELECT id, display_name, is_anonymous FROM players WHERE id = ANY(:ids)"),
+        {"ids": ids},
+    )
+    return {str(i): ("Anonymous" if anon or not dn else dn) for i, dn, anon in rows}
