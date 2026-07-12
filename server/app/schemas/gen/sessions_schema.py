@@ -16,6 +16,7 @@ class SessionStartResponse(BaseModel):
     session_token: str
     tuning_version: str
     district_slug: str
+    energy_remaining: int
 
 
 class EventType(Enum):

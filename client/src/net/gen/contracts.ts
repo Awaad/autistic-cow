@@ -40,6 +40,7 @@ export interface SessionStartResponse {
   session_token: string;
   tuning_version: string;
   district_slug: string;
+  energy_remaining: number;
   [k: string]: unknown;
 }
 export interface JudgeEvent {
