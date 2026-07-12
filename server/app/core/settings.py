@@ -16,6 +16,10 @@ class Settings(BaseSettings):
     jwt_refresh_ttl_s: int = 60 * 60 * 24 * 30
     tuning_version: str = "0.1.0"
     policy_version: str = "pp-2026-07"
+    
+    # OAuth lands when the consoles approve — config, not code (Drop 2 decision)
+    oauth_google_enabled: bool = False
+    oauth_apple_enabled: bool = False
 
     model_config = {"env_file": (".env", "../.env"), "extra": "ignore"}
 
