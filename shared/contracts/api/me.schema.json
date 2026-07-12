@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "autistic-cow:api:me",
+  "title": "Me",
+  "anyOf": [
+    { "$ref": "#/definitions/ProfileMe" },
+    { "$ref": "#/definitions/EnergyState" }
+  ],
+  "definitions": {
+    "EnergyState": {
+      "title": "EnergyState", "type": "object",
+      "required": ["energy", "energy_max", "next_energy_in_s"],
+      "properties": {
+        "energy": { "type": "integer" },
+        "energy_max": { "type": "integer" },
+        "next_energy_in_s": { "type": "integer" }
+      }
+    },
+    "ProfileMe": {
+      "title": "ProfileMe", "type": "object",
+      "required": ["player_id", "display_name", "is_anonymous", "level", "xp", "axis_band", "energy"],
+      "properties": {
+        "player_id": { "type": "string", "format": "uuid" },
+        "display_name": { "type": "string" },
+        "is_anonymous": { "type": "boolean" },
+        "level": { "type": "integer" },
+        "xp": { "type": "integer" },
+        "axis_band": { "type": "string" },
+        "cow_name": { "type": ["string", "null"] },
+        "energy": { "$ref": "#/definitions/EnergyState" }
+      }
+    }
+  }
+}

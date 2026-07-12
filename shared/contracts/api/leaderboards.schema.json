@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "autistic-cow:api:leaderboards",
+  "title": "Leaderboards",
+  "anyOf": [{ "$ref": "#/definitions/LeaderboardResponse" }],
+  "definitions": {
+    "LeaderboardEntry": {
+      "title": "LeaderboardEntry", "type": "object",
+      "required": ["display_name", "xp", "level"],
+      "properties": {
+        "display_name": { "type": "string" },
+        "xp": { "type": "integer" },
+        "level": { "type": "integer" }
+      }
+    },
+    "LeaderboardResponse": {
+      "title": "LeaderboardResponse", "type": "object",
+      "required": ["band", "entries"],
+      "properties": {
+        "band": { "type": "string" },
+        "entries": { "type": "array", "maxItems": 20,
+          "items": { "$ref": "#/definitions/LeaderboardEntry" } }
+      }
+    }
+  }
+}

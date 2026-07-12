@@ -11,7 +11,8 @@
         "spawn_seed",
         "session_token",
         "tuning_version",
-        "district_slug"
+        "district_slug",
+        "energy_remaining"
       ],
       "properties": {
         "session_id": {
@@ -29,6 +30,9 @@
         },
         "district_slug": {
           "type": "string"
+        },
+        "energy_remaining": {
+          "type": "integer"
         }
       }
     },
