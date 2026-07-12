@@ -50,6 +50,10 @@ export function App() {
       if (cancelled) { sync.dispose(); return; }
       disposeSync = sync.dispose;
       disposeGame = bootGame(canvas, { seed: sync.seed, locale });
+    })
+    .catch((err) => {
+      console.error("[sync]", err);
+      if (!cancelled) disposeGame = bootGame(canvas, { locale }); // play local, always
     });
     const unsub = bus.subscribe((e) => {
       if (e.type === "rageChanged") { setRage(e.value); setBand(e.band); }
@@ -59,9 +63,9 @@ export function App() {
       if (e.type === "timerTick") setRemaining(e.remainingS);
       if (e.type === "nervesChanged") setNerves(e.remaining);
       if (e.type === "camelStateChanged") setCamelNear(e.state === "approaching");
-      if (e.type === "maxRageResolutionStarted") setPromptTimer(e.timerS);
+      if (e.type === "maxRageResolutionStarted") { setPromptTimer(e.timerS); setPettingAvail(e.pettingZoo); }
       if (e.type === "maxRageResolved") setPromptTimer(null);
-      if (e.type === "sessionEnded") { setEndedReason(e.reason); setPromptTimer(null); }
+      if (e.type === "sessionEnded") { setEndedReason(e.reason); setPromptTimer(null); bumpSessionsPlayed(); }
       if (e.type === "bootError") setBootError(e.message);
       if (e.type === "serverVerdict") setVerdict({ xp: e.xp, level: e.level, levelUp: e.levelUp, axisBand: e.axisBand });
     });
@@ -90,17 +94,17 @@ export function App() {
   return (
     <div style={{ position: "fixed", inset: 0 }}>
       <canvas key={runKey} ref={canvasRef} style={{ width: "100%", height: "100%" }} />
-
+ 
       <div style={hud}>
         <div>{t("hud.havoc")} {score} · {t("hud.grace")} {grace}</div>
         <div>{t("nerves.label")} {"♥".repeat(Math.max(0, nerves))}{"♡".repeat(Math.max(0, 3 - nerves))}</div>
         <div>{mm}:{ss}</div>
       </div>
-
+ 
       {camelNear && !promptTimer && <div style={camelBanner}>{t("camel.warning")}</div>}
-
+ 
       {judgeLine && <div style={judgeToast}>{judgeLine}</div>}
-
+ 
       {rescueHint.state !== "none" && !promptTimer && !endedReason && (
         <div style={rescueHintBox}>
           {rescueHint.state === "calm_needed" ? t("rescue.too_worked_up") : t("rescue.soothing")}
@@ -111,14 +115,14 @@ export function App() {
           )}
         </div>
       )}
-
+ 
       <div style={rageWrap}>
         <div style={{ marginBottom: 4, textTransform: "uppercase" }}>rage {Math.round(rage)} — {band}</div>
         <div style={rageTrack}>
           <div style={{ ...rageFill, width: `${rage}%`, background: `hsl(${120 - rage * 1.2}, 80%, 50%)` }} />
         </div>
       </div>
-
+ 
       {promptTimer !== null && (
         <div style={{ ...overlay, background: "#0d0d18ee" }}>
           <p style={{ maxWidth: 480, textAlign: "center", fontSize: 20 }}>{t("maxrage.prompt")}</p>
@@ -135,15 +139,15 @@ export function App() {
           <button style={{ ...btn, opacity: 0.6 }} onClick={onRefuse}>{t("maxrage.refuse_button")}</button>
         </div>
       )}
-
+ 
       {bootError && (
         <div style={{ ...overlay, background: "#5c1a1acc" }}>
           <h2 style={{ margin: 0 }}>ENGINE FAILED TO BOOT</h2>
           <p style={{ maxWidth: 600, textAlign: "center" }}>{bootError}</p>
         </div>
       )}
-
-       {endedReason && (getIdentity()?.anon ?? false) && sessionsPlayed() >= 1 ? (
+ 
+      {endedReason && (getIdentity()?.anon ?? false) && sessionsPlayed() >= 1 ? (
         <Wall
           locale={navigator.language.startsWith("de") ? "de" : navigator.language.startsWith("ru") ? "ru" : "en"}
           onDone={() => setRunKey((k) => k + 1)}
@@ -169,8 +173,7 @@ export function App() {
     </div>
   );
 }
-
-
+ 
 const mono: React.CSSProperties = { color: "#fff", fontFamily: "monospace" };
 const hud: React.CSSProperties = { ...mono, position: "absolute", top: 16, left: 16, right: 16,
   display: "flex", justifyContent: "space-between", fontSize: 18 };
