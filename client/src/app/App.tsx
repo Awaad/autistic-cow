@@ -28,6 +28,7 @@ export function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [phase, setPhase] = useState<"title" | "playing">("title");
   const [noEnergyIn, setNoEnergyIn] = useState<number | null>(null);
+  const [forceWall, setForceWall] = useState(false);
   const [pettingAvail, setPettingAvail] = useState(false);
   const [verdict, setVerdict] = useState<{ xp: number; level: number; levelUp: boolean; axisBand: string } | null>(null);
   
@@ -64,7 +65,10 @@ export function App() {
       if (e.type === "nervesChanged") setNerves(e.remaining);
       if (e.type === "camelStateChanged") setCamelNear(e.state === "approaching");
       if (e.type === "maxRageResolutionStarted") { setPromptTimer(e.timerS); setPettingAvail(e.pettingZoo); }
-      if (e.type === "maxRageResolved") setPromptTimer(null);
+      if (e.type === "maxRageResolved") {
+        setPromptTimer(null);
+        if (e.via === "petting") setJudgeLine(t("maxrage.petting_done"));
+      }
       if (e.type === "sessionEnded") { setEndedReason(e.reason); setPromptTimer(null); bumpSessionsPlayed(); }
       if (e.type === "bootError") setBootError(e.message);
       if (e.type === "serverVerdict") setVerdict({ xp: e.xp, level: e.level, levelUp: e.levelUp, axisBand: e.axisBand });
@@ -95,6 +99,12 @@ export function App() {
     return (
       <div style={{ position: "fixed", inset: 0 }}>
         <TitleScreen onPlay={() => { setNoEnergyIn(null); setPhase("playing"); setRunKey((k) => k + 1); }} />
+        {forceWall && (
+          <Wall
+            locale={navigator.language.startsWith("de") ? "de" : navigator.language.startsWith("ru") ? "ru" : "en"}
+            onDone={() => { setForceWall(false); setPhase("playing"); setRunKey((k) => k + 1); }}
+          />
+        )}
         {noEnergyIn !== null && (
           <div style={{ position: "absolute", bottom: 60, left: 0, right: 0, textAlign: "center",
                         color: "#ffd28a", fontFamily: "monospace" }}>

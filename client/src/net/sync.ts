@@ -22,7 +22,8 @@ export async function startSync(locale: string): Promise<SyncHandle> {
   try {
     session = await api.startSession(id.access_token);
   } catch (err) {
-    if ((err as { status?: number }).status === 409) throw err; // no energy: caller shows countdown
+    const st = (err as { status?: number }).status;
+    if (st === 409 || st === 403) throw err; // energy countdown / account wall: caller handles
     return { seed: undefined, dispose: () => undefined };
   }
 
