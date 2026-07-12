@@ -37,7 +37,7 @@ export function TitleScreen({ onPlay }: { onPlay: () => void }) {
 
   return (
     <div style={screen}>
-      <h1 style={{ fontSize: 42, margin: 0, letterSpacing: 2 }}>WORKING_TITLE</h1>
+      <h1 style={{ fontSize: 42, margin: 0, letterSpacing: 2 }}>Eina The Cow</h1>
       <p style={{ opacity: 0.8, marginTop: 0 }}>{t("title.tagline")}</p>
 
       {mode === "root" && !profile && (
