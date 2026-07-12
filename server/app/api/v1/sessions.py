@@ -5,10 +5,10 @@ from __future__ import annotations
 
 import secrets
 from uuid import UUID
- 
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncConnection
- 
+
 from app.core.deps import current_player
 from app.core.dispatch import DomainEvent, dispatcher
 from app.core.ids import new_token
@@ -19,10 +19,10 @@ from app.db.session import get_conn
 from app.schemas import (
     EventBatch, SessionEndRequest, SessionEndResponse, SessionStartResponse,
 )
- 
+
 router = APIRouter(prefix="/sessions", tags=["sessions"])
- 
- 
+
+
 @router.post("", response_model=SessionStartResponse)
 async def start_session(
     player_id: UUID = Depends(current_player),
@@ -31,6 +31,10 @@ async def start_session(
     district = await repo.active_district(conn, "kyrenia-harbor")
     if district is None:
         raise HTTPException(503, "no active district — run tools/seed_dev.py")
+    anon_count = await repo.anon_session_count(conn, player_id)
+    if anon_count is not None and anon_count >= int(tuning()["wall"]["free_anon_sessions"]):
+        # she remembers you — and the server does too. localStorage tricks won't help.
+        raise HTTPException(403, detail={"error": "account_required"})
     spent = await repo.spend_energy(conn, player_id)
     if spent is None:
         from app.domain.economy.energy import energy_now
@@ -52,8 +56,8 @@ async def start_session(
         district_slug="kyrenia-harbor",
         energy_remaining=energy_remaining,
     )
- 
- 
+
+
 @router.post("/{session_id}/events", status_code=202)
 async def ingest_events(
     session_id: UUID,
@@ -61,16 +65,26 @@ async def ingest_events(
     player_id: UUID = Depends(current_player),
     conn: AsyncConnection = Depends(get_conn),
 ) -> dict[str, int]:
-    # event_type is the generated EventType enum: the contract already
-    # rejected anything outside the closed set (one authority, Repo Law 2)
-    events = [e.model_dump(mode="json") for e in batch.events]
+    # explicit construction: no dump-mode ambiguity — event_type as str for
+    # the pg enum, client_ts as a real datetime for asyncpg, UUIDs as UUIDs
+    events = [
+        {
+            "event_id": e.event_id,
+            "seq_in_session": e.seq_in_session,
+            "event_type": e.event_type.value,
+            "target_kind": e.target_kind,
+            "rage_at_event": e.rage_at_event,
+            "client_ts": e.client_ts,
+        }
+        for e in batch.events
+    ]
     inserted = await repo.insert_judge_events(conn, session_id, player_id, events)
     await dispatcher.emit(DomainEvent(
         "events_ingested", {"session_id": str(session_id), "count": inserted},
     ))
     return {"accepted": inserted}
- 
- 
+
+
 @router.post("/{session_id}/end", response_model=SessionEndResponse)
 async def end_session(
     session_id: UUID,

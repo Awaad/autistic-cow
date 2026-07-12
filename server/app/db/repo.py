@@ -43,6 +43,7 @@ async def active_district(conn: AsyncConnection, slug: str) -> UUID | None:
     return row[0] if row else None
 
 
+
 async def create_session(
     conn: AsyncConnection, player_id: UUID, district_id: UUID,
     spawn_seed: int, tuning_version: str, locale: str,
@@ -56,6 +57,19 @@ async def create_session(
          "seed": spawn_seed, "tv": tuning_version, "loc": locale},
     )
     return sid
+
+
+def _coerce_ts(v: Any) -> Any:
+    """Accepts datetime, ISO string (incl. 'Z'), or None. Exists because a
+    serialization-mode mismatch once shipped strings here twice."""
+    from datetime import datetime
+    if v is None or isinstance(v, datetime):
+        return v
+    return datetime.fromisoformat(str(v).replace("Z", "+00:00"))
+
+
+def _coerce_enum(v: Any) -> str | None:
+    return None if v is None else (v.value if hasattr(v, "value") else str(v))
 
 
 async def insert_judge_events(
@@ -72,10 +86,10 @@ async def insert_judge_events(
                     VALUES (:eid, :sid, :pid, :etype, :tk, :rage, :kw, :seq, :cts)
                     ON CONFLICT (session_id, event_id) DO NOTHING"""),
             {"eid": e["event_id"], "sid": session_id, "pid": player_id,
-             "etype": e["event_type"], "tk": e.get("target_kind"),
+             "etype": _coerce_enum(e["event_type"]), "tk": e.get("target_kind"),
              "rage": e["rage_at_event"],
-             "kw": weights.get(e["event_type"], 0.0),
-             "seq": e["seq_in_session"], "cts": e.get("client_ts")},
+             "kw": weights.get(_coerce_enum(e["event_type"]) or "", 0.0),
+             "seq": e["seq_in_session"], "cts": _coerce_ts(e.get("client_ts"))},
         )
         inserted += res.rowcount or 0
     return inserted
@@ -100,7 +114,7 @@ async def end_session(
 ) -> dict[str, Any]:
     from app.domain.economy.levels import level_for
     from app.domain.judge.axis import band_for
- 
+
     res = await conn.execute(
         text("""UPDATE sessions SET ended_at = now(), end_reason = :reason,
                   destruction_score = :d, rescue_score = :r,
@@ -124,7 +138,7 @@ async def end_session(
                     "moral_axis": 0.0, "axis_band": "flexible"}
         return {"xp": int(row[0]), "level": int(row[1]), "level_up": False,
                 "moral_axis": float(row[2]), "axis_band": str(row[3])}
- 
+
     xp_gain = max(0, destruction) + max(0, rescue)  # direction-blind (ADR-013)
     axis = await session_axis(conn, player_id)
     row = (
@@ -219,7 +233,6 @@ async def latest_consents(conn: AsyncConnection, player_id: UUID) -> dict[str, b
         {"pid": player_id},
     )
     return {str(k): bool(g) for k, g in rows}
-
 
 
 async def spend_energy(conn: AsyncConnection, player_id: UUID) -> tuple[int, int] | None:
@@ -318,3 +331,18 @@ async def display_names(conn: AsyncConnection, ids: list[UUID]) -> dict[str, str
         {"ids": ids},
     )
     return {str(i): ("Anonymous" if anon or not dn else dn) for i, dn, anon in rows}
+
+
+async def anon_session_count(conn: AsyncConnection, player_id: UUID) -> int | None:
+    """Sessions STARTED by this player if anonymous; None if registered."""
+    row = (
+        await conn.execute(
+            text("""SELECT p.is_anonymous, count(s.id)
+                    FROM players p LEFT JOIN sessions s ON s.player_id = p.id
+                    WHERE p.id = :pid GROUP BY p.is_anonymous"""),
+            {"pid": player_id},
+        )
+    ).first()
+    if row is None or not row[0]:
+        return None
+    return int(row[1])
