@@ -31,6 +31,14 @@ async def start_session(
     district = await repo.active_district(conn, "kyrenia-harbor")
     if district is None:
         raise HTTPException(503, "no active district — run tools/seed_dev.py")
+    spent = await repo.spend_energy(conn, player_id)
+    if spent is None:
+        from app.domain.economy.energy import energy_now
+        from datetime import datetime, timezone
+        prof = await repo.profile_me(conn, player_id)
+        nxt = prof["energy"]["next_energy_in_s"] if prof else 0
+        raise HTTPException(409, detail={"error": "no_energy", "next_energy_in_s": nxt})
+    energy_remaining, _ = spent
     seed = secrets.randbits(31)
     sid = await repo.create_session(
         conn, player_id, district, seed, settings().tuning_version, "en",
@@ -42,6 +50,7 @@ async def start_session(
         session_token=new_token(),
         tuning_version=settings().tuning_version,
         district_slug="kyrenia-harbor",
+        energy_remaining=energy_remaining,
     )
  
  
@@ -52,19 +61,9 @@ async def ingest_events(
     player_id: UUID = Depends(current_player),
     conn: AsyncConnection = Depends(get_conn),
 ) -> dict[str, int]:
-    # explicit construction: no dump-mode ambiguity — event_type as str for the
-    # pg enum, client_ts as a real datetime for asyncpg, UUIDs as UUIDs
-    events = [
-        {
-            "event_id": e.event_id,
-            "seq_in_session": e.seq_in_session,
-            "event_type": e.event_type.value,
-            "target_kind": e.target_kind,
-            "rage_at_event": e.rage_at_event,
-            "client_ts": e.client_ts,
-        }
-        for e in batch.events
-    ]
+    # event_type is the generated EventType enum: the contract already
+    # rejected anything outside the closed set (one authority, Repo Law 2)
+    events = [e.model_dump(mode="json") for e in batch.events]
     inserted = await repo.insert_judge_events(conn, session_id, player_id, events)
     await dispatcher.emit(DomainEvent(
         "events_ingested", {"session_id": str(session_id), "count": inserted},
@@ -83,9 +82,13 @@ async def end_session(
     d, r = body.destruction_score, body.rescue_score
     if d + r > max_score:
         d, r = min(d, max_score), 0  # flagged path; shadow rules arrive with leaderboards
+    flagged = (d, r) != (body.destruction_score, body.rescue_score)
     verdict = await repo.end_session(
         conn, session_id, player_id, d, r,
         body.peak_rage, body.nerves_lost, body.end_reason.value,
     )
+    if not flagged:  # shadow exclusion: flagged sessions never reach the board (ADR-005)
+        from app.api.v1.leaderboards import zadd_score
+        await zadd_score(verdict["axis_band"], str(player_id), verdict["xp"])
     await dispatcher.emit(DomainEvent("session_ended", {"session_id": str(session_id)}))
     return SessionEndResponse(**verdict)
