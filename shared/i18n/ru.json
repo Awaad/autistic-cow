@@ -52,6 +52,13 @@
   "settings.consent.product_analytics": "Продуктовая аналитика",
   "settings.consent.personalized_comments": "Персональные комментарии Судьи",
   "settings.consent.photo_promotional": "Мои фото в промо",
-  "settings.consent.paid_processing": "Обработка для платных функций"
+  "settings.consent.paid_processing": "Обработка для платных функций",
+  "title.tagline": "Ярость зарабатывает. Спокойствие тратит. Судья всё помнит.",
+  "title.have_account": "У меня есть аккаунт",
+  "title.welcome_back": "С возвращением",
+  "title.continue": "Продолжить",
+  "title.back": "Назад",
+  "energy.label": "Энергия",
+  "energy.empty": "Ей нужно отдохнуть"
 }
 

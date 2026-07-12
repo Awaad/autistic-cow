@@ -52,5 +52,12 @@
   "settings.consent.product_analytics": "Produktanalyse",
   "settings.consent.personalized_comments": "Personalisierte Richter-Kommentare",
   "settings.consent.photo_promotional": "Meine Fotos in Werbung",
-  "settings.consent.paid_processing": "Verarbeitung für Bezahlfunktionen"
+  "settings.consent.paid_processing": "Verarbeitung für Bezahlfunktionen",
+  "title.tagline": "Wut verdient. Ruhe bezahlt. Der Richter vergisst nichts.",
+  "title.have_account": "Ich habe ein Konto",
+  "title.welcome_back": "Willkommen zurück",
+  "title.continue": "Weiter",
+  "title.back": "Zurück",
+  "energy.label": "Energie",
+  "energy.empty": "Sie braucht eine Pause"
 }
