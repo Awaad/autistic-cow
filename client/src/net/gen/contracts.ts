@@ -110,3 +110,262 @@ export interface ConsentState {
   };
   [k: string]: unknown;
 }
+export type Me = ProfileMe | EnergyState;
+
+export interface ProfileMe {
+  player_id: string;
+  display_name: string;
+  is_anonymous: boolean;
+  level: number;
+  xp: number;
+  axis_band: string;
+  cow_name?: string | null;
+  energy: EnergyState;
+  [k: string]: unknown;
+}
+export interface EnergyState {
+  energy: number;
+  energy_max: number;
+  next_energy_in_s: number;
+  [k: string]: unknown;
+}
+export type Leaderboards = LeaderboardResponse;
+
+export interface LeaderboardResponse {
+  band: string;
+  /**
+   * @maxItems 20
+   */
+  entries:
+    | []
+    | [LeaderboardEntry]
+    | [LeaderboardEntry, LeaderboardEntry]
+    | [LeaderboardEntry, LeaderboardEntry, LeaderboardEntry]
+    | [LeaderboardEntry, LeaderboardEntry, LeaderboardEntry, LeaderboardEntry]
+    | [LeaderboardEntry, LeaderboardEntry, LeaderboardEntry, LeaderboardEntry, LeaderboardEntry]
+    | [LeaderboardEntry, LeaderboardEntry, LeaderboardEntry, LeaderboardEntry, LeaderboardEntry, LeaderboardEntry]
+    | [
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry
+      ]
+    | [
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry
+      ]
+    | [
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry
+      ]
+    | [
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry
+      ]
+    | [
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry
+      ]
+    | [
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry
+      ]
+    | [
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry
+      ]
+    | [
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry
+      ]
+    | [
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry
+      ]
+    | [
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry
+      ]
+    | [
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry
+      ]
+    | [
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry
+      ]
+    | [
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry
+      ]
+    | [
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry,
+        LeaderboardEntry
+      ];
+  [k: string]: unknown;
+}
+export interface LeaderboardEntry {
+  display_name: string;
+  xp: number;
+  level: number;
+  [k: string]: unknown;
+}
