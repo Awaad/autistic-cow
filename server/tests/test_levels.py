@@ -3,9 +3,10 @@ from app.domain.economy.levels import level_for, naming_unlocked
 
 def test_curve_and_cap() -> None:
     assert level_for(0) == 1
-    assert level_for(399) == 1
-    assert level_for(400) == 2
-    assert level_for(800) == 3
+    assert level_for(1499) == 1
+    assert level_for(1500) == 2
+    assert level_for(2999) == 2
+    assert level_for(3000) == 3
     assert level_for(10_000_000) == 30  # capped
 
 
