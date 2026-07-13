@@ -49,10 +49,22 @@ export function App() {
     setLocale(locale);
     void startSync(locale).then((sync) => {
       if (cancelled) { sync.dispose(); return; }
+      
       disposeSync = sync.dispose;
       disposeGame = bootGame(canvas, { seed: sync.seed, locale });
     })
     .catch((err) => {
+      const detail = (err as { detail?: { detail?: { error?: string; next_energy_in_s?: number } } }).detail?.detail;
+      if (!cancelled && detail?.error === "no_energy") {
+        setNoEnergyIn(detail.next_energy_in_s ?? 0);
+        setPhase("title");
+        return;
+      }
+      if (!cancelled && detail?.error === "account_required") {
+        setForceWall(true);
+        setPhase("title");
+        return;
+      }
       console.error("[sync]", err);
       if (!cancelled) disposeGame = bootGame(canvas, { locale }); // play local, always
     });
