@@ -16,6 +16,7 @@ from .ir import normalize_overpass, normalize_overture, Poi
 from .report import build_report
 from .roles import classify, validate_config
 from .project import load_ir, project_ir
+from .simplify import ProjectedIR, SimplifiedBuilding, simplify
 
 
 def _resolve_bbox(args: argparse.Namespace) -> BBox:
@@ -95,6 +96,30 @@ def cmd_project(args: argparse.Namespace) -> int:
         print(f"[{provider}] projected {pir.counts()} | bounds {pir.bounds} | "
               f"sea_bearing={args.sea_bearing}°", file=sys.stderr)
     return 0
+
+def cmd_simplify(args: argparse.Namespace) -> int:
+    from dataclasses import asdict
+    out_dir = Path(args.out)
+    simp_dir = out_dir / "simplified"
+    simp_dir.mkdir(parents=True, exist_ok=True)
+    providers = ["osm", "overture"] if args.provider == "both" else [args.provider]
+    for provider in providers:
+        pj_path = out_dir / "projected" / f"{provider}.json"
+        if not pj_path.exists():
+            print(f"[{provider}] no projected file at {pj_path}; run project first",
+                  file=sys.stderr)
+            continue
+        pir = ProjectedIR.from_dict(json.loads(pj_path.read_text()))
+        buildings = simplify(pir)
+        (simp_dir / f"{provider}.json").write_text(
+            json.dumps([asdict(b) for b in buildings], indent=2, sort_keys=True) + "\n")
+        before, after = len(pir.buildings), len(buildings)
+        merged = before - after
+        pct = round(100 * merged / before, 1) if before else 0.0
+        status = "UNDER" if after <= 350 else "OVER"
+        print(f"[{provider}] {before} footprints -> {after} colliders "
+              f"(merged {merged}, -{pct}%) | budget 350: {status}", file=sys.stderr)
+    return 0
  
  
 def build_parser() -> argparse.ArgumentParser:
@@ -131,6 +156,11 @@ def build_parser() -> argparse.ArgumentParser:
     pj.add_argument("--half-extent", type=float, default=None,
                     help="crop to +/- this many metres (real scale kept); omit for full cell")
     pj.set_defaults(func=cmd_project)
+    
+    sp = sub.add_parser("simplify", help="projected footprints -> BuildingSpec boxes + terrace merge")
+    sp.add_argument("--provider", choices=["osm", "overture", "both"], default="osm")
+    sp.add_argument("--out", default="./out/kyrenia-harbor")
+    sp.set_defaults(func=cmd_simplify)
     
     return p
  

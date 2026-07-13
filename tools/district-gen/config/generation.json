@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "_doc": "Deterministic generation parameters for the simplify stage. Kept in config (not code) per the tuning-in-data principle. Palette keys must exist in the client art/palette.ts.",
+  "simplify": {
+    "storey_height_m": 3.0,
+    "default_levels": { "min": 2, "max": 3 },
+    "height_clamp_m": { "min": 4.0, "max": 14.0 },
+    "merge_margin_m": 0.4,
+    "_merge_doc": "Two footprints fuse into one collider when their boxes (grown by this margin) overlap — i.e. they share or nearly share a wall. Old-town terraces collapse from N boxes to 1, which is how 578 buildings come under the 350-collider budget (ADR-018).",
+    "min_footprint_m": 1.0,
+    "awning_probability": 0.35,
+    "palette": {
+      "wall": ["wallWhite", "wallCream", "wallRose"],
+      "roof": ["roofTerracotta", "roofOchre"]
+    }
+  },
+  "gameplay": {
+    "grid_cell_m": 4.0,
+    "child_zones": { "count": 4 },
+    "camel": {
+      "min_lanes": 2,
+      "child_exclusion_m": 12.0,
+      "_note": "child_exclusion_m mirrors shared/tuning.json camel_child_exclusion_m (ADR-019); source of truth is tuning.json at integration."
+    },
+    "beer": {
+      "coverage_radius_m": 40.0,
+      "_note": "a searching player finds beer in <=45 s (01 §3.1); radius derives from Irritated-band speed x 45 s in tuning.json."
+    },
+    "wine_hides": { "count": 4 },
+    "rescue_spots": { "count": 8 },
+    "smashables": {
+      "max_dynamic": 250,
+      "stalls_per_100m2": 0.5,
+      "crates_per_100m2": 0.9,
+      "scooter_count": 16
+    },
+    "palms": { "count": 8 }
+  }
+}
