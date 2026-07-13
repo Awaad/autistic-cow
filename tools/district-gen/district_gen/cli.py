@@ -19,6 +19,7 @@ from .project import load_ir, project_ir
 from .simplify import ProjectedIR, SimplifiedBuilding, simplify
 from .gameplay import build_gameplay, load_gameplay_config, validate_child_safety
 from . import emit as emitter
+from .curate import build_curation
 
 
 def _resolve_bbox(args: argparse.Namespace) -> BBox:
@@ -185,6 +186,24 @@ def cmd_emit(args: argparse.Namespace) -> int:
         print("  ! budget/lane check failed — crop with project --half-extent or curate",
               file=sys.stderr)
     return 0
+
+
+def cmd_curate(args: argparse.Namespace) -> int:
+    out_dir = Path(args.out)
+    d = json.loads((out_dir / "gameplay" / f"{args.provider}.json").read_text())
+    rep = build_curation(d)
+    (out_dir / "curation.json").write_text(json.dumps(rep, indent=2, sort_keys=True) + "\n")
+    b, i = rep["budget"], rep["invariants"]
+    print(f"[curate] SHIP={rep['ship']}", file=sys.stderr)
+    print(f"  colliders {b['static_colliders']['value']}/350 "
+          f"| dynamic {b['dynamic_bodies']['value']}/250 "
+          f"| lanes {i['camel_lanes']['value']} (min 2)", file=sys.stderr)
+    diff = rep["diff_vs_hand_authored"]["buildings"]
+    print(f"  buildings vs hand-authored: {diff['generated']} vs {diff['hand_authored']} "
+          f"({diff['ratio']}x) — the curation-cost finding", file=sys.stderr)
+    for w in rep["warnings"]:
+        print(f"  ! {w}", file=sys.stderr)
+    return 0 if rep["ship"] else 2
  
  
 def build_parser() -> argparse.ArgumentParser:
@@ -241,6 +260,11 @@ def build_parser() -> argparse.ArgumentParser:
     em.add_argument("--out", default="./out/kyrenia-harbor")
     em.add_argument("--slug", default="kyrenia-harbor")
     em.set_defaults(func=cmd_emit)
+    
+    cu = sub.add_parser("curate", help="perf-budget gate + invariants + diff vs hand-authored")
+    cu.add_argument("--provider", choices=["osm", "overture"], default="osm")
+    cu.add_argument("--out", default="./out/kyrenia-harbor")
+    cu.set_defaults(func=cmd_curate)
     
     return p
  
