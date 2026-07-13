@@ -18,7 +18,10 @@ district-gen = "district_gen.cli:main"
 # Dev tooling as a PEP 735 group — `uv sync` installs it by default,
 # `uv sync --no-dev` for a lean prod install. Not a pip-style extra.
 [dependency-groups]
-dev = ["pytest>=8"]
+dev = [
+    "pytest>=8",
+    "pyproj" 
+    ]
 
 [build-system]
 requires = ["uv_build>=0.9,<0.12"]
