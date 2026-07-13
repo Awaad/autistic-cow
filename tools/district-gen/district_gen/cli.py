@@ -20,6 +20,7 @@ from .simplify import ProjectedIR, SimplifiedBuilding, simplify
 from .gameplay import build_gameplay, load_gameplay_config, validate_child_safety
 from . import emit as emitter
 from .curate import build_curation
+from .seed_sql import emit_seed
 
 
 def _resolve_bbox(args: argparse.Namespace) -> BBox:
@@ -204,6 +205,17 @@ def cmd_curate(args: argparse.Namespace) -> int:
     for w in rep["warnings"]:
         print(f"  ! {w}", file=sys.stderr)
     return 0 if rep["ship"] else 2
+
+def cmd_seed(args: argparse.Namespace) -> int:
+    out_dir = Path(args.out)
+    d = json.loads((out_dir / "gameplay" / f"{args.provider}.json").read_text())
+    sql = emit_seed(d, region_slug=args.region, district_slug=args.slug,
+                    scene_asset_key=f"{args.slug}-gen")
+    path = out_dir / "emit" / f"{args.slug}-seed.sql"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(sql)
+    print(f"[seed] {sql.count('INSERT INTO venues')} venues -> {path}", file=sys.stderr)
+    return 0
  
  
 def build_parser() -> argparse.ArgumentParser:
@@ -265,6 +277,13 @@ def build_parser() -> argparse.ArgumentParser:
     cu.add_argument("--provider", choices=["osm", "overture"], default="osm")
     cu.add_argument("--out", default="./out/kyrenia-harbor")
     cu.set_defaults(func=cmd_curate)
+    
+    sd = sub.add_parser("seed", help="emit region/district/venue seed SQL")
+    sd.add_argument("--provider", choices=["osm", "overture"], default="osm")
+    sd.add_argument("--out", default="./out/kyrenia-harbor")
+    sd.add_argument("--slug", default="kyrenia-harbor")
+    sd.add_argument("--region", default="north-cyprus")
+    sd.set_defaults(func=cmd_seed)
     
     return p
  
