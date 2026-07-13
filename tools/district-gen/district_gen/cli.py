@@ -152,6 +152,39 @@ def cmd_gameplay(args: argparse.Namespace) -> int:
     for w in layer.warnings:
         print(f"  ! {w}", file=sys.stderr)
     return 0
+
+
+def cmd_emit(args: argparse.Namespace) -> int:
+    out_dir = Path(args.out)
+    gp_path = out_dir / "gameplay" / f"{args.provider}.json"
+    if not gp_path.exists():
+        print(f"no gameplay file at {gp_path}; run gameplay first", file=sys.stderr)
+        return 1
+    d = json.loads(gp_path.read_text())
+    emit_dir = out_dir / "emit"
+    emit_dir.mkdir(parents=True, exist_ok=True)
+    slug = args.slug
+ 
+    (emit_dir / f"{slug}-gen.geom.ts").write_text(emitter.emit_geom(d, use_overture=True))
+    (emit_dir / f"{slug}-gen.play.ts").write_text(emitter.emit_play(d))
+    (emit_dir / f"{slug}-gen.ts").write_text(emitter.emit_index(slug))
+    (emit_dir / f"{slug}-ar-candidates.json").write_text(emitter.emit_ar_candidates(d))
+    (emit_dir / "ATTRIBUTION.txt").write_text(emitter.emit_attribution(use_overture=True))
+ 
+    # inline budget check (full curation report later)
+    colliders = len(d["buildings"])
+    dynamic = (len(d["smashables"]) + d["stallCount"] + d["crateCount"] + d["scooterCount"])
+    c_ok = "OK" if colliders <= 350 else "OVER"
+    dyn_ok = "OK" if dynamic <= 250 else "OVER"
+    print(f"[emit] {slug}-gen.ts + .geom.ts + .play.ts -> {emit_dir}", file=sys.stderr)
+    print(f"[budget] static colliders {colliders}/350 {c_ok} | "
+          f"dynamic bodies {dynamic}/250 {dyn_ok} | "
+          f"lanes {len(d['camelLanes'])} | venues {len(d['venues'])} | "
+          f"backdrop {len(d['backdrop'])}", file=sys.stderr)
+    if colliders > 350 or dynamic > 250 or len(d["camelLanes"]) < 2:
+        print("  ! budget/lane check failed — crop with project --half-extent or curate",
+              file=sys.stderr)
+    return 0
  
  
 def build_parser() -> argparse.ArgumentParser:
@@ -202,6 +235,12 @@ def build_parser() -> argparse.ArgumentParser:
     gp.add_argument("--out", default="./out/kyrenia-harbor")
     gp.add_argument("--seed", type=int, default=1)
     gp.set_defaults(func=cmd_gameplay)
+    
+    em = sub.add_parser("emit", help="district -> split geom/play/index .ts + attribution")
+    em.add_argument("--provider", choices=["osm", "overture"], default="osm")
+    em.add_argument("--out", default="./out/kyrenia-harbor")
+    em.add_argument("--slug", default="kyrenia-harbor")
+    em.set_defaults(func=cmd_emit)
     
     return p
  
