@@ -20,11 +20,13 @@
     "camel": {
       "min_lanes": 2,
       "child_exclusion_m": 12.0,
-      "_note": "child_exclusion_m mirrors shared/tuning.json camel_child_exclusion_m (ADR-019); source of truth is tuning.json at integration."
+      "lane_length_m": 90.0,
+      "_note": "lanes are short ENTRY corridors into the play area, not full crossings. child_exclusion_m mirrors shared/tuning.json camel_child_exclusion_m (ADR-019)."
     },
     "beer": {
-      "coverage_radius_m": 40.0,
-      "_note": "a searching player finds beer in <=45 s (01 §3.1); radius derives from Irritated-band speed x 45 s in tuning.json."
+      "coverage_radius_m": 90.0,
+      "max_spots": 28,
+      "_note": "a searching player finds beer in <=45 s (01 §3.1) -> a large find-radius; capped so a player NOT looking passes 2-3 without noticing (sparse, not blanketed)."
     },
     "wine_hides": { "count": 4 },
     "rescue_spots": { "count": 8 },

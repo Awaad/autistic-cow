@@ -22,28 +22,14 @@
     "ignore": "Non-physical / abstract Overture parent tags with no premises."
   },
 
+  "_venue_note": "eat & stay categories intentionally fall through to named backdrop (recognisability), NOT venues — only bars/nightlife, landmarks, and waterfront are interactive venue candidates. Move a category into venue_categories to promote it.",
+
   "venue_categories": {
     "beer_anchor": {
       "gameplay": { "beer_anchor": true, "mission": "bar_pilgrimage", "ar_candidate": true },
       "name_tier": "partner_interactive",
       "overture": ["bar", "pub", "gay_bar", "hotel_bar", "cocktail_bar", "wine_bar",
                    "lounge", "dance_club", "casino", "betting_center", "pool_billiards", "arcade"]
-    },
-    "eat": {
-      "gameplay": { "mission": "bar_pilgrimage", "ar_candidate": true },
-      "name_tier": "partner_interactive",
-      "overture": ["cafe", "coffee_shop", "restaurant", "seafood_restaurant", "turkish_restaurant",
-                   "mediterranean_restaurant", "middle_eastern_restaurant", "european_restaurant",
-                   "asian_restaurant", "japanese_restaurant", "russian_restaurant", "chicken_restaurant",
-                   "comfort_food_restaurant", "buffet_restaurant", "theme_restaurant", "steakhouse",
-                   "bar_and_grill_restaurant", "breakfast_and_brunch_restaurant", "pizza_restaurant",
-                   "fast_food_restaurant", "doner_kebab", "sandwich_shop", "bagel_shop", "bakery",
-                   "ice_cream_shop", "chocolatier", "tea_room", "internet_cafe"]
-    },
-    "stay": {
-      "gameplay": { "ar_candidate": true },
-      "name_tier": "named_backdrop",
-      "overture": ["hotel", "hostel", "lodge", "holiday_rental_home", "accommodation", "retirement_home"]
     },
     "landmark": {
       "gameplay": { "mission": "landmark", "photo_venue": true, "ar_candidate": true },
@@ -89,8 +75,8 @@
   "ignore_categories": {
     "_doc": "Abstract Overture parent tags / virtual businesses with no physical door. Only these are dropped; everything else with a name survives as backdrop.",
     "overture": ["food_delivery_service", "social_media_agency", "advertising_agency",
-                 "structure_and_geography", "arts_and_entertainment", 
-                 "business", "retail",  "transportation", 
+                 "structure_and_geography", "arts_and_entertainment", "active_life",
+                 "business", "retail", "automotive", "transportation", "travel",
                  "professional_services", "political_organization", "information_technology_company",
                  "telecommunications_company", "internet_service_provider", "b2b_apparel"]
   },
