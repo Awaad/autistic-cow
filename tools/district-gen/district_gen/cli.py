@@ -15,6 +15,7 @@ from .extract import fetch_overpass, fetch_overture
 from .ir import normalize_overpass, normalize_overture, Poi
 from .report import build_report
 from .roles import classify, validate_config
+from .project import load_ir, project_ir
 
 
 def _resolve_bbox(args: argparse.Namespace) -> BBox:
@@ -75,6 +76,25 @@ def cmd_roles(args: argparse.Namespace) -> int:
           f"smashable={counts['smashable']} categories; named-backdrop default for the rest",
           file=sys.stderr)
     return 0
+
+def cmd_project(args: argparse.Namespace) -> int:
+    out_dir = Path(args.out)
+    proj_dir = out_dir / "projected"
+    proj_dir.mkdir(parents=True, exist_ok=True)
+    providers = ["osm", "overture"] if args.provider == "both" else [args.provider]
+    for provider in providers:
+        ir_path = out_dir / "ir" / f"{provider}.json"
+        if not ir_path.exists():
+            print(f"[{provider}] no IR at {ir_path}; run extract first", file=sys.stderr)
+            continue
+        ir = load_ir(ir_path)
+        pir = project_ir(ir, sea_bearing_deg=args.sea_bearing,
+                         half_extent_m=args.half_extent)
+        (proj_dir / f"{provider}.json").write_text(
+            json.dumps(pir.to_dict(), indent=2, sort_keys=True) + "\n")
+        print(f"[{provider}] projected {pir.counts()} | bounds {pir.bounds} | "
+              f"sea_bearing={args.sea_bearing}°", file=sys.stderr)
+    return 0
  
  
 def build_parser() -> argparse.ArgumentParser:
@@ -102,6 +122,15 @@ def build_parser() -> argparse.ArgumentParser:
                     help="e.g. overture:bar or osm:bench")
     rl.add_argument("--name", default="Sample", help="name to test named-backdrop logic")
     rl.set_defaults(func=cmd_roles)
+    
+    pj = sub.add_parser("project", help="WGS84 IR -> scene-metre coords (UTM36N)")
+    pj.add_argument("--provider", choices=["osm", "overture", "both"], default="both")
+    pj.add_argument("--out", default="./out/kyrenia-harbor")
+    pj.add_argument("--sea-bearing", type=float, default=0.0,
+                    help="compass degrees toward the sea (0=N, 90=E); curation knob")
+    pj.add_argument("--half-extent", type=float, default=None,
+                    help="crop to +/- this many metres (real scale kept); omit for full cell")
+    pj.set_defaults(func=cmd_project)
     
     return p
  
