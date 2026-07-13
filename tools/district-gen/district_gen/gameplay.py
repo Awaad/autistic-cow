@@ -1,0 +1,402 @@
+"""Gameplay layer.
+
+Turns projected geometry + classified POIs into the playable parts of the
+district (the `KYRENIA` data shape). This is the stage that makes it a GAME.
+
+Order is dictated by ADR-019 (child safety): **children are placed FIRST**, then
+camel approach lanes are routed CLEAR of every child zone + buffer, then
+everything else. A district whose children are not provably clear of the camel
+lanes does not ship — `validate_child_safety` is the hard gate.
+
+Existing `KYRENIA` fields are filled (beerSpots, wineHides, rescueSpots,
+childZones, cowStart, marketBounds, counts, palms, waterline). New concepts from
+ADR-018 (venues+slugs, real-placed smashables, named backdrop, camel lanes,
+density zones) are emitted as ADDITIVE OPTIONAL fields — the current scene
+builder ignores them and still loads; the extended builder reads them later.
+
+Repo Law 5: camel lanes are placed as unlabelled geometry only. They are never
+named or explained here or anywhere downstream.
+"""
+from __future__ import annotations
+
+import json
+import math
+import random
+import re
+from dataclasses import dataclass, field
+from functools import lru_cache
+from pathlib import Path
+from typing import Any
+
+from .project import PPoi, ProjectedIR
+from .roles import classify
+from .simplify import SimplifiedBuilding
+
+_CONFIG_PATH = Path(__file__).resolve().parent.parent / "config" / "generation.json"
+_MM = 3
+
+
+@lru_cache(maxsize=1)
+def load_gameplay_config(path: str | None = None) -> dict[str, Any]:
+    p = Path(path) if path else _CONFIG_PATH
+    return json.loads(p.read_text())["gameplay"]
+
+
+def _v(x: float, z: float) -> dict[str, float]:
+    return {"x": round(x, _MM), "z": round(z, _MM)}
+
+
+def _dist(ax: float, az: float, bx: float, bz: float) -> float:
+    return math.hypot(ax - bx, az - bz)
+
+
+def _point_seg_dist(px: float, pz: float, ax: float, az: float, bx: float, bz: float) -> float:
+    dx, dz = bx - ax, bz - az
+    if dx == 0 and dz == 0:
+        return _dist(px, pz, ax, az)
+    t = max(0.0, min(1.0, ((px - ax) * dx + (pz - az) * dz) / (dx * dx + dz * dz)))
+    return _dist(px, pz, ax + t * dx, az + t * dz)
+
+
+# occupancy grid
+
+class Grid:
+    """Coarse occupancy grid over the district; cells covered by a building box
+    are 'occupied'. Everything else within the landward bounds is 'free'."""
+
+    def __init__(self, half_w: float, half_d: float, waterline: float,
+                 buildings: list[SimplifiedBuilding], cell: float) -> None:
+        self.cell = cell
+        self.half_w = half_w
+        self.half_d = half_d
+        self.waterline = waterline
+        self.cols = max(1, int(2 * half_w / cell))
+        self.rows = max(1, int((waterline + half_d) / cell))
+        self.z0 = -half_d
+        self.occ = [[False] * self.cols for _ in range(self.rows)]
+        for b in buildings:
+            self._mark(b)
+
+    def _col(self, x: float) -> int:
+        return min(self.cols - 1, max(0, int((x + self.half_w) / self.cell)))
+
+    def _row(self, z: float) -> int:
+        return min(self.rows - 1, max(0, int((z - self.z0) / self.cell)))
+
+    def _mark(self, b: SimplifiedBuilding) -> None:
+        for r in range(self._row(b.z - b.d / 2), self._row(b.z + b.d / 2) + 1):
+            for c in range(self._col(b.x - b.w / 2), self._col(b.x + b.w / 2) + 1):
+                self.occ[r][c] = True
+
+    def center(self, r: int, c: int) -> tuple[float, float]:
+        return (-self.half_w + (c + 0.5) * self.cell, self.z0 + (r + 0.5) * self.cell)
+
+    def is_free_world(self, x: float, z: float) -> bool:
+        if not (-self.half_w <= x <= self.half_w and self.z0 <= z <= self.waterline):
+            return False
+        return not self.occ[self._row(z)][self._col(x)]
+
+    def free_cells(self) -> list[tuple[float, float]]:
+        out = []
+        for r in range(self.rows):
+            for c in range(self.cols):
+                if not self.occ[r][c]:
+                    x, z = self.center(r, c)
+                    if z <= self.waterline:
+                        out.append((round(x, _MM), round(z, _MM)))
+        return out
+
+    def occupied_neighbors(self, x: float, z: float) -> int:
+        r, c = self._row(z), self._col(x)
+        n = 0
+        for dr in (-1, 0, 1):
+            for dc in (-1, 0, 1):
+                rr, cc = r + dr, c + dc
+                if 0 <= rr < self.rows and 0 <= cc < self.cols and self.occ[rr][cc]:
+                    n += 1
+        return n
+
+    def line_clear(self, ax: float, az: float, bx: float, bz: float, step: float | None = None) -> bool:
+        step = step or self.cell * 0.5
+        length = _dist(ax, az, bx, bz)
+        n = max(2, int(length / step))
+        for i in range(n + 1):
+            t = i / n
+            if not self.is_free_world(ax + t * (bx - ax), az + t * (bz - az)):
+                return False
+        return True
+
+
+def _farthest_point_sample(cells: list[tuple[float, float]], k: int,
+                           seed: random.Random) -> list[tuple[float, float]]:
+    if not cells or k <= 0:
+        return []
+    chosen = [seed.choice(cells)]
+    while len(chosen) < k and len(chosen) < len(cells):
+        best, best_d = None, -1.0
+        for cx, cz in cells:
+            d = min(_dist(cx, cz, sx, sz) for sx, sz in chosen)
+            if d > best_d:
+                best, best_d = (cx, cz), d
+        if best is None:
+            break
+        chosen.append(best)
+    return chosen
+
+
+def _slugify(name: str | None, fallback: str) -> str:
+    if name:
+        s = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+        if s:
+            return s
+    return fallback
+
+
+# output
+
+@dataclass
+class GameplayLayer:
+    bounds: dict[str, float]
+    waterline: float
+    buildings: list[dict[str, Any]]
+    marketBounds: dict[str, float]
+    stallCount: int
+    crateCount: int
+    scooterCount: int
+    palms: list[dict[str, float]]
+    beerSpots: list[dict[str, float]]
+    wineHides: list[dict[str, float]]
+    rescueSpots: list[dict[str, Any]]
+    childZones: list[dict[str, float]]
+    cowStart: dict[str, float]
+    # additive optional fields (extended scene builder reads these):
+    venues: list[dict[str, Any]] = field(default_factory=list)
+    smashables: list[dict[str, Any]] = field(default_factory=list)
+    backdrop: list[dict[str, Any]] = field(default_factory=list)
+    camelLanes: list[dict[str, float]] = field(default_factory=list)
+    densityZones: list[dict[str, Any]] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+
+    def to_district_dict(self) -> dict[str, Any]:
+        return {
+            "bounds": self.bounds,
+            "waterline": self.waterline,
+            "buildings": self.buildings,
+            "marketBounds": self.marketBounds,
+            "stallCount": self.stallCount,
+            "crateCount": self.crateCount,
+            "scooterCount": self.scooterCount,
+            "palms": self.palms,
+            "beerSpots": self.beerSpots,
+            "wineHides": self.wineHides,
+            "rescueSpots": self.rescueSpots,
+            "childZones": self.childZones,
+            "cowStart": self.cowStart,
+            "venues": self.venues,
+            "smashables": self.smashables,
+            "backdrop": self.backdrop,
+            "camelLanes": self.camelLanes,
+            "densityZones": self.densityZones,
+        }
+
+
+def _waterline(buildings: list[SimplifiedBuilding], half_d: float) -> float:
+    if not buildings:
+        return round(half_d * 0.6, _MM)
+    seaward = max(b.z + b.d / 2 for b in buildings)
+    return round(min(half_d - 2.0, seaward + 8.0), _MM)
+
+
+def _camel_lanes(grid: Grid, children: list[dict[str, float]], cfg: dict[str, Any],
+                 warnings: list[str]) -> list[dict[str, float]]:
+    """>=2 straight ENTRY corridors from an edge into the play area, clear of
+    buildings and clear of every child zone + buffer (ADR-019). Short lanes, many
+    candidate entry points, so a cropped real cell yields options. Repo Law 5:
+    geometry only — never named, never explained."""
+    excl = cfg["camel"]["child_exclusion_m"]
+    min_lanes = cfg["camel"]["min_lanes"]
+    length = cfg["camel"]["lane_length_m"]
+    hw, hd, wl = grid.half_w, grid.half_d, grid.waterline
+    fracs = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+    candidates: list[tuple[float, float, float, float]] = []
+    for f in fracs:
+        z = -hd + f * (wl + hd)
+        candidates.append((-hw, z, min(-hw + length, hw), z))   # from west edge
+        candidates.append((hw, z, max(hw - length, -hw), z))    # from east edge
+        x = -hw + f * 2 * hw
+        candidates.append((x, -hd, x, min(-hd + length, wl)))   # from south (landward)
+
+    def child_clear(ax: float, az: float, bx: float, bz: float) -> bool:
+        return all(_point_seg_dist(c["x"], c["z"], ax, az, bx, bz) > excl for c in children)
+
+    lanes: list[dict[str, float]] = []
+    for ax, az, bx, bz in candidates:
+        if grid.line_clear(ax, az, bx, bz) and child_clear(ax, az, bx, bz):
+            if all(_dist(ax, az, ln["x0"], ln["z0"]) > grid.cell * 3 for ln in lanes):
+                lanes.append({"x0": round(ax, _MM), "z0": round(az, _MM),
+                              "x1": round(bx, _MM), "z1": round(bz, _MM)})
+    if len(lanes) < min_lanes:
+        warnings.append(f"only {len(lanes)} camel lane(s) found (need >={min_lanes}); "
+                        f"cell too dense — crop with --half-extent or curate")
+    return lanes
+
+
+def build_gameplay(
+    provider: str,
+    bounds: dict[str, float],
+    buildings: list[SimplifiedBuilding],
+    pois: list[PPoi],
+    *,
+    seed: int = 1,
+    config_path: str | None = None,
+) -> GameplayLayer:
+    cfg = load_gameplay_config(config_path)
+    rng = random.Random(seed)
+    hw, hd = bounds["halfW"], bounds["halfD"]
+    waterline = _waterline(buildings, hd)
+    grid = Grid(hw, hd, waterline, buildings, cfg["grid_cell_m"])
+    free = grid.free_cells()
+    warnings: list[str] = []
+
+    # 1. children FIRST (ADR-019). Prefer interior cells (away from edges).
+    interior = [(x, z) for (x, z) in free
+                if abs(x) < hw - grid.cell and -hd + grid.cell < z < waterline - grid.cell]
+    child_cells = _farthest_point_sample(interior or free, cfg["child_zones"]["count"], rng)
+    childZones = [_v(x, z) for x, z in child_cells]
+
+    # 2. camel lanes routed clear of children (ADR-019)
+    camelLanes = _camel_lanes(grid, childZones, cfg, warnings)
+
+    # 3. cowStart: free cell farthest from any building (largest open space)
+    if free:
+        cow = max(free, key=lambda p: (grid.occupied_neighbors(*p) == 0,
+                                       -abs(p[0]) - abs(p[1] - waterline / 2)))
+        cowStart = _v(*cow)
+    else:
+        cowStart = _v(0, 0)
+
+    # classify POIs once
+    classified = [(p, classify(p)) for p in pois]
+
+    # 4. density zones from role=zone POIs; main market = largest, or centre fallback
+    densityZones: list[dict[str, Any]] = []
+    for p, c in classified:
+        if c.role == "zone":
+            zx, zz = p.point
+            w = cfg["grid_cell_m"] * 4
+            densityZones.append({"x0": round(zx - w, _MM), "x1": round(zx + w, _MM),
+                                 "z0": round(zz - w, _MM), "z1": round(zz + w, _MM),
+                                 "weight": c.gameplay.get("density_weight", 1.0),
+                                 "subtype": c.subtype})
+    if densityZones:
+        market = max(densityZones, key=lambda d: (d["x1"] - d["x0"]) * (d["z1"] - d["z0"]))
+        marketBounds = {"x0": market["x0"], "x1": market["x1"],
+                        "z0": market["z0"], "z1": market["z1"]}
+    else:
+        cx, cz = cowStart["x"], min(waterline - 12, 20)
+        marketBounds = {"x0": round(cx - 16, _MM), "x1": round(cx + 16, _MM),
+                        "z0": round(cz - 10, _MM), "z1": round(cz + 14, _MM)}
+
+    area = max(1.0, (marketBounds["x1"] - marketBounds["x0"])
+               * (marketBounds["z1"] - marketBounds["z0"]))
+    sm = cfg["smashables"]
+    stallCount = int(area / 100 * sm["stalls_per_100m2"])
+    crateCount = int(area / 100 * sm["crates_per_100m2"])
+    scooterCount = int(sm["scooter_count"])
+
+    # 5. real-placed smashables (street furniture) + venues/backdrop from POIs
+    smashables: list[dict[str, Any]] = []
+    venues: list[dict[str, Any]] = []
+    backdrop: list[dict[str, Any]] = []
+    beer_anchor_pts: list[tuple[float, float]] = []
+    slugs: dict[str, int] = {}
+    building_centers = [(i, b.x, b.z) for i, b in enumerate(buildings)]
+    building_venue: dict[int, str] = {}
+
+    for p, c in classified:
+        px, pz = p.point
+        if c.role == "smashable":
+            smashables.append({"x": round(px, _MM), "z": round(pz, _MM),
+                               "kind": c.subtype, "points": c.gameplay.get("points", 5)})
+        elif c.role == "venue":
+            base = _slugify(p.name, p.source_id.split(":")[-1].replace("/", "-"))
+            n = slugs.get(base, 0)
+            slugs[base] = n + 1
+            slug = base if n == 0 else f"{base}-{n+1}"
+            is_beer = bool(c.gameplay.get("beer_anchor"))
+            venues.append({"slug": slug, "kind": c.subtype, "x": round(px, _MM),
+                           "z": round(pz, _MM), "name": p.name,
+                           "name_tier": c.name_tier,
+                           "beer_anchor": is_beer,
+                           "ar_candidate": bool(c.gameplay.get("ar_candidate")),
+                           "source_id": p.source_id})
+            if is_beer:
+                beer_anchor_pts.append((px, pz))
+            # attach slug to nearest building within 30 m
+            if building_centers:
+                bi, bx, bz = min(building_centers, key=lambda t: _dist(px, pz, t[1], t[2]))
+                if _dist(px, pz, bx, bz) <= 30 and bi not in building_venue:
+                    building_venue[bi] = slug
+        elif c.role == "backdrop":
+            backdrop.append({"x": round(px, _MM), "z": round(pz, _MM),
+                             "kind": p.kind, "name": p.name})
+
+    # final building specs, with venue slugs applied
+    building_specs: list[dict[str, Any]] = []
+    for i, b in enumerate(buildings):
+        spec = b.to_spec()
+        if i in building_venue:
+            spec["venue"] = building_venue[i]
+        building_specs.append(spec)
+
+    # 6. beer routing: anchors first (capped), then coverage-fill up to the cap so
+    # the cell stays sparse — searching finds one in <=45 s, not-looking passes 2-3.
+    radius = cfg["beer"]["coverage_radius_m"]
+    max_spots = cfg["beer"]["max_spots"]
+    anchors = beer_anchor_pts[:max_spots]
+    beers = [_v(x, z) for x, z in anchors]
+    covered = list(anchors)
+    for cx, cz in sorted(free):
+        if len(beers) >= max_spots:
+            break
+        if all(_dist(cx, cz, bx, bz) > radius for bx, bz in covered):
+            beers.append(_v(cx, cz))
+            covered.append((cx, cz))
+
+    # 7. wine hides: enclosed dead-ends (free cells with many occupied neighbours)
+    dead_ends = sorted(free, key=lambda p: -grid.occupied_neighbors(*p))
+    wineHides = [_v(x, z) for x, z in dead_ends[:cfg["wine_hides"]["count"]]]
+
+    # 8. rescue spots: spread across free cells, kinds cycle 0..2
+    rescue_cells = _farthest_point_sample(free, cfg["rescue_spots"]["count"], rng)
+    rescueSpots = [{"x": round(x, _MM), "z": round(z, _MM), "kind": i % 3}
+                   for i, (x, z) in enumerate(rescue_cells)]
+
+    # 9. palms: near the seaward edge, in free cells
+    seaward_free = [p for p in free if p[1] > waterline - grid.cell * 4]
+    palm_cells = _farthest_point_sample(seaward_free or free, cfg["palms"]["count"], rng)
+    palms = [_v(x, z) for x, z in palm_cells]
+
+    if not beers:
+        warnings.append("no beer spots placed — playable area empty?")
+
+    return GameplayLayer(
+        bounds=bounds, waterline=waterline, buildings=building_specs,
+        marketBounds=marketBounds, stallCount=stallCount, crateCount=crateCount,
+        scooterCount=scooterCount, palms=palms, beerSpots=beers, wineHides=wineHides,
+        rescueSpots=rescueSpots, childZones=childZones, cowStart=cowStart,
+        venues=venues, smashables=smashables, backdrop=backdrop,
+        camelLanes=camelLanes, densityZones=densityZones, warnings=warnings,
+    )
+
+
+def validate_child_safety(layer: GameplayLayer, exclusion_m: float) -> None:
+    """HARD GATE (ADR-019 / Repo Law 4). Every child zone must be outside every
+    camel lane + buffer. Raises on violation; a failing district does not ship."""
+    for ch in layer.childZones:
+        for ln in layer.camelLanes:
+            d = _point_seg_dist(ch["x"], ch["z"], ln["x0"], ln["z0"], ln["x1"], ln["z1"])
+            if d <= exclusion_m:
+                raise ValueError(
+                    f"child zone {ch} is {round(d,2)} m from camel lane "
+                    f"{ln} (need > {exclusion_m} m) — ADR-019 violation")

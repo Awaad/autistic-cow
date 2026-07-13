@@ -17,6 +17,8 @@ from .report import build_report
 from .roles import classify, validate_config
 from .project import load_ir, project_ir
 from .simplify import ProjectedIR, SimplifiedBuilding, simplify
+from .gameplay import build_gameplay, load_gameplay_config, validate_child_safety
+from . import emit as emitter
 
 
 def _resolve_bbox(args: argparse.Namespace) -> BBox:
@@ -120,6 +122,36 @@ def cmd_simplify(args: argparse.Namespace) -> int:
         print(f"[{provider}] {before} footprints -> {after} colliders "
               f"(merged {merged}, -{pct}%) | budget 350: {status}", file=sys.stderr)
     return 0
+
+def cmd_gameplay(args: argparse.Namespace) -> int:
+    out_dir = Path(args.out)
+    gp_dir = out_dir / "gameplay"
+    gp_dir.mkdir(parents=True, exist_ok=True)
+    provider = args.provider
+    simp_path = out_dir / "simplified" / f"{provider}.json"
+    proj_path = out_dir / "projected" / f"{args.poi_provider}.json"
+    if not simp_path.exists() or not proj_path.exists():
+        print("need both simplified/ and projected/ files; run project + simplify first",
+              file=sys.stderr)
+        return 1
+    buildings = [SimplifiedBuilding(**d) for d in json.loads(simp_path.read_text())]
+    geo_proj = ProjectedIR.from_dict(json.loads((out_dir / "projected" / f"{provider}.json").read_text()))
+    poi_proj = ProjectedIR.from_dict(json.loads(proj_path.read_text()))
+    # bounds from the GEOMETRY provider; POIs from the POI provider (hybrid)
+    layer = build_gameplay(provider, geo_proj.bounds, buildings, poi_proj.pois, seed=args.seed)
+ 
+    excl = load_gameplay_config()["camel"]["child_exclusion_m"]
+    validate_child_safety(layer, excl)  # HARD GATE (ADR-019) — raises to fail the build
+ 
+    (gp_dir / f"{provider}.json").write_text(
+        json.dumps(layer.to_district_dict(), indent=2, sort_keys=True) + "\n")
+    print(f"[{provider}] children={len(layer.childZones)} lanes={len(layer.camelLanes)} "
+          f"beer={len(layer.beerSpots)} venues={len(layer.venues)} "
+          f"smashables={len(layer.smashables)} backdrop={len(layer.backdrop)} "
+          f"| child-safety: PASS", file=sys.stderr)
+    for w in layer.warnings:
+        print(f"  ! {w}", file=sys.stderr)
+    return 0
  
  
 def build_parser() -> argparse.ArgumentParser:
@@ -161,6 +193,15 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--provider", choices=["osm", "overture", "both"], default="osm")
     sp.add_argument("--out", default="./out/kyrenia-harbor")
     sp.set_defaults(func=cmd_simplify)
+    
+    gp = sub.add_parser("gameplay", help="place children/lanes/beer/venues from POI roles")
+    gp.add_argument("--provider", choices=["osm", "overture"], default="osm",
+                    help="which simplified geometry to build on (hybrid: osm)")
+    gp.add_argument("--poi-provider", choices=["osm", "overture"], default="overture",
+                    help="which projected POIs to place (hybrid: overture)")
+    gp.add_argument("--out", default="./out/kyrenia-harbor")
+    gp.add_argument("--seed", type=int, default=1)
+    gp.set_defaults(func=cmd_gameplay)
     
     return p
  
