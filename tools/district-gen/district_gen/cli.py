@@ -12,8 +12,9 @@ from pathlib import Path
 
 from .bbox import BBox, KYRENIA_HARBOR_CENTER, KYRENIA_HARBOR_RADIUS_M
 from .extract import fetch_overpass, fetch_overture
-from .ir import normalize_overpass, normalize_overture
+from .ir import normalize_overpass, normalize_overture, Poi
 from .report import build_report
+from .roles import classify, validate_config
 
 
 def _resolve_bbox(args: argparse.Namespace) -> BBox:
@@ -60,6 +61,20 @@ def cmd_report(args: argparse.Namespace) -> int:
     print(f"[report] {size} bytes -> {report_path}  (Report Ready)",
           file=sys.stderr)
     return 0
+
+
+def cmd_roles(args: argparse.Namespace) -> int:
+    if args.classify:
+        provider, _, category = args.classify.partition(":")
+        c = classify(Poi(f"{provider}:x", [0.0, 0.0], category, args.name, {}))
+        print(json.dumps({"role": c.role, "subtype": c.subtype,
+                          "name_tier": c.name_tier, "gameplay": c.gameplay}, indent=2))
+        return 0
+    counts = validate_config()  # raises if a category is claimed by two roles
+    print(f"allowlist OK — venue={counts['venue']} zone={counts['zone']} "
+          f"smashable={counts['smashable']} categories; named-backdrop default for the rest",
+          file=sys.stderr)
+    return 0
  
  
 def build_parser() -> argparse.ArgumentParser:
@@ -78,9 +93,16 @@ def build_parser() -> argparse.ArgumentParser:
     ex.add_argument("--force", action="store_true", help="ignore cache, refetch")
     ex.set_defaults(func=cmd_extract)
  
-    rp = sub.add_parser("report", help="distill IR into a compact report.json (send me this)")
+    rp = sub.add_parser("report", help="distill IR into a compact report.json")
     rp.add_argument("--out", default="./out/kyrenia-harbor")
     rp.set_defaults(func=cmd_report)
+    
+    rl = sub.add_parser("roles", help="validate the POI allowlist / classify a category")
+    rl.add_argument("--classify", metavar="PROVIDER:CATEGORY",
+                    help="e.g. overture:bar or osm:bench")
+    rl.add_argument("--name", default="Sample", help="name to test named-backdrop logic")
+    rl.set_defaults(func=cmd_roles)
+    
     return p
  
 def main(argv: list[str] | None = None) -> int:
