@@ -46,6 +46,7 @@ overture = [
 dev = [
     { name = "pyproj" },
     { name = "pytest" },
+    { name = "shapely" },
 ]
 
 [package.metadata]
@@ -56,6 +57,7 @@ provides-extras = ["overture"]
 dev = [
     { name = "pyproj" },
     { name = "pytest", specifier = ">=8" },
+    { name = "shapely", specifier = ">=2.0" },
 ]
 
 [[package]]

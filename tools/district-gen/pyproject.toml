@@ -20,7 +20,8 @@ district-gen = "district_gen.cli:main"
 [dependency-groups]
 dev = [
     "pytest>=8",
-    "pyproj" 
+    "pyproj",
+    "shapely>=2.0" 
     ]
 
 [build-system]
