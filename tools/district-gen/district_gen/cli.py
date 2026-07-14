@@ -16,7 +16,8 @@ from .ir import normalize_overpass, normalize_overture, Poi
 from .report import build_report
 from .roles import classify, validate_config
 from .project import load_ir, project_ir
-from .simplify import ProjectedIR, SimplifiedBuilding, simplify
+from .simplify import ProjectedIR, SimplifiedBuilding, simplify, draw_buildings, union_buildings
+from .scene import build_scene, emit_scene_ts
 from .gameplay import build_gameplay, load_gameplay_config, validate_child_safety
 from . import emit as emitter
 from . import render as debug_render
@@ -247,6 +248,51 @@ def cmd_debug_render(args: argparse.Namespace) -> int:
     for d in meta["deviations"]:
         print(f"  DEVIATION: {d}", file=sys.stderr)
     return 0
+
+
+def cmd_emit_scene(args: argparse.Namespace) -> int:
+    """Spike B-plus: emit KYRENIA_GEN (real sea/roads/footprints/colliders)."""
+    out_dir = Path(args.out)
+    proj_path = out_dir / "projected" / f"{args.provider}.json"
+    gp_path = out_dir / "gameplay" / f"{args.provider}.json"
+    if not proj_path.exists() or not gp_path.exists():
+        print("need projected/ and gameplay/ files; run project + simplify + gameplay first",
+              file=sys.stderr)
+        return 1
+    pir = ProjectedIR.from_dict(json.loads(proj_path.read_text()))
+
+    use_overture = False
+    if args.hybrid:
+        ov_path = out_dir / "projected" / "overture.json"
+        if ov_path.exists():
+            ov = ProjectedIR.from_dict(json.loads(ov_path.read_text()))
+            before = len(pir.buildings)
+            pir.buildings = union_buildings(pir.buildings, ov.buildings)
+            use_overture = True
+            print(f"[hybrid] buildings {before} -> {len(pir.buildings)} "
+                  f"(+{len(pir.buildings) - before} Overture ML footprints)", file=sys.stderr)
+        else:
+            print("[hybrid] no overture projected file; run project --provider both", file=sys.stderr)
+
+    colliders = simplify(pir)
+    draw = draw_buildings(pir)
+    play = json.loads(gp_path.read_text())
+    scene = build_scene(pir, colliders, draw, play)
+
+    emit_dir = out_dir / "emit"
+    emit_dir.mkdir(parents=True, exist_ok=True)
+    ts_path = emit_dir / f"{args.slug}-gen.scene.ts"
+    ts_path.write_text(emit_scene_ts(scene, args.slug, use_overture=use_overture))
+
+    print(f"[emit-scene] {ts_path}", file=sys.stderr)
+    print(f"  draw buildings {len(scene['buildings'])} | colliders {len(scene['colliders'])} "
+          f"| roads {len(scene['roads'])} | sea polys {len(scene['sea'])} "
+          f"| landmarks {len(scene['landmarks'])}", file=sys.stderr)
+    for d in scene["_deviations"]:
+        print(f"  DEVIATION: {d}", file=sys.stderr)
+    if not scene["sea"]:
+        print("  DEVIATION: no sea polygon — coastline/water missing or cropped out", file=sys.stderr)
+    return 0
  
  
 def build_parser() -> argparse.ArgumentParser:
@@ -314,6 +360,14 @@ def build_parser() -> argparse.ArgumentParser:
     dr.add_argument("--out", default="./out/kyrenia-harbor")
     dr.add_argument("--slug", default="kyrenia-harbor")
     dr.set_defaults(func=cmd_debug_render)
+    
+    es = sub.add_parser("emit-scene", help="B-plus: emit KYRENIA_GEN (sea/roads/footprints/colliders)")
+    es.add_argument("--provider", choices=["osm", "overture"], default="osm")
+    es.add_argument("--out", default="./out/kyrenia-harbor")
+    es.add_argument("--slug", default="kyrenia-harbor")
+    es.add_argument("--hybrid", action="store_true",
+                    help="fill OSM gaps with Overture ML building footprints (needs project --provider both)")
+    es.set_defaults(func=cmd_emit_scene)
     
     sd = sub.add_parser("seed", help="emit region/district/venue seed SQL")
     sd.add_argument("--provider", choices=["osm", "overture"], default="osm")
