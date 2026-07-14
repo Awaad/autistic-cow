@@ -16,7 +16,7 @@ from typing import Any
 Coord = list[float]  # [lon, lat]
 
 # highway tag -> corridor kind. "buildings punish contact, so geometry IS
-# difficulty": a wide street is a rage corridor, a narrow alley
+# difficulty" (handoff §4.3): a wide street is a rage corridor, a narrow alley
 # is a squeeze. Plazas are detected later from area geometry, not here.
 _ALLEY_HIGHWAYS = {
     "service", "living_street", "pedestrian", "footway",
@@ -50,6 +50,18 @@ class Poi:
     tags: dict[str, str]
 
 
+@dataclass(frozen=True)
+class Coastline:
+    source_id: str
+    line: list[Coord]       # natural=coastline; land on the LEFT of direction (OSM law)
+
+
+@dataclass(frozen=True)
+class Water:
+    source_id: str
+    polygon: list[Coord]    # natural=water / water=* / riverbank — a real sea/basin area
+
+
 @dataclass
 class DistrictIR:
     provider: str
@@ -57,6 +69,8 @@ class DistrictIR:
     buildings: list[Building] = field(default_factory=list)
     roads: list[Road] = field(default_factory=list)
     pois: list[Poi] = field(default_factory=list)
+    coastlines: list[Coastline] = field(default_factory=list)
+    water: list[Water] = field(default_factory=list)
 
     def sorted(self) -> "DistrictIR":
         return DistrictIR(
@@ -65,6 +79,8 @@ class DistrictIR:
             buildings=sorted(self.buildings, key=lambda b: b.source_id),
             roads=sorted(self.roads, key=lambda r: r.source_id),
             pois=sorted(self.pois, key=lambda p: p.source_id),
+            coastlines=sorted(self.coastlines, key=lambda c: c.source_id),
+            water=sorted(self.water, key=lambda w: w.source_id),
         )
 
     def counts(self) -> dict[str, int]:
@@ -72,6 +88,8 @@ class DistrictIR:
             "buildings": len(self.buildings),
             "roads": len(self.roads),
             "pois": len(self.pois),
+            "coastlines": len(self.coastlines),
+            "water": len(self.water),
         }
 
     def to_dict(self) -> dict[str, Any]:
@@ -82,6 +100,8 @@ class DistrictIR:
             "buildings": [asdict(b) for b in s.buildings],
             "roads": [asdict(r) for r in s.roads],
             "pois": [asdict(p) for p in s.pois],
+            "coastlines": [asdict(c) for c in s.coastlines],
+            "water": [asdict(w) for w in s.water],
         }
 
     @classmethod
@@ -92,6 +112,8 @@ class DistrictIR:
             buildings=[Building(**b) for b in d["buildings"]],
             roads=[Road(**r) for r in d["roads"]],
             pois=[Poi(**p) for p in d["pois"]],
+            coastlines=[Coastline(**c) for c in d.get("coastlines", [])],
+            water=[Water(**w) for w in d.get("water", [])],
         ).sorted()
 
 
@@ -127,7 +149,7 @@ def _levels(tags: dict[str, str]) -> int | None:
     return None
 
 
-# OSM / Overpass (`out geom` responses) 
+# OSM / Overpass (`out geom` responses)
 
 def normalize_overpass(raw: dict[str, Any], bbox: tuple[float, float, float, float]) -> DistrictIR:
     ir = DistrictIR(provider="osm", bbox=bbox)
@@ -145,6 +167,11 @@ def normalize_overpass(raw: dict[str, Any], bbox: tuple[float, float, float, flo
             elif "highway" in tags and len(ring) >= 2:
                 hw = tags["highway"]
                 ir.roads.append(Road(f"osm:way/{eid}", ring, _road_kind(hw, tags), hw, tags))
+            elif tags.get("natural") == "coastline" and len(ring) >= 2:
+                ir.coastlines.append(Coastline(f"osm:way/{eid}", ring))
+            elif (tags.get("natural") == "water" or "water" in tags
+                  or tags.get("waterway") == "riverbank") and len(ring) >= 4:
+                ir.water.append(Water(f"osm:way/{eid}", _open_ring(ring)))
         elif etype == "node":
             lon, lat = el.get("lon"), el.get("lat")
             if lon is None or lat is None:
