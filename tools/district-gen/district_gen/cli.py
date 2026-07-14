@@ -19,6 +19,7 @@ from .project import load_ir, project_ir
 from .simplify import ProjectedIR, SimplifiedBuilding, simplify
 from .gameplay import build_gameplay, load_gameplay_config, validate_child_safety
 from . import emit as emitter
+from . import render as debug_render
 from .curate import build_curation
 from .seed_sql import emit_seed
 
@@ -101,6 +102,7 @@ def cmd_project(args: argparse.Namespace) -> int:
               f"sea_bearing={args.sea_bearing}°", file=sys.stderr)
     return 0
 
+
 def cmd_simplify(args: argparse.Namespace) -> int:
     from dataclasses import asdict
     out_dir = Path(args.out)
@@ -139,8 +141,13 @@ def cmd_gameplay(args: argparse.Namespace) -> int:
     buildings = [SimplifiedBuilding(**d) for d in json.loads(simp_path.read_text())]
     geo_proj = ProjectedIR.from_dict(json.loads((out_dir / "projected" / f"{provider}.json").read_text()))
     poi_proj = ProjectedIR.from_dict(json.loads(proj_path.read_text()))
-    # bounds from the GEOMETRY provider; POIs from the POI provider (hybrid)
-    layer = build_gameplay(provider, geo_proj.bounds, buildings, poi_proj.pois, seed=args.seed)
+    # HYBRID: bounds from geometry provider; POIs from BOTH — OSM street furniture
+    # (benches/bins/post boxes) + Overture commercial. classify() dedups OSM
+    # commercial away, so no double-placing.
+    all_pois = list(geo_proj.pois) + list(poi_proj.pois)
+    # roads from the geometry provider are the camel's approach corridors
+    layer = build_gameplay(provider, geo_proj.bounds, buildings, all_pois,
+                           roads=list(geo_proj.roads), seed=args.seed)
  
     excl = load_gameplay_config()["camel"]["child_exclusion_m"]
     validate_child_safety(layer, excl)  # HARD GATE (ADR-019) — raises to fail the build
@@ -173,7 +180,7 @@ def cmd_emit(args: argparse.Namespace) -> int:
     (emit_dir / f"{slug}-ar-candidates.json").write_text(emitter.emit_ar_candidates(d))
     (emit_dir / "ATTRIBUTION.txt").write_text(emitter.emit_attribution(use_overture=True))
  
-    # inline budget check (full curation report later)
+    # inline budget check (full curation report is a later commit)
     colliders = len(d["buildings"])
     dynamic = (len(d["smashables"]) + d["stallCount"] + d["crateCount"] + d["scooterCount"])
     c_ok = "OK" if colliders <= 350 else "OVER"
@@ -205,7 +212,8 @@ def cmd_curate(args: argparse.Namespace) -> int:
     for w in rep["warnings"]:
         print(f"  ! {w}", file=sys.stderr)
     return 0 if rep["ship"] else 2
-
+ 
+ 
 def cmd_seed(args: argparse.Namespace) -> int:
     out_dir = Path(args.out)
     d = json.loads((out_dir / "gameplay" / f"{args.provider}.json").read_text())
@@ -215,6 +223,29 @@ def cmd_seed(args: argparse.Namespace) -> int:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(sql)
     print(f"[seed] {sql.count('INSERT INTO venues')} venues -> {path}", file=sys.stderr)
+    return 0
+
+
+def cmd_debug_render(args: argparse.Namespace) -> int:
+    out_dir = Path(args.out)
+    pj_path = out_dir / "projected" / f"{args.provider}.json"
+    if not pj_path.exists():
+        print(f"no projected file at {pj_path}; run project first", file=sys.stderr)
+        return 1
+    pir = ProjectedIR.from_dict(json.loads(pj_path.read_text()))
+    svg, meta = debug_render.build_debug_svg(pir)
+    emit_dir = out_dir / "emit"
+    emit_dir.mkdir(parents=True, exist_ok=True)
+    svg_path = emit_dir / f"{args.slug}-debug.svg"
+    svg_path.write_text(svg)
+    (emit_dir / f"{args.slug}-debug.json").write_text(
+        json.dumps(meta, indent=2, sort_keys=True) + "\n")
+    print(f"[debug-render] {svg_path}", file=sys.stderr)
+    print(f"  layers: {meta['counts']}", file=sys.stderr)
+    print(f"  sea rendered: {meta['sea_rendered']} | "
+          f"suggested --sea-bearing {meta['suggested_sea_bearing_deg']}", file=sys.stderr)
+    for d in meta["deviations"]:
+        print(f"  DEVIATION: {d}", file=sys.stderr)
     return 0
  
  
@@ -277,6 +308,12 @@ def build_parser() -> argparse.ArgumentParser:
     cu.add_argument("--provider", choices=["osm", "overture"], default="osm")
     cu.add_argument("--out", default="./out/kyrenia-harbor")
     cu.set_defaults(func=cmd_curate)
+    
+    dr = sub.add_parser("debug-render", help="top-down SVG of water/roads/building footprints")
+    dr.add_argument("--provider", choices=["osm", "overture"], default="osm")
+    dr.add_argument("--out", default="./out/kyrenia-harbor")
+    dr.add_argument("--slug", default="kyrenia-harbor")
+    dr.set_defaults(func=cmd_debug_render)
     
     sd = sub.add_parser("seed", help="emit region/district/venue seed SQL")
     sd.add_argument("--provider", choices=["osm", "overture"], default="osm")
