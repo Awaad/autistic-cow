@@ -1,0 +1,2614 @@
+[
+  {
+    "awning": false,
+    "d": 29.937,
+    "h": 6.0,
+    "members": [
+      "overture:0098f908-bba0-455f-9b8d-60de0b55afc4",
+      "overture:5ca80a74-39a4-4a5a-8b34-60d588cc48fd",
+      "overture:b8ec3367-6f16-4061-9453-8aa3cf2aa24f"
+    ],
+    "roof": "roofTerracotta",
+    "w": 43.973,
+    "wall": "wallWhite",
+    "x": 263.725,
+    "z": -276.262
+  },
+  {
+    "awning": false,
+    "d": 23.875,
+    "h": 6.0,
+    "members": [
+      "overture:014eabd8-4ee2-4bc3-8ee8-02be70c3470c"
+    ],
+    "roof": "roofOchre",
+    "w": 11.337,
+    "wall": "wallWhite",
+    "x": 209.387,
+    "z": -75.531
+  },
+  {
+    "awning": true,
+    "d": 16.928,
+    "h": 9.0,
+    "members": [
+      "overture:02c16b47-53d2-438f-9c86-3d0753c6e6cd"
+    ],
+    "roof": "roofOchre",
+    "w": 26.848,
+    "wall": "wallRose",
+    "x": 60.328,
+    "z": -188.223
+  },
+  {
+    "awning": false,
+    "d": 42.319,
+    "h": 12.0,
+    "members": [
+      "overture:03a0beae-0e70-440d-a951-d8445e01c410",
+      "overture:75bff145-5fcc-41d6-9cd5-068fd1858093"
+    ],
+    "roof": "roofOchre",
+    "w": 44.255,
+    "wall": "wallCream",
+    "x": 244.69,
+    "z": 30.929
+  },
+  {
+    "awning": false,
+    "d": 22.181,
+    "h": 6.0,
+    "members": [
+      "overture:0403ac90-b487-4ee9-b120-19728d02435c"
+    ],
+    "roof": "roofTerracotta",
+    "w": 5.449,
+    "wall": "wallWhite",
+    "x": -43.087,
+    "z": 275.515
+  },
+  {
+    "awning": true,
+    "d": 41.853,
+    "h": 12.0,
+    "members": [
+      "overture:0484303a-eb2e-4c0a-89d9-ffc3283c6ffc",
+      "overture:7925af13-06d6-482e-9122-6ea818f1aefb",
+      "overture:7b33558a-ed59-40b5-be0c-02c9c735cdde"
+    ],
+    "roof": "roofTerracotta",
+    "w": 36.168,
+    "wall": "wallRose",
+    "x": 39.411,
+    "z": -7.363
+  },
+  {
+    "awning": true,
+    "d": 14.239,
+    "h": 6.0,
+    "members": [
+      "overture:0505414e-3af2-4757-b038-f43bd9dc7cb7",
+      "overture:1c41b8f9-2f48-4ec0-910a-772f114c2830"
+    ],
+    "roof": "roofOchre",
+    "w": 8.627,
+    "wall": "wallRose",
+    "x": 219.808,
+    "z": 3.202
+  },
+  {
+    "awning": true,
+    "d": 29.525,
+    "h": 12.0,
+    "members": [
+      "overture:05d8b9b8-cfe0-44b3-8c65-8d6e2591af0b",
+      "overture:209c29b2-2c65-4d9e-b8f7-e128c252cac5",
+      "overture:91c8669e-b32c-4531-9bbb-d81d679c84ab"
+    ],
+    "roof": "roofTerracotta",
+    "w": 32.353,
+    "wall": "wallRose",
+    "x": 26.794,
+    "z": -94.263
+  },
+  {
+    "awning": false,
+    "d": 40.011,
+    "h": 9.0,
+    "members": [
+      "overture:06615527-e005-483d-8998-638487c747c3",
+      "overture:417188e8-0ad6-4839-8ac6-cf6dd4f22748",
+      "overture:67eae5a1-cd37-4044-bd45-baf363f89289"
+    ],
+    "roof": "roofTerracotta",
+    "w": 40.045,
+    "wall": "wallRose",
+    "x": 186.931,
+    "z": -160.611
+  },
+  {
+    "awning": false,
+    "d": 12.616,
+    "h": 9.0,
+    "members": [
+      "overture:06f4b2ea-67ca-4a8d-b8a0-172407f38fd8"
+    ],
+    "roof": "roofTerracotta",
+    "w": 4.73,
+    "wall": "wallWhite",
+    "x": 280.329,
+    "z": -21.31
+  },
+  {
+    "awning": false,
+    "d": 44.776,
+    "h": 9.0,
+    "members": [
+      "overture:07a6e3b2-9e7b-422d-8fa0-35c0057a3501",
+      "overture:53013b68-91ec-4f9e-931c-0db53e638664",
+      "overture:5326fada-b37d-428c-bc36-082b79556c73",
+      "overture:fc6fdec9-27d4-4107-82cc-f9a75b3fa147"
+    ],
+    "roof": "roofTerracotta",
+    "w": 35.712,
+    "wall": "wallCream",
+    "x": 117.716,
+    "z": -175.269
+  },
+  {
+    "awning": false,
+    "d": 12.004,
+    "h": 12.0,
+    "members": [
+      "overture:0862b06e-f2eb-4099-b6cf-90d5dce7adf3"
+    ],
+    "roof": "roofTerracotta",
+    "w": 16.219,
+    "wall": "wallRose",
+    "x": -52.323,
+    "z": -36.563
+  },
+  {
+    "awning": false,
+    "d": 23.511,
+    "h": 14.0,
+    "members": [
+      "overture:086acdc6-472e-4f56-a040-ad8c32f303cc",
+      "overture:0ebcefeb-2a04-49b8-a7ba-a63aeba310df",
+      "overture:6ea82574-750c-454b-be72-c45c26dd5dd1",
+      "overture:cef891bf-246c-4df0-9bb9-2b076ce06c74"
+    ],
+    "roof": "roofOchre",
+    "w": 43.033,
+    "wall": "wallRose",
+    "x": -44.505,
+    "z": -19.02
+  },
+  {
+    "awning": true,
+    "d": 29.34,
+    "h": 6.0,
+    "members": [
+      "overture:08b771ae-9259-497c-b4aa-4e9e2067f89e"
+    ],
+    "roof": "roofOchre",
+    "w": 52.035,
+    "wall": "wallCream",
+    "x": 256.014,
+    "z": -254.973
+  },
+  {
+    "awning": false,
+    "d": 36.814,
+    "h": 6.0,
+    "members": [
+      "overture:095b0d7a-4d18-4b4a-a25a-dd590634a43d",
+      "overture:1ee4e0b7-c58c-4905-a8a8-ca9dc13f8dee",
+      "overture:f10e24c3-79a2-44ac-b6bf-c0922ddd95c6"
+    ],
+    "roof": "roofTerracotta",
+    "w": 36.29,
+    "wall": "wallRose",
+    "x": 167.897,
+    "z": -188.238
+  },
+  {
+    "awning": true,
+    "d": 17.569,
+    "h": 9.0,
+    "members": [
+      "overture:0c381892-cdd5-4d65-9878-d1d2c1468bf8",
+      "overture:61e01a4a-db5b-4424-9250-ca9868d12db0"
+    ],
+    "roof": "roofOchre",
+    "w": 30.789,
+    "wall": "wallWhite",
+    "x": 130.315,
+    "z": -204.507
+  },
+  {
+    "awning": false,
+    "d": 12.426,
+    "h": 9.0,
+    "members": [
+      "overture:0c6b5a4f-5c15-4a29-b672-36a1a67dc2cf"
+    ],
+    "roof": "roofTerracotta",
+    "w": 11.337,
+    "wall": "wallCream",
+    "x": 51.73,
+    "z": -35.111
+  },
+  {
+    "awning": false,
+    "d": 20.709,
+    "h": 9.0,
+    "members": [
+      "overture:0d9b6156-806a-4d5a-bcd5-016406fa0e4e"
+    ],
+    "roof": "roofTerracotta",
+    "w": 23.606,
+    "wall": "wallRose",
+    "x": 107.392,
+    "z": 76.175
+  },
+  {
+    "awning": true,
+    "d": 22.419,
+    "h": 12.0,
+    "members": [
+      "overture:0f30ffec-ff01-47c4-91e3-98cce0312b51",
+      "overture:a6c96714-827a-472a-a765-33de62e5f8e7"
+    ],
+    "roof": "roofOchre",
+    "w": 32.352,
+    "wall": "wallRose",
+    "x": 3.464,
+    "z": -20.828
+  },
+  {
+    "awning": false,
+    "d": 34.164,
+    "h": 6.0,
+    "members": [
+      "overture:0f8c1e1b-c229-48da-9105-511d568080e3",
+      "overture:547e92f7-431b-4935-a895-b1290de538d7",
+      "overture:61c4e169-fa5e-456d-bd32-3ffaa5cdf1fa",
+      "overture:64f5d58a-4346-4a58-9c7a-1e097aecf31c",
+      "overture:dbbad010-4f9d-4de2-a5a4-f40f306e0902"
+    ],
+    "roof": "roofTerracotta",
+    "w": 33.863,
+    "wall": "wallCream",
+    "x": 178.299,
+    "z": -249.03
+  },
+  {
+    "awning": false,
+    "d": 31.792,
+    "h": 14.0,
+    "members": [
+      "overture:0fd5bf69-066f-45b0-bb6b-70881e828a70",
+      "overture:7f92dee1-575c-4aa1-8e7e-6b1c597c2b8b"
+    ],
+    "roof": "roofOchre",
+    "w": 34.165,
+    "wall": "wallWhite",
+    "x": -64.972,
+    "z": -118.45
+  },
+  {
+    "awning": false,
+    "d": 30.611,
+    "h": 9.0,
+    "members": [
+      "overture:102d497d-3e7c-480a-a435-b1b333073adc",
+      "overture:8a119db3-9791-48d8-a7a2-c9d813f622e4",
+      "overture:8e88a5b7-a344-442a-889b-e44b4254d960"
+    ],
+    "roof": "roofOchre",
+    "w": 33.078,
+    "wall": "wallRose",
+    "x": 268.604,
+    "z": -209.363
+  },
+  {
+    "awning": true,
+    "d": 34.675,
+    "h": 6.0,
+    "members": [
+      "overture:113f885f-8094-4532-9825-226b25413418",
+      "overture:9395427a-8e6f-48eb-b2b2-22456ab66b0f",
+      "overture:95891778-1230-4896-a11b-93573c06f69c",
+      "overture:bf313241-d1fd-4181-b5e6-9120ce151991",
+      "overture:ff7cce5f-bcf9-4e61-b976-e33520e00ce1"
+    ],
+    "roof": "roofTerracotta",
+    "w": 40.859,
+    "wall": "wallRose",
+    "x": 182.145,
+    "z": -285.99
+  },
+  {
+    "awning": false,
+    "d": 43.104,
+    "h": 9.0,
+    "members": [
+      "overture:11cc4f8d-0ffa-40ab-b95a-da132953fa22",
+      "overture:1cc6f02e-3969-4227-a609-450e2c7ee057",
+      "overture:49bc1043-1614-4a8c-b0bd-46f16e35e38b"
+    ],
+    "roof": "roofTerracotta",
+    "w": 34.948,
+    "wall": "wallRose",
+    "x": 221.101,
+    "z": -267.083
+  },
+  {
+    "awning": false,
+    "d": 42.555,
+    "h": 6.0,
+    "members": [
+      "overture:126fc093-7e21-42b3-b8c9-9e9a6437b3a0",
+      "overture:1aaf9d7b-2a79-4de8-9a6c-bbd7698b38d6",
+      "overture:302478d8-ab12-42be-afd2-0f76d16d4a64"
+    ],
+    "roof": "roofOchre",
+    "w": 25.929,
+    "wall": "wallWhite",
+    "x": 210.062,
+    "z": -222.049
+  },
+  {
+    "awning": true,
+    "d": 33.059,
+    "h": 9.0,
+    "members": [
+      "overture:12e73015-ffc4-45ac-9325-fe1f35f65e72",
+      "overture:2feb58bd-579b-4c01-b0df-ea099d11fc78",
+      "overture:77a68255-9d46-49a9-95d1-549f020bb2f3",
+      "overture:c84ccccd-6565-427c-bc92-95d51a1dcb48"
+    ],
+    "roof": "roofOchre",
+    "w": 44.854,
+    "wall": "wallRose",
+    "x": 154.407,
+    "z": -154.055
+  },
+  {
+    "awning": true,
+    "d": 4.611,
+    "h": 9.0,
+    "members": [
+      "overture:14d1d0cc-6699-4496-82b3-43f8934daf75"
+    ],
+    "roof": "roofTerracotta",
+    "w": 4.285,
+    "wall": "wallWhite",
+    "x": 188.99,
+    "z": 166.695
+  },
+  {
+    "awning": false,
+    "d": 18.141,
+    "h": 6.0,
+    "members": [
+      "overture:16f7cb36-a398-4aa9-b71c-dd0f968d05aa"
+    ],
+    "roof": "roofTerracotta",
+    "w": 21.862,
+    "wall": "wallWhite",
+    "x": 106.256,
+    "z": 96.668
+  },
+  {
+    "awning": false,
+    "d": 43.661,
+    "h": 9.0,
+    "members": [
+      "overture:1721811b-27dd-465c-9444-a3a792659bf3",
+      "overture:2ef0242c-824a-4b6d-9736-3cd350e9aaf4",
+      "overture:65961744-211d-4bd3-8bd3-6b343168309e"
+    ],
+    "roof": "roofOchre",
+    "w": 37.05,
+    "wall": "wallRose",
+    "x": 41.343,
+    "z": 36.364
+  },
+  {
+    "awning": true,
+    "d": 11.018,
+    "h": 6.0,
+    "members": [
+      "overture:17e8c298-47e3-4bd8-ba7e-6bd8ab8181a4"
+    ],
+    "roof": "roofOchre",
+    "w": 9.201,
+    "wall": "wallCream",
+    "x": 287.959,
+    "z": -14.193
+  },
+  {
+    "awning": false,
+    "d": 6.684,
+    "h": 9.0,
+    "members": [
+      "overture:18d4da19-b21a-405f-aeab-1ddfbdd58fe5"
+    ],
+    "roof": "roofOchre",
+    "w": 5.752,
+    "wall": "wallRose",
+    "x": 5.967,
+    "z": 295.79
+  },
+  {
+    "awning": true,
+    "d": 5.099,
+    "h": 9.0,
+    "members": [
+      "overture:1b13efed-fa10-4568-9256-0c79cbe1e777"
+    ],
+    "roof": "roofTerracotta",
+    "w": 14.973,
+    "wall": "wallWhite",
+    "x": -86.352,
+    "z": -294.702
+  },
+  {
+    "awning": false,
+    "d": 22.937,
+    "h": 12.0,
+    "members": [
+      "overture:1b55381e-59ca-4b62-a8e4-3c7ea612f740",
+      "overture:3985ea4a-b99e-4c7a-9bed-d7dfc56e543e",
+      "overture:b6bb440a-a578-4602-b776-8efdadcac086"
+    ],
+    "roof": "roofOchre",
+    "w": 38.209,
+    "wall": "wallCream",
+    "x": 71.007,
+    "z": -74.064
+  },
+  {
+    "awning": false,
+    "d": 9.457,
+    "h": 9.0,
+    "members": [
+      "overture:1b7baebe-1a83-4476-a27a-9111e74083c5"
+    ],
+    "roof": "roofOchre",
+    "w": 8.56,
+    "wall": "wallCream",
+    "x": -146.066,
+    "z": -48.237
+  },
+  {
+    "awning": false,
+    "d": 36.078,
+    "h": 14.0,
+    "members": [
+      "overture:1be0e6df-7f9d-4833-b0ca-95f85761c34e",
+      "overture:e1b1a663-6aee-4e17-8cc5-a58ddbe0ae79",
+      "overture:f3c3af90-5e3b-4fb8-9fa0-e55cef8504a6"
+    ],
+    "roof": "roofTerracotta",
+    "w": 28.36,
+    "wall": "wallRose",
+    "x": 70.465,
+    "z": -0.526
+  },
+  {
+    "awning": true,
+    "d": 41.991,
+    "h": 9.0,
+    "members": [
+      "overture:1c3e2dad-ed13-411b-8a75-5a6b7a9e501a",
+      "overture:4d42ee34-1983-410b-a921-3d8a7bf8b4f3",
+      "overture:6fc5ee38-4eec-43e6-a595-a15ff6939542"
+    ],
+    "roof": "roofOchre",
+    "w": 43.778,
+    "wall": "wallRose",
+    "x": 114.342,
+    "z": 36.592
+  },
+  {
+    "awning": false,
+    "d": 61.337,
+    "h": 14.0,
+    "members": [
+      "overture:1cc7c3bc-4174-4fd3-9d8f-0667cbdab2d8"
+    ],
+    "roof": "roofTerracotta",
+    "w": 51.028,
+    "wall": "wallCream",
+    "x": 297.961,
+    "z": 45.062
+  },
+  {
+    "awning": true,
+    "d": 33.967,
+    "h": 12.0,
+    "members": [
+      "overture:1d7e0a09-4d50-4398-aea4-5ccf986af9b7",
+      "overture:a5737f52-3357-4a5c-9cab-7f8ee9d085af",
+      "overture:caafc0ad-8f00-470f-8ff7-141e69b39255"
+    ],
+    "roof": "roofOchre",
+    "w": 24.541,
+    "wall": "wallRose",
+    "x": 81.709,
+    "z": 31.285
+  },
+  {
+    "awning": true,
+    "d": 10.232,
+    "h": 6.0,
+    "members": [
+      "overture:1e42a731-6060-4457-8564-3679158eef6c"
+    ],
+    "roof": "roofOchre",
+    "w": 12.315,
+    "wall": "wallCream",
+    "x": -114.489,
+    "z": -104.103
+  },
+  {
+    "awning": false,
+    "d": 17.926,
+    "h": 14.0,
+    "members": [
+      "overture:200a52b8-0719-491f-a8f8-139d8b048ef3",
+      "overture:728453b3-bdcb-41a4-b243-f4b21e73f08b"
+    ],
+    "roof": "roofTerracotta",
+    "w": 13.904,
+    "wall": "wallCream",
+    "x": 21.105,
+    "z": -48.575
+  },
+  {
+    "awning": false,
+    "d": 14.959,
+    "h": 6.0,
+    "members": [
+      "overture:21a932f4-c0ca-4863-8765-3a219309fcb4"
+    ],
+    "roof": "roofOchre",
+    "w": 6.38,
+    "wall": "wallCream",
+    "x": 232.518,
+    "z": 249.429
+  },
+  {
+    "awning": false,
+    "d": 42.903,
+    "h": 6.0,
+    "members": [
+      "overture:2218598e-4dca-4dec-b21a-ccbd21fc2f4a",
+      "overture:75e2d148-f4eb-45fe-9e30-7d6b93c4d943"
+    ],
+    "roof": "roofOchre",
+    "w": 37.539,
+    "wall": "wallCream",
+    "x": 260.625,
+    "z": 245.679
+  },
+  {
+    "awning": false,
+    "d": 8.404,
+    "h": 12.0,
+    "members": [
+      "overture:2227ae88-ba59-4332-b36a-2b7db44480e1"
+    ],
+    "roof": "roofTerracotta",
+    "w": 11.614,
+    "wall": "wallWhite",
+    "x": 53.991,
+    "z": -64.618
+  },
+  {
+    "awning": true,
+    "d": 33.84,
+    "h": 9.0,
+    "members": [
+      "overture:22efbfe0-2650-438d-be18-573ce29555bf",
+      "overture:52a03bfb-f551-48e9-bdc3-6ad4885c953f",
+      "overture:73600d38-bc92-4946-8957-b8dc10bc9b85",
+      "overture:d4b9a7fe-2455-4a66-8fb9-c4fe4ba74886"
+    ],
+    "roof": "roofTerracotta",
+    "w": 33.427,
+    "wall": "wallWhite",
+    "x": 161.284,
+    "z": 36.539
+  },
+  {
+    "awning": false,
+    "d": 42.678,
+    "h": 9.0,
+    "members": [
+      "overture:233b0663-6183-4234-9300-b76adddcc507",
+      "overture:33f540e1-46bb-44ea-895c-71c06e431d28",
+      "overture:bd0848b4-186a-4518-b343-02f128da8d24",
+      "overture:f0e5d80b-5bfe-4e97-acfb-29238a890a52"
+    ],
+    "roof": "roofTerracotta",
+    "w": 30.034,
+    "wall": "wallWhite",
+    "x": 142.71,
+    "z": -65.003
+  },
+  {
+    "awning": false,
+    "d": 20.448,
+    "h": 9.0,
+    "members": [
+      "overture:23af27d8-1d90-4afe-8dfa-f4a8bec934d1"
+    ],
+    "roof": "roofTerracotta",
+    "w": 48.95,
+    "wall": "wallRose",
+    "x": 147.363,
+    "z": -226.019
+  },
+  {
+    "awning": false,
+    "d": 15.932,
+    "h": 6.0,
+    "members": [
+      "overture:23b61e67-a0e2-4800-9377-f36a360889e0"
+    ],
+    "roof": "roofOchre",
+    "w": 10.535,
+    "wall": "wallWhite",
+    "x": 9.931,
+    "z": 122.16
+  },
+  {
+    "awning": false,
+    "d": 41.874,
+    "h": 14.0,
+    "members": [
+      "overture:25c582af-5337-4ba8-a2ee-5935d8c764bd",
+      "overture:35024b5a-e62a-4210-91d4-5fba4cc39665",
+      "overture:61f8b258-b316-4752-9036-926042efb65c"
+    ],
+    "roof": "roofTerracotta",
+    "w": 36.564,
+    "wall": "wallWhite",
+    "x": -96.63,
+    "z": -49.836
+  },
+  {
+    "awning": true,
+    "d": 14.063,
+    "h": 12.0,
+    "members": [
+      "overture:262dcfcb-341f-4aaf-baaa-68c754f0bd44"
+    ],
+    "roof": "roofOchre",
+    "w": 8.116,
+    "wall": "wallRose",
+    "x": -20.876,
+    "z": -15.534
+  },
+  {
+    "awning": false,
+    "d": 28.526,
+    "h": 6.0,
+    "members": [
+      "overture:27029b2e-db54-45b8-87d8-4097ecbbfa9f",
+      "overture:94ea6efb-7b65-451f-ad53-80b116debd8f"
+    ],
+    "roof": "roofOchre",
+    "w": 37.969,
+    "wall": "wallCream",
+    "x": 141.847,
+    "z": -98.811
+  },
+  {
+    "awning": false,
+    "d": 35.66,
+    "h": 6.0,
+    "members": [
+      "overture:28667750-e311-4dcb-a033-ace5da76e43a",
+      "overture:28698f22-48d3-4f57-afe7-72394dadeb55",
+      "overture:e38c6427-6457-4018-bd9a-8ecac68b7a51",
+      "overture:f3500d04-fed9-4141-8cb7-4a2fddfdb72a"
+    ],
+    "roof": "roofTerracotta",
+    "w": 36.072,
+    "wall": "wallRose",
+    "x": 39.514,
+    "z": -286.714
+  },
+  {
+    "awning": true,
+    "d": 18.547,
+    "h": 14.0,
+    "members": [
+      "overture:29078796-2a56-4d7c-a4b1-3e3b59062aee"
+    ],
+    "roof": "roofTerracotta",
+    "w": 26.143,
+    "wall": "wallWhite",
+    "x": 137.101,
+    "z": -33.955
+  },
+  {
+    "awning": true,
+    "d": 12.856,
+    "h": 6.0,
+    "members": [
+      "overture:290a8af1-4821-4977-8236-608394cc6edc"
+    ],
+    "roof": "roofTerracotta",
+    "w": 15.437,
+    "wall": "wallCream",
+    "x": 201.037,
+    "z": -22.797
+  },
+  {
+    "awning": false,
+    "d": 10.71,
+    "h": 9.0,
+    "members": [
+      "overture:2942764c-ccd7-4f02-ab66-528287538667"
+    ],
+    "roof": "roofTerracotta",
+    "w": 19.002,
+    "wall": "wallRose",
+    "x": -99.702,
+    "z": -5.433
+  },
+  {
+    "awning": false,
+    "d": 36.643,
+    "h": 6.0,
+    "members": [
+      "overture:29eddfc7-5eb9-4e1d-b757-4206b9678fdf",
+      "overture:a051077c-18da-4f02-94ef-dd9e1c1bc020"
+    ],
+    "roof": "roofTerracotta",
+    "w": 34.634,
+    "wall": "wallWhite",
+    "x": 36.848,
+    "z": -205.44
+  },
+  {
+    "awning": false,
+    "d": 42.108,
+    "h": 12.0,
+    "members": [
+      "overture:2bb5679e-3ae9-46db-b8c4-f728e5964874",
+      "overture:574997e6-0043-4c7d-8c93-fe4119d9810c",
+      "overture:a8bc5690-6196-4f98-9c63-9fbdd515aaff"
+    ],
+    "roof": "roofTerracotta",
+    "w": 26.252,
+    "wall": "wallCream",
+    "x": 6.287,
+    "z": 6.124
+  },
+  {
+    "awning": true,
+    "d": 31.496,
+    "h": 6.0,
+    "members": [
+      "overture:2befc9f3-40eb-4c85-b038-58c1d4a6dd67",
+      "overture:331f30ce-0ee3-457e-9568-286821d0f3b2"
+    ],
+    "roof": "roofTerracotta",
+    "w": 29.524,
+    "wall": "wallWhite",
+    "x": 89.815,
+    "z": -185.919
+  },
+  {
+    "awning": false,
+    "d": 9.642,
+    "h": 9.0,
+    "members": [
+      "overture:2d8ce51b-fb00-49f8-bde4-2d1322a52e68"
+    ],
+    "roof": "roofOchre",
+    "w": 8.784,
+    "wall": "wallRose",
+    "x": 135.547,
+    "z": 232.933
+  },
+  {
+    "awning": false,
+    "d": 24.641,
+    "h": 9.0,
+    "members": [
+      "overture:2dac264b-3baf-4b56-8cb8-85bf6bd2ebe0",
+      "overture:4e2065cd-45f9-4921-9821-26e5b8cb577e"
+    ],
+    "roof": "roofOchre",
+    "w": 40.953,
+    "wall": "wallWhite",
+    "x": 229.019,
+    "z": -124.822
+  },
+  {
+    "awning": true,
+    "d": 42.069,
+    "h": 14.0,
+    "members": [
+      "overture:2dbcadac-71b6-4608-8286-80427c53d256",
+      "overture:fe8ff847-af9c-4fb1-b488-0b2b9e4e0e85"
+    ],
+    "roof": "roofTerracotta",
+    "w": 29.964,
+    "wall": "wallWhite",
+    "x": 8.435,
+    "z": -131.767
+  },
+  {
+    "awning": true,
+    "d": 10.856,
+    "h": 9.0,
+    "members": [
+      "overture:2f93c74e-39bd-4157-a4e5-721f24ed800c",
+      "overture:485071df-fb79-44dc-9a49-de816160d393"
+    ],
+    "roof": "roofOchre",
+    "w": 20.181,
+    "wall": "wallWhite",
+    "x": 214.678,
+    "z": -156.189
+  },
+  {
+    "awning": true,
+    "d": 11.774,
+    "h": 9.0,
+    "members": [
+      "overture:308dec36-5176-4a74-960e-5184e7bcb47e"
+    ],
+    "roof": "roofOchre",
+    "w": 20.149,
+    "wall": "wallRose",
+    "x": 289.065,
+    "z": -59.686
+  },
+  {
+    "awning": true,
+    "d": 17.085,
+    "h": 14.0,
+    "members": [
+      "overture:30a1b08e-c0da-4b35-b5ed-b55e0e0947c1"
+    ],
+    "roof": "roofOchre",
+    "w": 13.886,
+    "wall": "wallRose",
+    "x": 4.587,
+    "z": -45.299
+  },
+  {
+    "awning": true,
+    "d": 50.009,
+    "h": 9.0,
+    "members": [
+      "overture:32c2e2fe-6c21-4e3c-a26e-9f78e17973f9"
+    ],
+    "roof": "roofTerracotta",
+    "w": 24.232,
+    "wall": "wallRose",
+    "x": 207.875,
+    "z": 48.605
+  },
+  {
+    "awning": false,
+    "d": 22.768,
+    "h": 12.0,
+    "members": [
+      "overture:334f0ea4-881c-41d1-88ea-60cd37c7917b"
+    ],
+    "roof": "roofTerracotta",
+    "w": 27.549,
+    "wall": "wallRose",
+    "x": 281.983,
+    "z": 154.811
+  },
+  {
+    "awning": false,
+    "d": 15.738,
+    "h": 9.0,
+    "members": [
+      "overture:33f1b58d-c243-4290-9fd3-2254bc1c28e2"
+    ],
+    "roof": "roofOchre",
+    "w": 26.491,
+    "wall": "wallWhite",
+    "x": 296.88,
+    "z": -129.671
+  },
+  {
+    "awning": true,
+    "d": 45.875,
+    "h": 6.0,
+    "members": [
+      "overture:34da7bf0-601c-4763-a77a-8ea8a7266623"
+    ],
+    "roof": "roofTerracotta",
+    "w": 22.179,
+    "wall": "wallWhite",
+    "x": 196.938,
+    "z": -87.709
+  },
+  {
+    "awning": false,
+    "d": 36.892,
+    "h": 14.0,
+    "members": [
+      "overture:361e06c3-7153-489f-a3be-683ef75ccd90"
+    ],
+    "roof": "roofTerracotta",
+    "w": 36.556,
+    "wall": "wallRose",
+    "x": 259.215,
+    "z": -73.695
+  },
+  {
+    "awning": false,
+    "d": 57.653,
+    "h": 6.0,
+    "members": [
+      "overture:36a4b6fb-3534-47bb-bd5a-43af20a84bca"
+    ],
+    "roof": "roofTerracotta",
+    "w": 25.191,
+    "wall": "wallWhite",
+    "x": 64.891,
+    "z": -139.254
+  },
+  {
+    "awning": false,
+    "d": 20.72,
+    "h": 12.0,
+    "members": [
+      "overture:39725ccf-4a5d-4f44-ae03-8b3f90ba36a2",
+      "overture:7edc2b70-2289-471b-a40b-073578771681"
+    ],
+    "roof": "roofTerracotta",
+    "w": 21.604,
+    "wall": "wallRose",
+    "x": 37.134,
+    "z": -121.69
+  },
+  {
+    "awning": false,
+    "d": 5.624,
+    "h": 9.0,
+    "members": [
+      "overture:3979a9ce-4d32-4a24-b25f-e717a8c4f0f0"
+    ],
+    "roof": "roofTerracotta",
+    "w": 5.631,
+    "wall": "wallWhite",
+    "x": -27.733,
+    "z": -37.692
+  },
+  {
+    "awning": true,
+    "d": 21.256,
+    "h": 6.0,
+    "members": [
+      "overture:3a23289b-f2b4-4238-b932-22329549bea2"
+    ],
+    "roof": "roofTerracotta",
+    "w": 17.378,
+    "wall": "wallRose",
+    "x": 227.104,
+    "z": 64.74
+  },
+  {
+    "awning": false,
+    "d": 13.964,
+    "h": 6.0,
+    "members": [
+      "overture:3aae1fc4-3fa7-4da7-abb7-6e70600f30ed"
+    ],
+    "roof": "roofOchre",
+    "w": 12.119,
+    "wall": "wallWhite",
+    "x": 289.53,
+    "z": 112.422
+  },
+  {
+    "awning": true,
+    "d": 11.396,
+    "h": 6.0,
+    "members": [
+      "overture:3b08059c-15ec-4e54-9d9f-dc655958531a"
+    ],
+    "roof": "roofTerracotta",
+    "w": 8.673,
+    "wall": "wallRose",
+    "x": -114.136,
+    "z": -9.87
+  },
+  {
+    "awning": false,
+    "d": 7.514,
+    "h": 6.0,
+    "members": [
+      "overture:3b181bac-b7b7-4cb5-aa6d-3a632fb6df72"
+    ],
+    "roof": "roofOchre",
+    "w": 8.089,
+    "wall": "wallRose",
+    "x": 195.052,
+    "z": 223.062
+  },
+  {
+    "awning": false,
+    "d": 6.183,
+    "h": 9.0,
+    "members": [
+      "overture:3ba96b10-9cf2-4180-94d6-28b08ef962b1"
+    ],
+    "roof": "roofTerracotta",
+    "w": 5.413,
+    "wall": "wallRose",
+    "x": -134.144,
+    "z": -51.73
+  },
+  {
+    "awning": false,
+    "d": 10.802,
+    "h": 6.0,
+    "members": [
+      "overture:3bd7ca6a-35e7-47e4-9fce-031215a2b3fc"
+    ],
+    "roof": "roofTerracotta",
+    "w": 10.608,
+    "wall": "wallRose",
+    "x": -39.47,
+    "z": -172.688
+  },
+  {
+    "awning": false,
+    "d": 45.108,
+    "h": 6.0,
+    "members": [
+      "overture:3cdfdc69-d7f7-44d7-a97e-f36a4dfa88fe"
+    ],
+    "roof": "roofOchre",
+    "w": 37.497,
+    "wall": "wallCream",
+    "x": 161.596,
+    "z": 294.467
+  },
+  {
+    "awning": true,
+    "d": 20.528,
+    "h": 9.0,
+    "members": [
+      "overture:3df22818-e0c0-461f-9759-92b81cf3e0d0"
+    ],
+    "roof": "roofOchre",
+    "w": 20.305,
+    "wall": "wallWhite",
+    "x": 134.97,
+    "z": -276.42
+  },
+  {
+    "awning": false,
+    "d": 12.477,
+    "h": 6.0,
+    "members": [
+      "overture:3ed5dd9d-fb01-4a49-ab80-c5e4e1f5737f"
+    ],
+    "roof": "roofTerracotta",
+    "w": 22.468,
+    "wall": "wallWhite",
+    "x": 13.265,
+    "z": 225.743
+  },
+  {
+    "awning": false,
+    "d": 18.613,
+    "h": 9.0,
+    "members": [
+      "overture:3ff7793b-56c2-4e6c-8032-d5214d758902"
+    ],
+    "roof": "roofTerracotta",
+    "w": 27.848,
+    "wall": "wallRose",
+    "x": 89.632,
+    "z": -255.806
+  },
+  {
+    "awning": false,
+    "d": 22.447,
+    "h": 9.0,
+    "members": [
+      "overture:4172dd45-ca75-4df6-99de-10433dae62f9"
+    ],
+    "roof": "roofOchre",
+    "w": 23.305,
+    "wall": "wallWhite",
+    "x": 201.998,
+    "z": -50.559
+  },
+  {
+    "awning": true,
+    "d": 24.846,
+    "h": 6.0,
+    "members": [
+      "overture:42d3dfed-4a2e-4aca-9811-ca4fae850c2d",
+      "overture:e9185e91-e40e-4dbf-96cb-6966adb72264"
+    ],
+    "roof": "roofTerracotta",
+    "w": 32.923,
+    "wall": "wallCream",
+    "x": 144.793,
+    "z": -187.689
+  },
+  {
+    "awning": false,
+    "d": 5.625,
+    "h": 9.0,
+    "members": [
+      "overture:45029c40-969d-4162-9a72-4857d90ab58a"
+    ],
+    "roof": "roofOchre",
+    "w": 5.631,
+    "wall": "wallWhite",
+    "x": -14.306,
+    "z": -39.675
+  },
+  {
+    "awning": false,
+    "d": 4.993,
+    "h": 6.0,
+    "members": [
+      "overture:473befa8-60e0-48a7-8c14-9afebcb67567"
+    ],
+    "roof": "roofOchre",
+    "w": 3.716,
+    "wall": "wallRose",
+    "x": 206.246,
+    "z": -116.422
+  },
+  {
+    "awning": false,
+    "d": 10.116,
+    "h": 6.0,
+    "members": [
+      "overture:4759d8fa-0180-4987-abc9-3ec408b83374"
+    ],
+    "roof": "roofOchre",
+    "w": 6.718,
+    "wall": "wallCream",
+    "x": 234.679,
+    "z": 174.741
+  },
+  {
+    "awning": false,
+    "d": 10.504,
+    "h": 6.0,
+    "members": [
+      "overture:4a9ae940-28f4-4dbd-9435-2456a0e28cdc"
+    ],
+    "roof": "roofTerracotta",
+    "w": 19.358,
+    "wall": "wallRose",
+    "x": 38.164,
+    "z": 124.673
+  },
+  {
+    "awning": true,
+    "d": 4.339,
+    "h": 9.0,
+    "members": [
+      "overture:4bad28e8-d616-4351-a38d-a59bd9d681ea"
+    ],
+    "roof": "roofOchre",
+    "w": 10.371,
+    "wall": "wallCream",
+    "x": 163.043,
+    "z": 269.654
+  },
+  {
+    "awning": false,
+    "d": 36.749,
+    "h": 14.0,
+    "members": [
+      "overture:4d7bcb1c-40aa-4729-ad13-efeeb4607e76",
+      "overture:66ebd998-2acd-4842-8157-d9ddca964bc2",
+      "overture:ebb21e43-cf43-4b1c-9ffc-70523711939b"
+    ],
+    "roof": "roofOchre",
+    "w": 31.577,
+    "wall": "wallWhite",
+    "x": 19.677,
+    "z": 93.338
+  },
+  {
+    "awning": false,
+    "d": 11.537,
+    "h": 6.0,
+    "members": [
+      "overture:4efd4d14-7ef3-4078-8a41-80d73a08cfd3",
+      "overture:9cfab540-8261-4f21-88e2-00209b03e36e"
+    ],
+    "roof": "roofTerracotta",
+    "w": 17.343,
+    "wall": "wallRose",
+    "x": -72.903,
+    "z": -19.739
+  },
+  {
+    "awning": true,
+    "d": 34.186,
+    "h": 9.0,
+    "members": [
+      "overture:53cd9e72-5a05-4da4-9c08-decd2a56d2dc",
+      "overture:ccd5233a-2ad3-4af4-a65f-2484a377e342"
+    ],
+    "roof": "roofOchre",
+    "w": 27.462,
+    "wall": "wallRose",
+    "x": 263.903,
+    "z": -8.893
+  },
+  {
+    "awning": false,
+    "d": 18.689,
+    "h": 9.0,
+    "members": [
+      "overture:554c5436-0826-4744-b9f1-9dbe31cbeaff",
+      "overture:731fcd3d-41f7-480f-9fca-de1021fdace6"
+    ],
+    "roof": "roofOchre",
+    "w": 19.769,
+    "wall": "wallWhite",
+    "x": 263.462,
+    "z": -44.439
+  },
+  {
+    "awning": true,
+    "d": 18.044,
+    "h": 6.0,
+    "members": [
+      "overture:55ed3198-190e-4aa5-8494-57d1b0b70b14"
+    ],
+    "roof": "roofTerracotta",
+    "w": 12.794,
+    "wall": "wallCream",
+    "x": 67.919,
+    "z": -256.272
+  },
+  {
+    "awning": false,
+    "d": 30.948,
+    "h": 6.0,
+    "members": [
+      "overture:5632ba47-9b16-4fc3-8fe7-a18c65e45e30",
+      "overture:a2d47681-ead5-4e74-a818-16f848e6112c"
+    ],
+    "roof": "roofTerracotta",
+    "w": 38.798,
+    "wall": "wallWhite",
+    "x": 32.092,
+    "z": -241.404
+  },
+  {
+    "awning": false,
+    "d": 37.361,
+    "h": 14.0,
+    "members": [
+      "overture:564aa2be-9e37-415b-b56d-1f6765e3c28d",
+      "overture:a644ac90-d576-4e6e-85ed-0fe85ff5a9cc",
+      "overture:a9213f90-c0d3-4aba-8b92-cf616e423a09"
+    ],
+    "roof": "roofTerracotta",
+    "w": 40.211,
+    "wall": "wallWhite",
+    "x": 101.738,
+    "z": 7.082
+  },
+  {
+    "awning": true,
+    "d": 23.255,
+    "h": 9.0,
+    "members": [
+      "overture:5898b524-3ccc-43f7-b5dd-52bf242007b4",
+      "overture:7fe1d923-16b3-4786-ad95-4dbac2a81fd4"
+    ],
+    "roof": "roofTerracotta",
+    "w": 36.421,
+    "wall": "wallCream",
+    "x": 194.38,
+    "z": -135.38
+  },
+  {
+    "awning": false,
+    "d": 4.877,
+    "h": 9.0,
+    "members": [
+      "overture:5a13f9ee-fc35-404a-aaa3-25c4a3bb5b15"
+    ],
+    "roof": "roofOchre",
+    "w": 4.244,
+    "wall": "wallCream",
+    "x": 158.458,
+    "z": 148.026
+  },
+  {
+    "awning": false,
+    "d": 11.671,
+    "h": 6.0,
+    "members": [
+      "overture:5a7bc1e7-35a3-47be-be00-2b94faf16e42"
+    ],
+    "roof": "roofOchre",
+    "w": 8.98,
+    "wall": "wallCream",
+    "x": 237.22,
+    "z": 227.292
+  },
+  {
+    "awning": true,
+    "d": 23.7,
+    "h": 6.0,
+    "members": [
+      "overture:5bd7e7dc-0a51-4252-b7ef-777ed51e70ed",
+      "overture:cea5bc6e-bdb6-41d3-8026-ab572c31b0b4"
+    ],
+    "roof": "roofTerracotta",
+    "w": 22.234,
+    "wall": "wallCream",
+    "x": 182.258,
+    "z": 53.01
+  },
+  {
+    "awning": false,
+    "d": 42.026,
+    "h": 14.0,
+    "members": [
+      "overture:5cfbb90b-ce98-4702-bb15-a5f8eb2b6552",
+      "overture:b91cbafe-5d42-4980-bc0e-182c58e4ed4d"
+    ],
+    "roof": "roofTerracotta",
+    "w": 28.856,
+    "wall": "wallRose",
+    "x": -82.366,
+    "z": -78.009
+  },
+  {
+    "awning": false,
+    "d": 20.412,
+    "h": 9.0,
+    "members": [
+      "overture:5e8e5c9e-f8d7-47d9-8cc6-f91e9bb9c35a"
+    ],
+    "roof": "roofOchre",
+    "w": 23.13,
+    "wall": "wallCream",
+    "x": 82.73,
+    "z": -24.379
+  },
+  {
+    "awning": false,
+    "d": 13.243,
+    "h": 6.0,
+    "members": [
+      "overture:5f8bbe7c-f448-4a21-84e3-d5ac359b4794"
+    ],
+    "roof": "roofOchre",
+    "w": 14.553,
+    "wall": "wallRose",
+    "x": 276.829,
+    "z": 272.371
+  },
+  {
+    "awning": false,
+    "d": 8.323,
+    "h": 9.0,
+    "members": [
+      "overture:603ce624-19a3-47e5-b757-fc315aafc8e2",
+      "overture:e861895c-9f49-4b7d-b1e0-7bd0af2832fe"
+    ],
+    "roof": "roofTerracotta",
+    "w": 11.045,
+    "wall": "wallRose",
+    "x": -20.843,
+    "z": -50.178
+  },
+  {
+    "awning": false,
+    "d": 17.97,
+    "h": 6.0,
+    "members": [
+      "overture:60a617a6-27f8-4bab-a137-af26f1df0d99"
+    ],
+    "roof": "roofOchre",
+    "w": 34.218,
+    "wall": "wallWhite",
+    "x": 15.092,
+    "z": 161.543
+  },
+  {
+    "awning": false,
+    "d": 4.325,
+    "h": 6.0,
+    "members": [
+      "overture:612204a0-78c0-4f07-a523-a42d7f41821d"
+    ],
+    "roof": "roofTerracotta",
+    "w": 3.871,
+    "wall": "wallCream",
+    "x": -22.203,
+    "z": 246.377
+  },
+  {
+    "awning": false,
+    "d": 24.597,
+    "h": 6.0,
+    "members": [
+      "overture:627d84f5-8d9c-4f6f-b09b-751ff8fe04f1"
+    ],
+    "roof": "roofOchre",
+    "w": 25.686,
+    "wall": "wallCream",
+    "x": 176.929,
+    "z": -216.43
+  },
+  {
+    "awning": true,
+    "d": 31.627,
+    "h": 9.0,
+    "members": [
+      "overture:631a5ca4-f6a3-4b02-aff6-bf214b9289f0"
+    ],
+    "roof": "roofOchre",
+    "w": 28.33,
+    "wall": "wallWhite",
+    "x": 151.471,
+    "z": -120.097
+  },
+  {
+    "awning": false,
+    "d": 43.867,
+    "h": 12.0,
+    "members": [
+      "overture:632b6a73-dc37-4c3a-b782-e1c8d6a46146",
+      "overture:aef2d4b0-27a9-43a2-a948-b37d0a9b0025",
+      "overture:bc86a5d3-dbd5-4c2c-aeb2-295fb086c955"
+    ],
+    "roof": "roofOchre",
+    "w": 34.918,
+    "wall": "wallCream",
+    "x": 83.996,
+    "z": -82.79
+  },
+  {
+    "awning": false,
+    "d": 16.544,
+    "h": 9.0,
+    "members": [
+      "overture:634dd815-85bd-4df2-9de1-e71ff7ce9840"
+    ],
+    "roof": "roofOchre",
+    "w": 18.773,
+    "wall": "wallCream",
+    "x": 166.498,
+    "z": -28.365
+  },
+  {
+    "awning": false,
+    "d": 15.931,
+    "h": 14.0,
+    "members": [
+      "overture:63748dd1-7550-4e01-ab80-7f0d6136fa70"
+    ],
+    "roof": "roofTerracotta",
+    "w": 14.685,
+    "wall": "wallWhite",
+    "x": -70.844,
+    "z": -38.153
+  },
+  {
+    "awning": true,
+    "d": 5.624,
+    "h": 9.0,
+    "members": [
+      "overture:64b0003e-be39-4429-9515-d97c304ea9f1"
+    ],
+    "roof": "roofOchre",
+    "w": 5.631,
+    "wall": "wallCream",
+    "x": -11.934,
+    "z": -46.183
+  },
+  {
+    "awning": false,
+    "d": 20.314,
+    "h": 9.0,
+    "members": [
+      "overture:6539c836-aad0-457d-a3c4-37a83c595f2c"
+    ],
+    "roof": "roofOchre",
+    "w": 18.354,
+    "wall": "wallCream",
+    "x": 47.304,
+    "z": 103.272
+  },
+  {
+    "awning": true,
+    "d": 20.008,
+    "h": 12.0,
+    "members": [
+      "overture:68b2fe35-d5a2-4278-b1d3-b2ddc6dcd756"
+    ],
+    "roof": "roofTerracotta",
+    "w": 15.729,
+    "wall": "wallRose",
+    "x": 132.404,
+    "z": 8.356
+  },
+  {
+    "awning": false,
+    "d": 37.536,
+    "h": 12.0,
+    "members": [
+      "overture:6b437ea4-ad35-4a3c-9973-36e28158863b",
+      "overture:b25edb98-ad25-46aa-82b5-8f9a0a1667be",
+      "overture:c6dd578c-8ae2-4d72-bf7b-082a5ddbd4fa",
+      "overture:e7b44ef4-4d59-435f-b99c-903b3460be18",
+      "overture:f3394d5f-039f-4666-a374-00535dcc4be6"
+    ],
+    "roof": "roofTerracotta",
+    "w": 21.391,
+    "wall": "wallCream",
+    "x": 15.787,
+    "z": 43.419
+  },
+  {
+    "awning": false,
+    "d": 15.493,
+    "h": 6.0,
+    "members": [
+      "overture:6d2077c8-91e5-4777-9c0f-6accd912aa8d"
+    ],
+    "roof": "roofTerracotta",
+    "w": 12.164,
+    "wall": "wallCream",
+    "x": 245.943,
+    "z": -47.05
+  },
+  {
+    "awning": false,
+    "d": 40.057,
+    "h": 14.0,
+    "members": [
+      "overture:6daa920e-af4d-40fc-b15f-b956863fa2e5",
+      "overture:fbc5b588-339d-49e3-90c9-60079fcaf6b0"
+    ],
+    "roof": "roofTerracotta",
+    "w": 33.416,
+    "wall": "wallRose",
+    "x": -13.633,
+    "z": -92.607
+  },
+  {
+    "awning": false,
+    "d": 23.004,
+    "h": 6.0,
+    "members": [
+      "overture:716295de-9d6f-4940-86bc-3a1caa226f51"
+    ],
+    "roof": "roofTerracotta",
+    "w": 17.555,
+    "wall": "wallWhite",
+    "x": -12.087,
+    "z": 167.459
+  },
+  {
+    "awning": false,
+    "d": 25.204,
+    "h": 14.0,
+    "members": [
+      "overture:727f3752-b05b-4c56-8c5d-0f3504346f10"
+    ],
+    "roof": "roofTerracotta",
+    "w": 24.804,
+    "wall": "wallCream",
+    "x": 253.247,
+    "z": 59.467
+  },
+  {
+    "awning": false,
+    "d": 14.028,
+    "h": 6.0,
+    "members": [
+      "overture:76e17148-2816-4d09-8a00-f0d7eb802bbe",
+      "overture:c604e76e-b10b-40e5-b254-53cc3a072d9b"
+    ],
+    "roof": "roofOchre",
+    "w": 10.171,
+    "wall": "wallCream",
+    "x": 227.644,
+    "z": -69.694
+  },
+  {
+    "awning": false,
+    "d": 11.836,
+    "h": 6.0,
+    "members": [
+      "overture:76e522fb-1d26-480b-930c-a291d00a9212"
+    ],
+    "roof": "roofTerracotta",
+    "w": 16.629,
+    "wall": "wallWhite",
+    "x": 7.442,
+    "z": -75.573
+  },
+  {
+    "awning": true,
+    "d": 19.402,
+    "h": 6.0,
+    "members": [
+      "overture:785cd707-be95-4efa-9f9e-3eb0474a085d"
+    ],
+    "roof": "roofTerracotta",
+    "w": 44.572,
+    "wall": "wallWhite",
+    "x": 194.585,
+    "z": 12.19
+  },
+  {
+    "awning": false,
+    "d": 24.061,
+    "h": 9.0,
+    "members": [
+      "overture:787802d6-e9a4-4ad2-9ead-9d41057d66aa"
+    ],
+    "roof": "roofOchre",
+    "w": 15.502,
+    "wall": "wallWhite",
+    "x": 147.526,
+    "z": 77.349
+  },
+  {
+    "awning": false,
+    "d": 6.974,
+    "h": 9.0,
+    "members": [
+      "overture:79fc8653-6e81-484a-8a4a-44a169d06abc"
+    ],
+    "roof": "roofOchre",
+    "w": 11.314,
+    "wall": "wallCream",
+    "x": 51.665,
+    "z": -96.649
+  },
+  {
+    "awning": true,
+    "d": 17.531,
+    "h": 6.0,
+    "members": [
+      "overture:7b539310-227b-42b0-a0cb-6694a5321fac",
+      "overture:df1781a4-3124-4afc-80bd-bd4287ca08cc"
+    ],
+    "roof": "roofTerracotta",
+    "w": 17.473,
+    "wall": "wallWhite",
+    "x": 158.988,
+    "z": -293.207
+  },
+  {
+    "awning": false,
+    "d": 23.769,
+    "h": 6.0,
+    "members": [
+      "overture:7d2120b5-dd93-4d6b-891a-d60467e1909f",
+      "overture:eb0ba8ba-c17d-4a9a-852b-d06a003607cc"
+    ],
+    "roof": "roofOchre",
+    "w": 38.061,
+    "wall": "wallWhite",
+    "x": 264.48,
+    "z": -114.008
+  },
+  {
+    "awning": false,
+    "d": 18.586,
+    "h": 4.0,
+    "members": [
+      "overture:7e0cecb5-32eb-448b-8979-3fcc53385641"
+    ],
+    "roof": "roofOchre",
+    "w": 13.896,
+    "wall": "wallCream",
+    "x": 114.736,
+    "z": 166.356
+  },
+  {
+    "awning": false,
+    "d": 5.056,
+    "h": 6.0,
+    "members": [
+      "overture:80a26667-a6ae-4c0b-b652-5624d3916833"
+    ],
+    "roof": "roofTerracotta",
+    "w": 5.476,
+    "wall": "wallWhite",
+    "x": 287.796,
+    "z": 1.901
+  },
+  {
+    "awning": true,
+    "d": 14.138,
+    "h": 9.0,
+    "members": [
+      "overture:859d575c-08e1-46ce-9990-142d3009a596",
+      "overture:c75c5078-41ae-4b1d-b742-130aa914f37f"
+    ],
+    "roof": "roofOchre",
+    "w": 18.819,
+    "wall": "wallWhite",
+    "x": 26.523,
+    "z": -70.242
+  },
+  {
+    "awning": true,
+    "d": 19.998,
+    "h": 12.0,
+    "members": [
+      "overture:873a487b-527c-4374-a228-5a8e89a87567"
+    ],
+    "roof": "roofOchre",
+    "w": 50.226,
+    "wall": "wallWhite",
+    "x": 178.221,
+    "z": -7.445
+  },
+  {
+    "awning": true,
+    "d": 13.971,
+    "h": 9.0,
+    "members": [
+      "overture:87e6da14-41b2-424e-869e-0cb9f3abf760"
+    ],
+    "roof": "roofTerracotta",
+    "w": 15.386,
+    "wall": "wallCream",
+    "x": 251.927,
+    "z": -230.044
+  },
+  {
+    "awning": false,
+    "d": 23.622,
+    "h": 9.0,
+    "members": [
+      "overture:888c7b8e-9e45-4f14-89e6-564efa62db8f"
+    ],
+    "roof": "roofOchre",
+    "w": 12.376,
+    "wall": "wallWhite",
+    "x": 214.703,
+    "z": -100.905
+  },
+  {
+    "awning": false,
+    "d": 20.024,
+    "h": 6.0,
+    "members": [
+      "overture:8cf5ec68-d67a-4075-8f0c-39be620787e7"
+    ],
+    "roof": "roofTerracotta",
+    "w": 39.137,
+    "wall": "wallWhite",
+    "x": 51.775,
+    "z": 160.2
+  },
+  {
+    "awning": false,
+    "d": 10.741,
+    "h": 9.0,
+    "members": [
+      "overture:8db355ed-e1de-4700-8e18-b68e9de3b7dc"
+    ],
+    "roof": "roofOchre",
+    "w": 11.908,
+    "wall": "wallWhite",
+    "x": 262.09,
+    "z": 298.861
+  },
+  {
+    "awning": true,
+    "d": 12.51,
+    "h": 9.0,
+    "members": [
+      "overture:8e5dd082-ab8e-40c2-bfd8-4b02e7adee54"
+    ],
+    "roof": "roofOchre",
+    "w": 15.003,
+    "wall": "wallWhite",
+    "x": 108.922,
+    "z": -61.038
+  },
+  {
+    "awning": true,
+    "d": 38.746,
+    "h": 4.0,
+    "members": [
+      "overture:8e7389ac-9b80-4631-89a7-9790c8d68698",
+      "overture:959c7a2c-1725-4b4a-bd5c-87d5ceaca21b",
+      "overture:9f24f3c5-6387-4991-822d-ee0679cb8b24"
+    ],
+    "roof": "roofTerracotta",
+    "w": 38.564,
+    "wall": "wallCream",
+    "x": -27.336,
+    "z": -125.102
+  },
+  {
+    "awning": true,
+    "d": 5.29,
+    "h": 6.0,
+    "members": [
+      "overture:8eb06742-5487-4296-8c61-6f02cd91a48f"
+    ],
+    "roof": "roofOchre",
+    "w": 6.127,
+    "wall": "wallWhite",
+    "x": 229.377,
+    "z": 0.031
+  },
+  {
+    "awning": true,
+    "d": 5.615,
+    "h": 9.0,
+    "members": [
+      "overture:91466a6e-0bc3-4a30-8c7b-a20fceb9efe6"
+    ],
+    "roof": "roofTerracotta",
+    "w": 5.609,
+    "wall": "wallWhite",
+    "x": -38.556,
+    "z": -54.843
+  },
+  {
+    "awning": false,
+    "d": 16.352,
+    "h": 9.0,
+    "members": [
+      "overture:92710cab-e59e-4447-946b-a2252d14246a"
+    ],
+    "roof": "roofOchre",
+    "w": 20.361,
+    "wall": "wallCream",
+    "x": 73.047,
+    "z": -284.395
+  },
+  {
+    "awning": false,
+    "d": 20.701,
+    "h": 9.0,
+    "members": [
+      "overture:957c5f3b-93ec-4dae-a19d-5574a82a7cb4"
+    ],
+    "roof": "roofOchre",
+    "w": 46.966,
+    "wall": "wallWhite",
+    "x": 300.118,
+    "z": -44.206
+  },
+  {
+    "awning": false,
+    "d": 43.151,
+    "h": 14.0,
+    "members": [
+      "overture:9c087302-b0af-4da1-90f7-d815f7774ec6",
+      "overture:a5d080e5-4581-432c-b3ec-fbb15301bf96"
+    ],
+    "roof": "roofOchre",
+    "w": 36.751,
+    "wall": "wallRose",
+    "x": 114.767,
+    "z": -41.346
+  },
+  {
+    "awning": true,
+    "d": 10.505,
+    "h": 6.0,
+    "members": [
+      "overture:9c3dbd4e-8f30-49fa-ac89-08becb6cbdfb"
+    ],
+    "roof": "roofTerracotta",
+    "w": 6.859,
+    "wall": "wallRose",
+    "x": -22.993,
+    "z": -154.244
+  },
+  {
+    "awning": false,
+    "d": 28.139,
+    "h": 9.0,
+    "members": [
+      "overture:9cabb3d9-2739-4224-981d-fe404d292baf",
+      "overture:bab31064-c620-4791-ade2-4086a4883a63"
+    ],
+    "roof": "roofTerracotta",
+    "w": 22.791,
+    "wall": "wallCream",
+    "x": 55.508,
+    "z": 74.29
+  },
+  {
+    "awning": false,
+    "d": 7.158,
+    "h": 4.0,
+    "members": [
+      "overture:9d3110b9-233d-4d53-951d-ce38c5c5dea6"
+    ],
+    "roof": "roofTerracotta",
+    "w": 6.859,
+    "wall": "wallCream",
+    "x": -55.858,
+    "z": 157.782
+  },
+  {
+    "awning": false,
+    "d": 21.857,
+    "h": 6.0,
+    "members": [
+      "overture:9e2c8d1b-b3ae-4fd9-ab38-60c731560122"
+    ],
+    "roof": "roofOchre",
+    "w": 25.756,
+    "wall": "wallWhite",
+    "x": 179.706,
+    "z": 27.092
+  },
+  {
+    "awning": true,
+    "d": 30.502,
+    "h": 12.0,
+    "members": [
+      "overture:a113b10b-8ab3-4936-9e2f-1fec491b2b08"
+    ],
+    "roof": "roofOchre",
+    "w": 27.257,
+    "wall": "wallCream",
+    "x": 76.897,
+    "z": 86.968
+  },
+  {
+    "awning": true,
+    "d": 6.447,
+    "h": 6.0,
+    "members": [
+      "overture:a19602e5-bc55-4b3e-9aec-d9c6a643ad0f"
+    ],
+    "roof": "roofTerracotta",
+    "w": 7.434,
+    "wall": "wallCream",
+    "x": 25.636,
+    "z": 133.615
+  },
+  {
+    "awning": false,
+    "d": 9.271,
+    "h": 9.0,
+    "members": [
+      "overture:a2421739-dd48-4999-b9fb-dfc230e18038"
+    ],
+    "roof": "roofOchre",
+    "w": 9.23,
+    "wall": "wallWhite",
+    "x": -104.741,
+    "z": 100.365
+  },
+  {
+    "awning": false,
+    "d": 11.364,
+    "h": 9.0,
+    "members": [
+      "overture:a247035c-7dfc-4533-a099-2ffcd97623b9"
+    ],
+    "roof": "roofTerracotta",
+    "w": 21.4,
+    "wall": "wallWhite",
+    "x": 107.628,
+    "z": -216.731
+  },
+  {
+    "awning": false,
+    "d": 34.352,
+    "h": 6.0,
+    "members": [
+      "overture:a746e410-f2c2-434f-b3f4-11a33d55ac4f"
+    ],
+    "roof": "roofOchre",
+    "w": 32.254,
+    "wall": "wallCream",
+    "x": 113.523,
+    "z": 128.671
+  },
+  {
+    "awning": false,
+    "d": 15.029,
+    "h": 6.0,
+    "members": [
+      "overture:a8cd51ba-3ed8-44a7-8fc2-f271299df9c0"
+    ],
+    "roof": "roofTerracotta",
+    "w": 24.242,
+    "wall": "wallWhite",
+    "x": 247.208,
+    "z": -169.452
+  },
+  {
+    "awning": false,
+    "d": 26.138,
+    "h": 6.0,
+    "members": [
+      "overture:aa8c0ab4-5835-4d12-b943-69685c95cf9c"
+    ],
+    "roof": "roofOchre",
+    "w": 23.479,
+    "wall": "wallWhite",
+    "x": -14.393,
+    "z": 140.254
+  },
+  {
+    "awning": true,
+    "d": 14.756,
+    "h": 9.0,
+    "members": [
+      "overture:abb037e7-54b9-4e59-8166-f46a778cfd9f"
+    ],
+    "roof": "roofTerracotta",
+    "w": 12.966,
+    "wall": "wallWhite",
+    "x": -117.584,
+    "z": -90.128
+  },
+  {
+    "awning": true,
+    "d": 26.94,
+    "h": 9.0,
+    "members": [
+      "overture:adc6da3e-f95a-4580-b784-5f73d83fe317"
+    ],
+    "roof": "roofTerracotta",
+    "w": 5.914,
+    "wall": "wallWhite",
+    "x": 59.469,
+    "z": 134.784
+  },
+  {
+    "awning": false,
+    "d": 22.851,
+    "h": 6.0,
+    "members": [
+      "overture:add07db2-67fb-4426-a94b-209fe55d7575"
+    ],
+    "roof": "roofOchre",
+    "w": 51.611,
+    "wall": "wallCream",
+    "x": -21.198,
+    "z": 291.151
+  },
+  {
+    "awning": false,
+    "d": 20.181,
+    "h": 9.0,
+    "members": [
+      "overture:af149ca5-59cf-436e-80f4-42e6b57e0a33"
+    ],
+    "roof": "roofOchre",
+    "w": 15.372,
+    "wall": "wallWhite",
+    "x": 58.867,
+    "z": -236.716
+  },
+  {
+    "awning": false,
+    "d": 17.63,
+    "h": 12.0,
+    "members": [
+      "overture:b24e48bc-0a5e-4e87-b7dc-3815c1abe1ce",
+      "overture:dfc2c262-e745-4dc0-88d2-722acd8715bb",
+      "overture:ea611475-5047-4d41-806a-a66c6d86bd64"
+    ],
+    "roof": "roofOchre",
+    "w": 26.625,
+    "wall": "wallCream",
+    "x": -28.734,
+    "z": -63.707
+  },
+  {
+    "awning": false,
+    "d": 34.563,
+    "h": 12.0,
+    "members": [
+      "overture:b25b82b2-4076-4ca4-928a-fcccb6044182"
+    ],
+    "roof": "roofOchre",
+    "w": 24.715,
+    "wall": "wallWhite",
+    "x": 158.721,
+    "z": 13.464
+  },
+  {
+    "awning": false,
+    "d": 21.526,
+    "h": 6.0,
+    "members": [
+      "overture:b5eea65a-552d-4105-b03b-aed2a3df0316"
+    ],
+    "roof": "roofTerracotta",
+    "w": 16.445,
+    "wall": "wallCream",
+    "x": 255.863,
+    "z": 215.135
+  },
+  {
+    "awning": false,
+    "d": 6.985,
+    "h": 6.0,
+    "members": [
+      "overture:b66a5301-6b5c-4358-a23d-c0ca133e97af"
+    ],
+    "roof": "roofOchre",
+    "w": 7.949,
+    "wall": "wallRose",
+    "x": 154.466,
+    "z": -213.659
+  },
+  {
+    "awning": false,
+    "d": 11.4,
+    "h": 6.0,
+    "members": [
+      "overture:b6947041-44e3-412d-a592-7f9a080a271d"
+    ],
+    "roof": "roofOchre",
+    "w": 7.173,
+    "wall": "wallWhite",
+    "x": 220.089,
+    "z": 17.191
+  },
+  {
+    "awning": false,
+    "d": 35.167,
+    "h": 9.0,
+    "members": [
+      "overture:b87761a5-b5cc-4ed4-8d10-ed331b05213c",
+      "overture:c40f96e8-7fed-4ea0-b4cc-ae4ea22a56ad"
+    ],
+    "roof": "roofTerracotta",
+    "w": 37.649,
+    "wall": "wallCream",
+    "x": 213.667,
+    "z": -184.529
+  },
+  {
+    "awning": false,
+    "d": 5.624,
+    "h": 9.0,
+    "members": [
+      "overture:ba8f1c11-8254-4076-afa0-a14dc8ea48ee"
+    ],
+    "roof": "roofOchre",
+    "w": 5.642,
+    "wall": "wallRose",
+    "x": -26.239,
+    "z": -45.075
+  },
+  {
+    "awning": true,
+    "d": 22.239,
+    "h": 9.0,
+    "members": [
+      "overture:bb29ae5d-00cb-45b8-9873-7811e0b50a84"
+    ],
+    "roof": "roofTerracotta",
+    "w": 25.34,
+    "wall": "wallCream",
+    "x": 242.305,
+    "z": -16.273
+  },
+  {
+    "awning": true,
+    "d": 6.498,
+    "h": 9.0,
+    "members": [
+      "overture:bdd3db0c-52ec-41bf-ad74-14522b7b95ea"
+    ],
+    "roof": "roofTerracotta",
+    "w": 4.474,
+    "wall": "wallWhite",
+    "x": 137.148,
+    "z": 271.019
+  },
+  {
+    "awning": true,
+    "d": 10.836,
+    "h": 6.0,
+    "members": [
+      "overture:c03a7738-1cb6-4f7e-89ac-a2f2c5082cf7"
+    ],
+    "roof": "roofTerracotta",
+    "w": 19.93,
+    "wall": "wallCream",
+    "x": 118.906,
+    "z": -82.702
+  },
+  {
+    "awning": false,
+    "d": 2.511,
+    "h": 4.0,
+    "members": [
+      "overture:c0a28b2b-7331-4997-9985-b3a7911a9638"
+    ],
+    "roof": "roofTerracotta",
+    "w": 1.958,
+    "wall": "wallWhite",
+    "x": 142.264,
+    "z": 21.851
+  },
+  {
+    "awning": false,
+    "d": 5.615,
+    "h": 9.0,
+    "members": [
+      "overture:c29ca988-c557-4f30-9678-4cf1af37a560"
+    ],
+    "roof": "roofTerracotta",
+    "w": 5.609,
+    "wall": "wallWhite",
+    "x": -32.397,
+    "z": -52.978
+  },
+  {
+    "awning": false,
+    "d": 16.237,
+    "h": 9.0,
+    "members": [
+      "overture:c335d0e9-5233-4783-8d42-328eef76e7c0"
+    ],
+    "roof": "roofTerracotta",
+    "w": 31.69,
+    "wall": "wallCream",
+    "x": 228.363,
+    "z": -297.327
+  },
+  {
+    "awning": false,
+    "d": 36.351,
+    "h": 14.0,
+    "members": [
+      "overture:c35a3553-1cbb-4fdd-a04e-281928881d09"
+    ],
+    "roof": "roofTerracotta",
+    "w": 39.339,
+    "wall": "wallRose",
+    "x": 90.656,
+    "z": -146.6
+  },
+  {
+    "awning": false,
+    "d": 51.852,
+    "h": 9.0,
+    "members": [
+      "overture:c71b59fb-0e54-4a75-8947-f08de27b4469"
+    ],
+    "roof": "roofOchre",
+    "w": 36.084,
+    "wall": "wallWhite",
+    "x": 181.787,
+    "z": -103.115
+  },
+  {
+    "awning": false,
+    "d": 46.595,
+    "h": 14.0,
+    "members": [
+      "overture:cb033f1c-7c41-4dd6-911b-cc88b2800d68"
+    ],
+    "roof": "roofOchre",
+    "w": 45.462,
+    "wall": "wallWhite",
+    "x": 36.901,
+    "z": -156.587
+  },
+  {
+    "awning": false,
+    "d": 155.729,
+    "h": 14.0,
+    "members": [
+      "overture:cb8c4700-b366-4670-87d6-9a5a5552e604"
+    ],
+    "roof": "roofOchre",
+    "w": 175.393,
+    "wall": "wallCream",
+    "x": -4.496,
+    "z": 260.035
+  },
+  {
+    "awning": false,
+    "d": 12.117,
+    "h": 6.0,
+    "members": [
+      "overture:cf793440-c0e5-4639-bd91-85ed9a8ab7d1"
+    ],
+    "roof": "roofOchre",
+    "w": 6.62,
+    "wall": "wallCream",
+    "x": 270.662,
+    "z": -151.883
+  },
+  {
+    "awning": false,
+    "d": 8.727,
+    "h": 9.0,
+    "members": [
+      "overture:cfded08d-e47e-4b00-9160-fb2fe148f01b"
+    ],
+    "roof": "roofTerracotta",
+    "w": 9.764,
+    "wall": "wallWhite",
+    "x": 127.066,
+    "z": 52.299
+  },
+  {
+    "awning": false,
+    "d": 4.351,
+    "h": 6.0,
+    "members": [
+      "overture:d2e8f6e8-ac4e-4abd-9128-ad1d551b582c"
+    ],
+    "roof": "roofTerracotta",
+    "w": 8.152,
+    "wall": "wallWhite",
+    "x": -12.558,
+    "z": -230.129
+  },
+  {
+    "awning": true,
+    "d": 23.938,
+    "h": 14.0,
+    "members": [
+      "overture:d3461942-eff2-4f84-839c-c1e6b88b202f",
+      "overture:f9dfa419-fc8b-4002-8a14-c8c38a5aedd5"
+    ],
+    "roof": "roofTerracotta",
+    "w": 27.116,
+    "wall": "wallRose",
+    "x": 25.493,
+    "z": 63.583
+  },
+  {
+    "awning": true,
+    "d": 17.55,
+    "h": 12.0,
+    "members": [
+      "overture:d85d06d5-aa0c-45ae-af17-f902e9645a79"
+    ],
+    "roof": "roofTerracotta",
+    "w": 17.679,
+    "wall": "wallWhite",
+    "x": 256.64,
+    "z": 187.771
+  },
+  {
+    "awning": false,
+    "d": 5.615,
+    "h": 9.0,
+    "members": [
+      "overture:dafd30ba-e8dd-445a-bcb7-58bd4e146745"
+    ],
+    "roof": "roofTerracotta",
+    "w": 5.609,
+    "wall": "wallWhite",
+    "x": -34.451,
+    "z": -45.406
+  },
+  {
+    "awning": false,
+    "d": 11.197,
+    "h": 9.0,
+    "members": [
+      "overture:e2a3a309-8b09-470c-8f26-20c59e6bf51b"
+    ],
+    "roof": "roofTerracotta",
+    "w": 10.854,
+    "wall": "wallCream",
+    "x": -144.156,
+    "z": -28.298
+  },
+  {
+    "awning": false,
+    "d": 8.925,
+    "h": 6.0,
+    "members": [
+      "overture:e349ce5a-ff87-4f1a-adfa-16da3ce9428a"
+    ],
+    "roof": "roofTerracotta",
+    "w": 8.288,
+    "wall": "wallCream",
+    "x": -135.99,
+    "z": -65.471
+  },
+  {
+    "awning": false,
+    "d": 11.745,
+    "h": 9.0,
+    "members": [
+      "overture:e455fd90-bc54-4eb1-bfd6-9321ae25585b"
+    ],
+    "roof": "roofTerracotta",
+    "w": 14.371,
+    "wall": "wallCream",
+    "x": 227.688,
+    "z": -43.704
+  },
+  {
+    "awning": false,
+    "d": 17.411,
+    "h": 12.0,
+    "members": [
+      "overture:e4d790a1-da80-4642-89c2-b6c1f9c8cd0d"
+    ],
+    "roof": "roofOchre",
+    "w": 26.709,
+    "wall": "wallCream",
+    "x": 300.809,
+    "z": 209.459
+  },
+  {
+    "awning": false,
+    "d": 6.666,
+    "h": 6.0,
+    "members": [
+      "overture:e5f73646-51ff-400d-b4a5-ad7c985c25e9"
+    ],
+    "roof": "roofTerracotta",
+    "w": 7.412,
+    "wall": "wallRose",
+    "x": 234.532,
+    "z": 206.356
+  },
+  {
+    "awning": true,
+    "d": 23.016,
+    "h": 6.0,
+    "members": [
+      "overture:e72d3f49-90f9-4291-b571-fbbf3cf1b56c"
+    ],
+    "roof": "roofOchre",
+    "w": 11.104,
+    "wall": "wallCream",
+    "x": -58.619,
+    "z": -81.264
+  },
+  {
+    "awning": false,
+    "d": 17.621,
+    "h": 9.0,
+    "members": [
+      "overture:e74bd715-9351-44da-8422-56b0e29fc733"
+    ],
+    "roof": "roofOchre",
+    "w": 17.431,
+    "wall": "wallRose",
+    "x": 132.651,
+    "z": -12.553
+  },
+  {
+    "awning": false,
+    "d": 17.668,
+    "h": 12.0,
+    "members": [
+      "overture:eacbf544-6fce-4369-8078-d46cf1fd56fb",
+      "overture:ec2925f6-7ef8-426c-af2f-71c6748f8885"
+    ],
+    "roof": "roofOchre",
+    "w": 20.223,
+    "wall": "wallRose",
+    "x": -48.203,
+    "z": -47.482
+  },
+  {
+    "awning": false,
+    "d": 27.284,
+    "h": 9.0,
+    "members": [
+      "overture:eaeffa56-ff0e-47f4-ba31-94d124b568e8"
+    ],
+    "roof": "roofTerracotta",
+    "w": 25.025,
+    "wall": "wallWhite",
+    "x": 128.286,
+    "z": -134.41
+  },
+  {
+    "awning": true,
+    "d": 16.259,
+    "h": 6.0,
+    "members": [
+      "overture:eb821650-8ddd-4e79-a4e7-08893ecf17fe"
+    ],
+    "roof": "roofTerracotta",
+    "w": 11.066,
+    "wall": "wallCream",
+    "x": 271.162,
+    "z": 105.889
+  },
+  {
+    "awning": false,
+    "d": 5.625,
+    "h": 9.0,
+    "members": [
+      "overture:eee638d7-f714-4e08-9376-3482b258a4a2"
+    ],
+    "roof": "roofTerracotta",
+    "w": 5.631,
+    "wall": "wallWhite",
+    "x": -16.901,
+    "z": -32.669
+  },
+  {
+    "awning": false,
+    "d": 3.713,
+    "h": 9.0,
+    "members": [
+      "overture:efe62dea-bc69-483e-a1b4-c0494fe1a3d2"
+    ],
+    "roof": "roofTerracotta",
+    "w": 3.995,
+    "wall": "wallWhite",
+    "x": -128.602,
+    "z": -72.858
+  },
+  {
+    "awning": true,
+    "d": 15.851,
+    "h": 6.0,
+    "members": [
+      "overture:f1f58e22-b8b4-44b3-8f0f-c5bb9956be79"
+    ],
+    "roof": "roofTerracotta",
+    "w": 20.84,
+    "wall": "wallCream",
+    "x": 249.182,
+    "z": 103.796
+  },
+  {
+    "awning": false,
+    "d": 38.727,
+    "h": 9.0,
+    "members": [
+      "overture:f9f4fdfe-0806-4d20-8149-99eaebdb8ecc"
+    ],
+    "roof": "roofTerracotta",
+    "w": 43.035,
+    "wall": "wallWhite",
+    "x": 265.978,
+    "z": 135.496
+  },
+  {
+    "awning": false,
+    "d": 13.17,
+    "h": 6.0,
+    "members": [
+      "overture:fd128b92-1852-4f75-a54e-b42be5670f3a"
+    ],
+    "roof": "roofTerracotta",
+    "w": 17.101,
+    "wall": "wallRose",
+    "x": 218.52,
+    "z": -20.878
+  }
+]

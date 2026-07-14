@@ -1,0 +1,12 @@
+{
+  "counts": {
+    "buildings": 263,
+    "coastlines": 2,
+    "pois": 142,
+    "roads": 188,
+    "water": 0
+  },
+  "deviations": [],
+  "sea_rendered": true,
+  "suggested_sea_bearing_deg": 279.0
+}

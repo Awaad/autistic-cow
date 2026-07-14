@@ -1,0 +1,534 @@
+{
+  "bbox": [
+    35.3354068,
+    33.3125951,
+    35.3425932,
+    33.3214049
+  ],
+  "coverage_recommendation": {
+    "default": "overture",
+    "note": "share-alike favors overture on ties (ADR-016); confirm before locking.",
+    "reason": "buildings osm=578 vs overture=696; levels-coverage osm=29.8% vs overture=24.7%"
+  },
+  "providers": {
+    "osm": {
+      "buildings": {
+        "avg_levels": 3.53,
+        "levels_coverage_pct": 29.8,
+        "max_vertices": 30,
+        "min_vertices": 4,
+        "with_levels": 172
+      },
+      "counts": {
+        "buildings": 578,
+        "pois": 139,
+        "roads": 183
+      },
+      "pois": {
+        "by_kind": {
+          "atm": 10,
+          "bank": 5,
+          "bar": 7,
+          "bench": 8,
+          "bicycle_rental": 1,
+          "bureau_de_change": 3,
+          "cafe": 35,
+          "car_rental": 4,
+          "car_wash": 1,
+          "embassy": 1,
+          "fast_food": 4,
+          "fuel": 2,
+          "landmark": 6,
+          "marketplace": 1,
+          "parking": 3,
+          "pharmacy": 2,
+          "poi": 17,
+          "police": 1,
+          "post_box": 3,
+          "shop": 17,
+          "taxi": 3,
+          "toilets": 2,
+          "waste_basket": 3
+        },
+        "named": 94,
+        "named_pct": 67.6
+      },
+      "raw_bytes": 539703,
+      "roads": {
+        "alley": 101,
+        "street": 82
+      },
+      "samples": {
+        "buildings": [
+          {
+            "first_two_coords": [
+              [
+                33.3156102,
+                35.3416091
+              ],
+              [
+                33.3156776,
+                35.3413089
+              ]
+            ],
+            "footprint_vertices": 10,
+            "levels": null,
+            "source_id": "osm:way/101715409",
+            "tag_keys": [
+              "building",
+              "name",
+              "stars",
+              "tourism"
+            ]
+          },
+          {
+            "first_two_coords": [
+              [
+                33.3160018,
+                35.3356776
+              ],
+              [
+                33.3160849,
+                35.3356689
+              ]
+            ],
+            "footprint_vertices": 4,
+            "levels": null,
+            "source_id": "osm:way/1308061438",
+            "tag_keys": [
+              "building"
+            ]
+          },
+          {
+            "first_two_coords": [
+              [
+                33.3160393,
+                35.3357805
+              ],
+              [
+                33.3161051,
+                35.3357772
+              ]
+            ],
+            "footprint_vertices": 4,
+            "levels": null,
+            "source_id": "osm:way/1308061439",
+            "tag_keys": [
+              "building"
+            ]
+          }
+        ],
+        "pois": [
+          {
+            "has_name": false,
+            "kind": "atm",
+            "source_id": "osm:node/10033902517",
+            "tag_keys": [
+              "amenity",
+              "operator"
+            ]
+          },
+          {
+            "has_name": true,
+            "kind": "shop",
+            "source_id": "osm:node/10166999197",
+            "tag_keys": [
+              "image",
+              "level",
+              "name",
+              "name:en",
+              "payment:cash",
+              "phone",
+              "shop"
+            ]
+          },
+          {
+            "has_name": true,
+            "kind": "shop",
+            "source_id": "osm:node/10167037896",
+            "tag_keys": [
+              "image",
+              "level",
+              "name",
+              "payment:cash",
+              "payment:credit_cards",
+              "payment:debit_cards",
+              "shop"
+            ]
+          }
+        ],
+        "roads": [
+          {
+            "highway": "residential",
+            "kind": "street",
+            "source_id": "osm:way/102189011",
+            "tag_keys": [
+              "highway",
+              "surface"
+            ],
+            "vertices": 5
+          },
+          {
+            "highway": "residential",
+            "kind": "street",
+            "source_id": "osm:way/102189014",
+            "tag_keys": [
+              "highway",
+              "surface"
+            ],
+            "vertices": 4
+          },
+          {
+            "highway": "secondary",
+            "kind": "street",
+            "source_id": "osm:way/1029007274",
+            "tag_keys": [
+              "highway",
+              "lit",
+              "name",
+              "surface"
+            ],
+            "vertices": 2
+          }
+        ]
+      }
+    },
+    "overture": {
+      "buildings": {
+        "avg_levels": 3.53,
+        "levels_coverage_pct": 24.7,
+        "max_vertices": 30,
+        "min_vertices": 4,
+        "with_levels": 172
+      },
+      "counts": {
+        "buildings": 696,
+        "pois": 639,
+        "roads": 240
+      },
+      "pois": {
+        "by_kind": {
+          "accommodation": 3,
+          "accountant": 1,
+          "active_life": 1,
+          "adult_entertainment": 1,
+          "advertising_agency": 3,
+          "airport": 1,
+          "airport_lounge": 1,
+          "airport_terminal": 1,
+          "anglican_church": 1,
+          "antique_store": 1,
+          "appliance_repair_service": 1,
+          "appliance_store": 1,
+          "arcade": 4,
+          "architectural_designer": 3,
+          "armed_forces_branch": 6,
+          "art_gallery": 5,
+          "arts_and_crafts": 1,
+          "arts_and_entertainment": 1,
+          "asian_restaurant": 1,
+          "atms": 4,
+          "auto_company": 1,
+          "auto_detailing": 2,
+          "automobile_leasing": 1,
+          "automotive": 2,
+          "automotive_dealer": 1,
+          "automotive_parts_and_accessories": 2,
+          "b2b_apparel": 1,
+          "bagel_shop": 2,
+          "bakery": 1,
+          "bank_credit_union": 5,
+          "banks": 2,
+          "bar": 24,
+          "bar_and_grill_restaurant": 1,
+          "barber": 9,
+          "beach": 2,
+          "beauty_and_spa": 1,
+          "beauty_salon": 10,
+          "betting_center": 1,
+          "boat_rental_and_training": 3,
+          "boat_service_and_repair": 3,
+          "boutique": 10,
+          "breakfast_and_brunch_restaurant": 2,
+          "buffet_restaurant": 1,
+          "bus_station": 1,
+          "business": 2,
+          "cafe": 32,
+          "campus_building": 1,
+          "car_rental_agency": 9,
+          "casino": 7,
+          "castle": 1,
+          "central_government_office": 1,
+          "chicken_restaurant": 1,
+          "childrens_clothing_store": 1,
+          "chocolatier": 1,
+          "church_cathedral": 2,
+          "civilization_museum": 1,
+          "clothing_store": 7,
+          "cocktail_bar": 2,
+          "coffee_shop": 8,
+          "college_university": 2,
+          "comfort_food_restaurant": 1,
+          "community_services_non_profits": 3,
+          "construction_services": 4,
+          "convenience_store": 3,
+          "cosmetic_and_beauty_supplies": 1,
+          "credit_union": 1,
+          "currency_exchange": 5,
+          "dance_club": 5,
+          "dentist": 3,
+          "department_store": 4,
+          "designer_clothing": 1,
+          "doctor": 2,
+          "doner_kebab": 4,
+          "dry_cleaning": 1,
+          "education": 2,
+          "electronics": 4,
+          "engineering_services": 1,
+          "european_restaurant": 2,
+          "event_planning": 9,
+          "eyewear_and_optician": 1,
+          "fashion_accessories_store": 1,
+          "fast_food_restaurant": 4,
+          "ferry_boat_company": 1,
+          "financial_service": 2,
+          "fire_department": 1,
+          "fishing_club": 1,
+          "flowers_and_gifts_shop": 6,
+          "food_delivery_service": 2,
+          "furniture_store": 2,
+          "gas_station": 5,
+          "gay_bar": 1,
+          "gift_shop": 1,
+          "gym": 3,
+          "hair_supply_stores": 1,
+          "high_school": 1,
+          "hiking_trail": 1,
+          "holiday_rental_home": 3,
+          "home_cleaning": 2,
+          "home_developer": 3,
+          "home_goods_store": 1,
+          "home_security": 1,
+          "hospital": 2,
+          "hostel": 1,
+          "hotel": 36,
+          "hotel_bar": 1,
+          "hotel_supply_service": 1,
+          "hvac_services": 1,
+          "ice_cream_shop": 2,
+          "industrial_company": 2,
+          "information_technology_company": 1,
+          "insurance_agency": 1,
+          "internet_cafe": 1,
+          "internet_service_provider": 1,
+          "japanese_restaurant": 1,
+          "jewelry_store": 13,
+          "key_and_locksmith": 1,
+          "kiteboarding": 1,
+          "landmark_and_historical_building": 12,
+          "language_school": 1,
+          "laser_hair_removal": 1,
+          "lawyer": 1,
+          "leather_goods": 1,
+          "legal_services": 2,
+          "library": 1,
+          "linen": 1,
+          "lingerie_store": 3,
+          "lodge": 1,
+          "lounge": 1,
+          "luggage_store": 2,
+          "marina": 3,
+          "massage": 1,
+          "mediterranean_restaurant": 2,
+          "mens_clothing_store": 2,
+          "middle_eastern_restaurant": 2,
+          "mobile_phone_store": 9,
+          "monument": 1,
+          "mosque": 1,
+          "motorcycle_dealer": 2,
+          "music_and_dvd_store": 1,
+          "notary_public": 1,
+          "nutritionist": 1,
+          "orthopedist": 1,
+          "park": 3,
+          "pharmacy": 3,
+          "pizza_restaurant": 1,
+          "plastic_surgeon": 1,
+          "poi": 16,
+          "police_department": 1,
+          "political_organization": 1,
+          "pool_billiards": 1,
+          "preschool": 1,
+          "private_school": 1,
+          "professional_services": 4,
+          "property_management": 1,
+          "psychologist": 2,
+          "pub": 2,
+          "public_plaza": 3,
+          "public_service_and_government": 2,
+          "public_utility_company": 1,
+          "real_estate": 8,
+          "real_estate_agent": 8,
+          "real_estate_investment": 2,
+          "real_estate_service": 3,
+          "religious_organization": 1,
+          "restaurant": 33,
+          "retail": 1,
+          "retirement_home": 1,
+          "rock_climbing_spot": 1,
+          "russian_restaurant": 1,
+          "sandwich_shop": 2,
+          "seafood_restaurant": 13,
+          "shoe_repair": 1,
+          "shoe_store": 4,
+          "shopping": 17,
+          "shopping_center": 2,
+          "sightseeing_tour_agency": 1,
+          "social_media_agency": 1,
+          "souvenir_shop": 2,
+          "spas": 4,
+          "sports_and_recreation_venue": 1,
+          "sports_wear": 1,
+          "steakhouse": 1,
+          "structure_and_geography": 2,
+          "swimming_pool": 4,
+          "tattoo_and_piercing": 3,
+          "taxi_service": 4,
+          "tea_room": 1,
+          "telecommunications_company": 1,
+          "theme_restaurant": 1,
+          "tire_dealer_and_repair": 1,
+          "tobacco_shop": 1,
+          "topic_concert_venue": 1,
+          "tours": 3,
+          "town_hall": 1,
+          "toy_store": 2,
+          "transportation": 3,
+          "travel": 4,
+          "travel_services": 8,
+          "turkish_restaurant": 10,
+          "wine_bar": 1,
+          "womens_clothing_store": 6,
+          "yoga_studio": 2
+        },
+        "named": 639,
+        "named_pct": 100.0
+      },
+      "raw_bytes": 1406060,
+      "roads": {
+        "alley": 99,
+        "street": 141
+      },
+      "samples": {
+        "buildings": [
+          {
+            "first_two_coords": [
+              [
+                33.314129,
+                35.3358687
+              ],
+              [
+                33.3139814,
+                35.3358796
+              ]
+            ],
+            "footprint_vertices": 4,
+            "levels": null,
+            "source_id": "overture:003473c5-e2ab-45bf-b340-7ac17dc826c8",
+            "tag_keys": []
+          },
+          {
+            "first_two_coords": [
+              [
+                33.3157829,
+                35.3399343
+              ],
+              [
+                33.3158134,
+                35.3397907
+              ]
+            ],
+            "footprint_vertices": 4,
+            "levels": null,
+            "source_id": "overture:00793e4e-e5ce-40da-a006-dc354430b060",
+            "tag_keys": []
+          },
+          {
+            "first_two_coords": [
+              [
+                33.3162964,
+                35.3390322
+              ],
+              [
+                33.3163734,
+                35.3390455
+              ]
+            ],
+            "footprint_vertices": 4,
+            "levels": null,
+            "source_id": "overture:0098f908-bba0-455f-9b8d-60de0b55afc4",
+            "tag_keys": []
+          }
+        ],
+        "pois": [
+          {
+            "has_name": true,
+            "kind": "souvenir_shop",
+            "source_id": "overture:0009a05f-d587-411d-9415-b9fe025efc1d",
+            "tag_keys": [
+              "_kind"
+            ]
+          },
+          {
+            "has_name": true,
+            "kind": "coffee_shop",
+            "source_id": "overture:006712d0-4f9b-4808-ad15-5afa3e716b19",
+            "tag_keys": [
+              "_kind"
+            ]
+          },
+          {
+            "has_name": true,
+            "kind": "gas_station",
+            "source_id": "overture:0086e50b-19c3-4f30-9c45-fa66b8f557b8",
+            "tag_keys": [
+              "_kind"
+            ]
+          }
+        ],
+        "roads": [
+          {
+            "highway": "tertiary",
+            "kind": "street",
+            "source_id": "overture:006fa6b0-fef6-4b75-9f15-2085eb6c3249",
+            "tag_keys": [
+              "class",
+              "subtype"
+            ],
+            "vertices": 8
+          },
+          {
+            "highway": "tertiary",
+            "kind": "street",
+            "source_id": "overture:010ec400-a5fe-4faa-9384-28d02288a41f",
+            "tag_keys": [
+              "class",
+              "subtype"
+            ],
+            "vertices": 3
+          },
+          {
+            "highway": "residential",
+            "kind": "street",
+            "source_id": "overture:0127929a-f2bd-4886-8cad-50c792a778de",
+            "tag_keys": [
+              "class",
+              "subtype"
+            ],
+            "vertices": 4
+          }
+        ]
+      }
+    }
+  }
+}

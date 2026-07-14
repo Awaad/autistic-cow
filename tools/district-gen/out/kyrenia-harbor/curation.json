@@ -1,0 +1,62 @@
+{
+  "budget": {
+    "draw_calls_estimate": {
+      "_note": "estimate assumes ADR-014 instancing by (wall,roof)",
+      "max": 150,
+      "ok": true,
+      "value": 10
+    },
+    "dynamic_bodies": {
+      "max": 250,
+      "ok": true,
+      "value": 30
+    },
+    "static_colliders": {
+      "max": 350,
+      "ok": true,
+      "value": 65
+    }
+  },
+  "diff_vs_hand_authored": {
+    "beerSpots": {
+      "generated": 17,
+      "hand_authored": 6
+    },
+    "buildings": {
+      "generated": 65,
+      "hand_authored": 19,
+      "ratio": 3.42
+    },
+    "childZones": {
+      "generated": 4,
+      "hand_authored": 4
+    },
+    "new_layers": {
+      "backdrop": 101,
+      "densityZones": 6,
+      "smashables": 0,
+      "venues": 12
+    },
+    "rescueSpots": {
+      "generated": 8,
+      "hand_authored": 8
+    }
+  },
+  "invariants": {
+    "beer_spots": {
+      "ok": true,
+      "value": 17
+    },
+    "camel_lanes": {
+      "min": 2,
+      "ok": true,
+      "value": 4
+    },
+    "children_present": {
+      "ok": true,
+      "value": 4
+    }
+  },
+  "ship": true,
+  "warnings": []
+}

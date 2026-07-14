@@ -1,0 +1,113 @@
+{
+  "_doc": "AR partner-venue seam (ADR-018). NOT shipped in the district. real_coords resolved from the cached IR via source_id only when a venue becomes a partner.",
+  "candidates": [
+    {
+      "kind": "beer_anchor",
+      "scene": {
+        "x": -170.484,
+        "z": 163.585
+      },
+      "slug": "onyx",
+      "source_id": "overture:0ff6c845-6e69-42d3-800c-6ef161a78296"
+    },
+    {
+      "kind": "beer_anchor",
+      "scene": {
+        "x": 178.523,
+        "z": -54.233
+      },
+      "slug": "t-ngel-cafe",
+      "source_id": "overture:27b0e8cc-af5d-4118-b886-1d7934d9e62f"
+    },
+    {
+      "kind": "beer_anchor",
+      "scene": {
+        "x": 174.714,
+        "z": -44.355
+      },
+      "slug": "yesilcam-meyhanesi",
+      "source_id": "overture:39899748-924a-434d-870f-9a1701f83c91"
+    },
+    {
+      "kind": "beer_anchor",
+      "scene": {
+        "x": -145.831,
+        "z": -150.186
+      },
+      "slug": "vera-lounge-bar",
+      "source_id": "overture:3f80bdce-9d4e-4515-977a-800c3e2c3df4"
+    },
+    {
+      "kind": "beer_anchor",
+      "scene": {
+        "x": 152.839,
+        "z": 3.928
+      },
+      "slug": "lokmanin-cafe-oyun-salonu",
+      "source_id": "overture:52163bdc-4e59-42c4-931e-4e9ce793211a"
+    },
+    {
+      "kind": "beer_anchor",
+      "scene": {
+        "x": -128.028,
+        "z": -7.441
+      },
+      "slug": "savoy-lobi",
+      "source_id": "overture:8fd77f06-086c-4e5f-94cb-bc3d5f793411"
+    },
+    {
+      "kind": "beer_anchor",
+      "scene": {
+        "x": -134.373,
+        "z": 75.762
+      },
+      "slug": "hititbet",
+      "source_id": "overture:9e10bd1d-7506-40fd-8083-1aa4fd204d53"
+    },
+    {
+      "kind": "beer_anchor",
+      "scene": {
+        "x": 179.812,
+        "z": 65.789
+      },
+      "slug": "star-t-rk-bar",
+      "source_id": "overture:af8f6833-0ffc-4391-91ec-5a02997bde12"
+    },
+    {
+      "kind": "landmark",
+      "scene": {
+        "x": 163.328,
+        "z": 163.632
+      },
+      "slug": "girne-2-nolu-astsubay-orduevi",
+      "source_id": "overture:b371f862-f6f2-452d-8b63-23f27494406a"
+    },
+    {
+      "kind": "beer_anchor",
+      "scene": {
+        "x": -39.466,
+        "z": 25.885
+      },
+      "slug": "fenerbahce-cumhuriyeti",
+      "source_id": "overture:d19628f3-e4b6-41d8-965e-aa5f78dca92a"
+    },
+    {
+      "kind": "waterfront",
+      "scene": {
+        "x": -164.474,
+        "z": 40.304
+      },
+      "slug": "girne-kyrenia-kktc",
+      "source_id": "overture:d40fe5cb-60a0-4c24-b6d2-ed8505fa584f"
+    },
+    {
+      "kind": "beer_anchor",
+      "scene": {
+        "x": 123.608,
+        "z": 5.168
+      },
+      "slug": "cafe-tombala",
+      "source_id": "overture:e3f0e5d2-b4b6-4c08-b843-bf07ca43486a"
+    }
+  ]
+}
