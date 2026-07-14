@@ -15,27 +15,28 @@ the engine by swapping one import. Oriented boxes / L-shapes would need a spec
 field + scene-builder change -> a future ADR, deliberately out of scope here.
 Venue slugs are NOT assigned here (that's the gameplay stage, matching POIs).
 """
-from __future__ import annotations
 
+from __future__ import annotations
+ 
 import hashlib
 import json
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
-
+ 
 from .project import ProjectedIR
-
+ 
 _CONFIG_PATH = Path(__file__).resolve().parent.parent / "config" / "generation.json"
 _MM = 3
-
-
+ 
+ 
 @lru_cache(maxsize=1)
 def load_gen_config(path: str | None = None) -> dict[str, Any]:
     p = Path(path) if path else _CONFIG_PATH
     return json.loads(p.read_text())["simplify"]
-
-
+ 
+ 
 @dataclass(frozen=True)
 class SimplifiedBuilding:
     x: float
@@ -47,7 +48,7 @@ class SimplifiedBuilding:
     roof: str
     awning: bool
     members: tuple[str, ...]  # provenance; stripped by the emitter
-
+ 
     def to_spec(self) -> dict[str, Any]:
         """Exactly BuildingSpec — no provenance leaks into the shipped file."""
         spec: dict[str, Any] = {
@@ -57,47 +58,32 @@ class SimplifiedBuilding:
         if self.awning:
             spec["awning"] = True
         return spec
-
-
-# axis-aligned bounds
-
+ 
+ 
+# --- axis-aligned bounds ---------------------------------------------------
+ 
 def _aabb(footprint: list[list[float]]) -> tuple[float, float, float, float]:
     xs = [p[0] for p in footprint]
     zs = [p[1] for p in footprint]
     return (min(xs), min(zs), max(xs), max(zs))
-
-
+ 
+ 
 def _boxes_touch(a: tuple[float, float, float, float],
                  b: tuple[float, float, float, float], margin: float) -> bool:
     return (a[0] - margin <= b[2] and a[2] + margin >= b[0]
             and a[1] - margin <= b[3] and a[3] + margin >= b[1])
-
-
-# stable seeded pseudo-randomness
-
+ 
+ 
+# --- stable seeded pseudo-randomness --------------------------------------
+ 
 def _unit(*parts: str) -> float:
     h = hashlib.sha256("|".join(parts).encode()).digest()
     return int.from_bytes(h[:8], "big") / 2 ** 64
-
-
-# union-find for terrace grouping
-
-class _DSU:
-    def __init__(self, n: int) -> None:
-        self.p = list(range(n))
-
-    def find(self, i: int) -> int:
-        while self.p[i] != i:
-            self.p[i] = self.p[self.p[i]]
-            i = self.p[i]
-        return i
-
-    def union(self, i: int, j: int) -> None:
-        ri, rj = self.find(i), self.find(j)
-        if ri != rj:
-            self.p[max(ri, rj)] = min(ri, rj)
-
-
+ 
+ 
+# --- terrace grouping via size-capped merge (see simplify()) --------------
+ 
+ 
 def _height(levels_present: list[int], seed: str, cfg: dict[str, Any]) -> float:
     storey = cfg["storey_height_m"]
     if levels_present:
@@ -108,28 +94,54 @@ def _height(levels_present: list[int], seed: str, cfg: dict[str, Any]) -> float:
         h = lvl * storey
     clamp = cfg["height_clamp_m"]
     return round(min(max(h, clamp["min"]), clamp["max"]), _MM)
-
-
+ 
+ 
 def simplify(pir: ProjectedIR, gen_config_path: str | None = None) -> list[SimplifiedBuilding]:
     cfg = load_gen_config(gen_config_path)
     margin = cfg["merge_margin_m"]
+    max_span = cfg.get("max_merge_span_m", 45.0)
     min_fp = cfg["min_footprint_m"]
     walls = cfg["palette"]["wall"]
     roofs = cfg["palette"]["roof"]
-
+ 
     boxes = [_aabb(b.footprint) for b in pir.buildings]
-    dsu = _DSU(len(boxes))
-    # deterministic O(n^2) adjacency; fine at cell scale (~hundreds). Sorted IR
-    # order makes union outcomes order-independent.
-    for i in range(len(boxes)):
-        for j in range(i + 1, len(boxes)):
-            if _boxes_touch(boxes[i], boxes[j], margin):
-                dsu.union(i, j)
-
+    n = len(boxes)
+ 
+    # Size-capped merge: fuse touching footprints, but NEVER let a fused box grow
+    # past max_span in either axis — otherwise transitive chaining turns a whole
+    # block into one map-covering slab. Deterministic: pairs processed in sorted order.
+    parent = list(range(n))
+    gbounds: dict[int, tuple[float, float, float, float]] = {i: boxes[i] for i in range(n)}
+ 
+    def find(i: int) -> int:
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+ 
+    def span_ok(bb: tuple[float, float, float, float]) -> bool:
+        return (bb[2] - bb[0]) <= max_span and (bb[3] - bb[1]) <= max_span
+ 
+    for i in range(n):
+        for j in range(i + 1, n):
+            if not _boxes_touch(boxes[i], boxes[j], margin):
+                continue
+            ri, rj = find(i), find(j)
+            if ri == rj:
+                continue
+            a, b = gbounds[ri], gbounds[rj]
+            merged = (min(a[0], b[0]), min(a[1], b[1]), max(a[2], b[2]), max(a[3], b[3]))
+            if not span_ok(merged):
+                continue  # would grow too large — leave them separate
+            keep, drop = (ri, rj) if ri < rj else (rj, ri)
+            parent[drop] = keep
+            gbounds[keep] = merged
+            gbounds.pop(drop, None)
+ 
     groups: dict[int, list[int]] = {}
-    for i in range(len(boxes)):
-        groups.setdefault(dsu.find(i), []).append(i)
-
+    for i in range(n):
+        groups.setdefault(find(i), []).append(i)
+ 
     out: list[SimplifiedBuilding] = []
     for members_idx in groups.values():
         minx = min(boxes[i][0] for i in members_idx)
@@ -148,7 +160,7 @@ def simplify(pir: ProjectedIR, gen_config_path: str | None = None) -> list[Simpl
         roof = roofs[int(_unit(seed, "roof") * len(roofs))]
         awning = _unit(seed, "awning") < cfg["awning_probability"]
         out.append(SimplifiedBuilding(x, z, w, d, h, wall, roof, awning, member_ids))
-
+ 
     # stable order: by the group's lowest source id
     out.sort(key=lambda b: b.members[0])
     return out
