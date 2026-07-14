@@ -9,6 +9,8 @@
     "max_merge_span_m": 45.0,
     "_merge_doc": "Two footprints fuse into one collider when their boxes (grown by merge_margin_m) overlap — i.e. they share or nearly share a wall. max_merge_span_m caps the fused box so transitive chaining can't grow a whole block into one giant slab (which would render as a map-covering roof cone). Old-town terraces collapse from N boxes to a few, bringing 578 under the 350-collider budget (ADR-018).",
     "min_footprint_m": 1.0,
+    "footprint_simplify_m": 1.5,
+    "footprint_min_area_m2": 6.0,
     "awning_probability": 0.35,
     "palette": {
       "wall": ["wallWhite", "wallCream", "wallRose"],
