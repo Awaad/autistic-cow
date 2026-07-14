@@ -6,7 +6,8 @@
     "default_levels": { "min": 2, "max": 3 },
     "height_clamp_m": { "min": 4.0, "max": 14.0 },
     "merge_margin_m": 0.4,
-    "_merge_doc": "Two footprints fuse into one collider when their boxes (grown by this margin) overlap — i.e. they share or nearly share a wall. Old-town terraces collapse from N boxes to 1, which is how 578 buildings come under the 350-collider budget (ADR-018).",
+    "max_merge_span_m": 45.0,
+    "_merge_doc": "Two footprints fuse into one collider when their boxes (grown by merge_margin_m) overlap — i.e. they share or nearly share a wall. max_merge_span_m caps the fused box so transitive chaining can't grow a whole block into one giant slab (which would render as a map-covering roof cone). Old-town terraces collapse from N boxes to a few, bringing 578 under the 350-collider budget (ADR-018).",
     "min_footprint_m": 1.0,
     "awning_probability": 0.35,
     "palette": {
@@ -21,7 +22,8 @@
       "min_lanes": 2,
       "child_exclusion_m": 12.0,
       "lane_length_m": 90.0,
-      "_note": "lanes are short ENTRY corridors into the play area, not full crossings. child_exclusion_m mirrors shared/tuning.json camel_child_exclusion_m (ADR-019)."
+      "min_lane_len_m": 25.0,
+      "_note": "camel lanes follow real streets (clear corridors); min_lane_len_m is the shortest road span that counts as a lane. child_exclusion_m mirrors shared/tuning.json (ADR-019)."
     },
     "beer": {
       "coverage_radius_m": 90.0,

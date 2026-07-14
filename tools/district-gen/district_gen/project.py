@@ -61,6 +61,18 @@ class PPoi:
     name: str | None
 
 
+@dataclass(frozen=True)
+class PCoastline:
+    source_id: str
+    line: list[XZ]
+
+
+@dataclass(frozen=True)
+class PWater:
+    source_id: str
+    polygon: list[XZ]
+
+
 @dataclass
 class ProjectedIR:
     provider: str
@@ -69,9 +81,13 @@ class ProjectedIR:
     buildings: list[PBuilding] = field(default_factory=list)
     roads: list[PRoad] = field(default_factory=list)
     pois: list[PPoi] = field(default_factory=list)
+    coastlines: list[PCoastline] = field(default_factory=list)
+    water: list[PWater] = field(default_factory=list)
 
     def counts(self) -> dict[str, int]:
-        return {"buildings": len(self.buildings), "roads": len(self.roads), "pois": len(self.pois)}
+        return {"buildings": len(self.buildings), "roads": len(self.roads),
+                "pois": len(self.pois), "coastlines": len(self.coastlines),
+                "water": len(self.water)}
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -81,6 +97,8 @@ class ProjectedIR:
             "buildings": [asdict(b) for b in self.buildings],
             "roads": [asdict(r) for r in self.roads],
             "pois": [asdict(p) for p in self.pois],
+            "coastlines": [asdict(c) for c in self.coastlines],
+            "water": [asdict(w) for w in self.water],
         }
 
     @classmethod
@@ -92,6 +110,8 @@ class ProjectedIR:
             buildings=[PBuilding(**b) for b in d["buildings"]],
             roads=[PRoad(**r) for r in d["roads"]],
             pois=[PPoi(**p) for p in d["pois"]],
+            coastlines=[PCoastline(**c) for c in d.get("coastlines", [])],
+            water=[PWater(**w) for w in d.get("water", [])],
         )
 
 
@@ -146,6 +166,14 @@ def project_ir(
         pt = px(p.point)
         if _inside(pt, half_extent_m):
             out.pois.append(PPoi(p.source_id, pt, p.kind, p.name))
+    for c in ir.coastlines:
+        line = [px(pt) for pt in c.line]
+        if any(_inside(p, half_extent_m) for p in line):
+            out.coastlines.append(PCoastline(c.source_id, line))
+    for w in ir.water:
+        poly = [px(pt) for pt in w.polygon]
+        if any(_inside(p, half_extent_m) for p in poly):
+            out.water.append(PWater(w.source_id, poly))
 
     out.bounds = _compute_bounds(out, half_extent_m)
     return out
