@@ -97,7 +97,7 @@ def fetch_overpass(
     req = urllib.request.Request(
         endpoint,
         data=("data=" + urllib.parse.quote(query)).encode(),
-        headers={"User-Agent": "autistic-cow-district-gen/0.1 (offline pipeline)"},
+        headers={"User-Agent": "autistic-cow-district-gen/0.2 (offline pipeline)"},
     )
     with urllib.request.urlopen(req, timeout=200) as resp:  # noqa: S310 (fixed host)
         body = resp.read().decode()
