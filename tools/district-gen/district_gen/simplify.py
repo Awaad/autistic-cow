@@ -204,7 +204,12 @@ def draw_buildings(pir: ProjectedIR, gen_config_path: str | None = None) -> list
         seed = b.source_id
         levels = [b.levels] if b.levels else []
         h = _height(levels, seed, cfg)
-        wall = walls[int(_unit(seed, "wall") * len(walls))]
+        # wall colour coherent per neighbourhood block; roof varies per building
+        cx = sum(p[0] for p in coords) / len(coords)
+        cz = sum(p[1] for p in coords) / len(coords)
+        cell = cfg.get("palette_cluster_m", 45.0)
+        block = f"{round(cx / cell)},{round(cz / cell)}"
+        wall = walls[int(_unit(block, "wall") * len(walls))]
         roof = roofs[int(_unit(seed, "roof") * len(roofs))]
         out.append(DrawBuilding(coords, h, wall, roof))
     out.sort(key=lambda b: (b.footprint[0][0], b.footprint[0][1]))
