@@ -1,13 +1,13 @@
 """Top-down debug render (SVG).
 
-A picture, not a diff. Draws the REAL layers —
+The handoff's RULE 2 deliverable: a picture, not a diff. Draws the REAL layers —
 sea (from coastline/water, not a faked waterline), roads at true widths, and
 building FOOTPRINTS (real polygons, not boxes) — so the owner can see at a glance
 whether the sea is where the sea is and the streets exist.
 
 Sea is derived, not guessed: water polygons are sea; the coastline splits the
 cell and the side without buildings is sea. If neither exists, the sea can't be
-drawn and that goes in DEVIATIONS.
+drawn and that goes in DEVIATIONS (RULE 1).
 """
 from __future__ import annotations
 
@@ -119,6 +119,21 @@ def suggest_sea_bearing(pir: ProjectedIR, sea: BaseGeometry | None) -> float | N
     dx, dz = sc.x - lx, sc.y - lz
     # bearing where +z=N, +x=E : atan2(east, north)
     return round((math.degrees(math.atan2(dx, dz)) + 360) % 360, 1)
+
+
+def geom_to_coords(geom: BaseGeometry | None) -> list[list[list[float]]]:
+    """shapely Polygon/MultiPolygon -> list of exterior rings [[x,z],...]."""
+    if geom is None or geom.is_empty:
+        return []
+    polys: list[Polygon] = []
+    if isinstance(geom, Polygon):
+        polys = [geom]
+    elif isinstance(geom, MultiPolygon):
+        polys = list(geom.geoms)
+    return [[[round(x, 3), round(z, 3)] for x, z in p.exterior.coords][:-1] for p in polys]
+
+
+ROAD_WIDTH = _ROAD_WIDTH  # public alias for the scene assembler
 
 
 def build_debug_svg(pir: ProjectedIR) -> tuple[str, dict[str, Any]]:
