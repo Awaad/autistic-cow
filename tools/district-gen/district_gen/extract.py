@@ -35,6 +35,10 @@ def overpass_query(bbox: BBox) -> str:
         "(\n"
         f'  way["building"]({b});\n'
         f'  way["highway"]({b});\n'
+        f'  way["natural"="coastline"]({b});\n'
+        f'  way["natural"="water"]({b});\n'
+        f'  way["water"]({b});\n'
+        f'  way["waterway"="riverbank"]({b});\n'
         f'  node["amenity"]({b});\n'
         f'  node["shop"]({b});\n'
         f'  node["tourism"]({b});\n'
@@ -93,7 +97,7 @@ def fetch_overpass(
     req = urllib.request.Request(
         endpoint,
         data=("data=" + urllib.parse.quote(query)).encode(),
-        headers={"User-Agent": "cowgame-district-gen/0.1 (offline pipeline)"},
+        headers={"User-Agent": "autistic-cow-district-gen/0.1 (offline pipeline)"},
     )
     with urllib.request.urlopen(req, timeout=200) as resp:  # noqa: S310 (fixed host)
         body = resp.read().decode()
@@ -116,7 +120,7 @@ def fetch_overture(
 ) -> CacheResult:
     """Shells out to the `overturemaps` CLI (uv sync --extra overture) and
     concatenates the requested feature types into one GeoJSON FeatureCollection.
-    Requires network + the CLI; only run on your machine."""
+    """
     key = cache_key("overture", "cli:" + ",".join(types), bbox.as_overture())
     raw_path = _cache_dir(out_dir) / f"{key}.json"
     if raw_path.exists() and not force:
