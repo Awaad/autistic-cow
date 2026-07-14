@@ -12,8 +12,8 @@ import { seededRng } from "./rng";
 import { createPhysics } from "../physics/world";
 import { Registry } from "../ecs/registry";
 import { ChildTag, Pickup, Rescueable, Smashable } from "../ecs/components";
-import { buildKyrenia } from "../scenes/kyrenia";
-import { KYRENIA } from "../assets/kyrenia-harbor";
+import { buildKyreniaGen } from "../scenes/kyrenia-gen";
+import { KYRENIA } from "../assets/kyrenia-harbor-gen";
 import { addComponent, addEntity } from "bitecs";
 import { spawnCamelEntity } from "../scenes/camelSpawn";
 import { RageMeter } from "../systems/rage";
@@ -57,10 +57,10 @@ export function bootGame(canvas: HTMLCanvasElement, opts?: { seed?: number; loca
       const ecs = createWorld();
       const reg = new Registry();
       const seed = opts?.seed ?? Math.floor(Math.random() * 2 ** 31); // server-issued when online
-      const { scene, cowBody, buildingColliders } = buildKyrenia(physics, ecs, reg, seed);
+      const { scene, cowBody, buildingColliders } = buildKyreniaGen(physics, ecs, reg);
 
       const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-      const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 300);
+      const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1500);
       const resize = (): void => {
         renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
         camera.aspect = canvas.clientWidth / canvas.clientHeight;

@@ -11,8 +11,9 @@ import { ChildTag, Pickup, Rescueable, Smashable } from "../ecs/components";
 import { PALETTE, flat } from "../art/palette";
 import { buildCowMesh } from "../art/cow";
 import { buildCat, buildChild, buildDog, buildIceCreamCart } from "../art/critters";
-import { KYRENIA } from "../assets/kyrenia-harbor";
+import { KYRENIA } from "../assets/kyrenia-harbor-gen";
 import { seededRng } from "../core/rng";
+import { buildProp, propHalf, buildSign } from "../art/props";
 
 export interface SceneHandles {
   scene: THREE.Scene;
@@ -306,6 +307,22 @@ export function buildKyrenia(
   if (rng() < 0.33) {
     const hide = KYRENIA.wineHides[Math.floor(rng() * KYRENIA.wineHides.length)];
     addPickup(hide.x, hide.z, 1);
+  }
+  // --- generated layers (absent in hand-authored data -> empty -> no-op) ---
+  const gen = KYRENIA as unknown as {
+    smashables?: Array<{ x: number; z: number; kind: string; points: number }>;
+    backdrop?: Array<{ x: number; z: number; name: string | null }>;
+  };
+  for (const s of gen.smashables ?? []) {
+    const [hx, hy, hz] = propHalf(s.kind);
+    const holder = new THREE.Group();     // centre the ground-built prop on its body
+    const prop = buildProp(s.kind);
+    prop.position.y = -hy;
+    holder.add(prop);
+    addSmashable(holder, s.x, s.z, hx, hy, hz, s.points);
+  }
+  for (const b of gen.backdrop ?? []) {
+    if (b.name) scene.add(buildSign(b.name, b.x, b.z));
   }
 
   return { scene, cowEid, cowBody, buildingColliders };
