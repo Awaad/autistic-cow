@@ -1,36 +1,57 @@
-/** ADR-014 art direction: low-poly flat-shaded Mediterranean.
- * The world must be lovely — the comedy of destroying it depends on it. */
+/** art direction: low-poly flat-shaded Mediterranean.
+ * The world must be lovely — the comedy of destroying it depends on it.
+ * PALETTE v2 — "Kyrenia at 17:40". Single source of color .
+ * Token NAMES are stable (the district generator seeds from them);
+ * values are harmonized: warm sun-struck walls, deep-then-glassy sea,
+ * terracotta pulled toward ember. New tokens are additive only. */
 import * as THREE from "three";
 
 export const PALETTE = {
-  sky: 0x87ceeb,
-  sea: 0x1a6f9e,
-  ground: 0xd9c9a3,        // sun-bleached stone
-  road: 0xb8a888,
-  wallWhite: 0xf5f0e8,
-  wallCream: 0xefe3c8,
-  wallRose: 0xe8cfc0,
-  roofTerracotta: 0xc4614a,
-  roofOchre: 0xd08a3e,
-  shutterCobalt: 0x2255a4,
-  shutterTeal: 0x2e8b8b,
-  doorGreen: 0x4a7c59,
-  awningRed: 0xc0392b,
-  awningStripe: 0xf5f0e8,
-  crate: 0xa87c4f,
-  stall: 0x8f6b43,
-  palmTrunk: 0x8b6f47,
-  palmFrond: 0x4a8c3f,
-  cowWhite: 0xf7f3ee,
-  cowPatch: 0x3a3a42,
-  cowPink: 0xe8b4b8,
-  camelSand: 0xc2a56b,
-  camelDark: 0xa08453,
-  beer: 0xf5a623,
-  wine: 0x9013fe,
+  // atmosphere
+  sky: 0xf4d9a8,          // late-afternoon amber sky (was cool blue)
+  skyZenith: 0x9ec8e8,    // NEW: for gradient domes if a scene wants one
+  ground: 0xcbb389,       // sun-warmed limestone
+  road: 0xa08a66,         // NEW: street ribbons — darker, reads as travel
+  sea: 0x2e6f8e,          // deep harbor water
+  seaShallow: 0x4f9db4,   // NEW: near-shore band
+  seaFoam: 0xd8ecec,      // NEW: quay edge line
+
+  // architecture
+  wallWhite: 0xf6efe2,    // warm white, not paper white
+  wallCream: 0xecd9b0,
+  wallRose: 0xdfae95,     // dusty terracotta-rose
+  roofTerracotta: 0xb85c38, // ember terracotta
+  roofOchre: 0xc98a4b,
+  doorGreen: 0x4a6b52,    // cypress green
+  shutterCobalt: 0x3e5f8a,
+  shutterTeal: 0x4e8a86,
+  awningRed: 0xc4553d,
+  awningStripe: 0xe8d5b5,
+  stone: 0xb5a888,        // NEW: castle/quay masonry
+
+  // flora & props
+  palmTrunk: 0x8a6f4d,
+  palmFrond: 0x5f7d47,    // olive-green, not lime
+  stall: 0x9a7b52,
+  crate: 0xb08d5a,
+  signWood: 0x7a5c3e,     // NEW
+
+  // creatures
+  cowHide: 0xf2ece0,      // NEW: warm ivory
+  cowPatch: 0x5a4636,     // NEW: umber patches
+  cowMuzzle: 0xd9a8a0,    // NEW
+  hoof: 0x3a3230,         // NEW
+  camelHide: 0xc9a06a,    // NEW (for the camel's pass, later)
+
+  // pickups (emissive-friendly)
+  beer: 0xf0b429,         // amber glow
+  wine: 0x8e2f4f,         // deep claret
 } as const;
 
-/** Lambert = cheap soft shading; the low-poly look, mobile-friendly. */
-export function flat(color: number): THREE.MeshLambertMaterial {
-  return new THREE.MeshLambertMaterial({ color });
+/** Flat-shaded standard material — v2: slight roughness so the sun models
+ * form; zero metalness always (this world has no chrome). */
+export function flat(color: number): THREE.MeshStandardMaterial {
+  return new THREE.MeshStandardMaterial({
+    color, flatShading: true, roughness: 0.9, metalness: 0,
+  });
 }
