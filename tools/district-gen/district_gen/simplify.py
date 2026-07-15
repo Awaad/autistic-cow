@@ -167,15 +167,84 @@ def simplify(pir: ProjectedIR, gen_config_path: str | None = None) -> list[Simpl
 
 # draw layer: real footprints (extruded), separate from collider boxes
 
+# POI category -> building USE. A building is what's inside it: the town's real
+# character is in the POI data; typing the shells is what stops the city reading
+# as anonymous extrusions. Facades branch on `use`.
+_USE = {
+    "cafe": "cafe", "coffee_shop": "cafe", "tea_room": "cafe", "internet_cafe": "cafe",
+    "bar": "bar", "pub": "bar", "cocktail_bar": "bar", "wine_bar": "bar",
+    "lounge": "bar", "gay_bar": "bar", "hotel_bar": "bar", "dance_club": "bar",
+    "restaurant": "eat", "seafood_restaurant": "eat", "turkish_restaurant": "eat",
+    "mediterranean_restaurant": "eat", "middle_eastern_restaurant": "eat",
+    "european_restaurant": "eat", "asian_restaurant": "eat", "doner_kebab": "eat",
+    "steakhouse": "eat", "fast_food_restaurant": "eat", "pizza_restaurant": "eat",
+    "bakery": "eat", "ice_cream_shop": "eat", "sandwich_shop": "eat",
+    "hotel": "hotel", "hostel": "hotel", "lodge": "hotel", "accommodation": "hotel",
+    "holiday_rental_home": "hotel",
+    "castle": "civic", "mosque": "civic", "church_cathedral": "civic",
+    "anglican_church": "civic", "town_hall": "civic", "library": "civic",
+    "civilization_museum": "civic", "art_gallery": "civic", "landmark": "civic",
+    "landmark_and_historical_building": "civic", "monument": "civic",
+    "college_university": "civic", "hospital": "civic", "police_department": "civic",
+}
+# lower index wins when a building contains several POIs
+_PRIORITY = ["civic", "hotel", "bar", "eat", "cafe", "shop", "residential"]
+# floors per use — real height variety from real data, not a seeded guess
+_USE_FLOORS = {
+    "civic": (2, 4), "hotel": (4, 7), "bar": (2, 3), "eat": (2, 3),
+    "cafe": (2, 3), "shop": (2, 3), "residential": (2, 3),
+}
+
+
+def classify_uses(buildings: list[PBuilding], pois: list[PPoi]) -> dict[str, tuple[str, str | None]]:
+    """source_id -> (use, name). Point-in-polygon: a building IS what's inside it."""
+    from shapely import Point, Polygon, STRtree
+    polys: list[Any] = []
+    ids: list[str] = []
+    for b in buildings:
+        if len(b.footprint) < 3:
+            continue
+        try:
+            q = Polygon(b.footprint)
+            if not q.is_valid:
+                q = q.buffer(0)
+            if not q.is_empty:
+                polys.append(q); ids.append(b.source_id)
+        except Exception:
+            continue
+    if not polys:
+        return {}
+    tree = STRtree(polys)
+    out: dict[str, tuple[str, str | None]] = {}
+    for poi in sorted(pois, key=lambda p: p.source_id):
+        use = _USE.get(poi.kind) or ("shop" if poi.name else None)
+        if not use:
+            continue
+        pt = Point(poi.point[0], poi.point[1])
+        for idx in tree.query(pt):
+            i = int(idx)
+            if not polys[i].contains(pt):
+                continue
+            sid = ids[i]
+            prev = out.get(sid)
+            if prev is None or _PRIORITY.index(use) < _PRIORITY.index(prev[0]):
+                out[sid] = (use, poi.name)
+            break
+    return out
+
+
 @dataclass(frozen=True)
 class DrawBuilding:
     footprint: list[XZ]   # simplified real polygon [x,z] — the DRAWN silhouette
     h: float
     wall: str
     roof: str
+    use: str = "residential"   # cafe|bar|eat|hotel|shop|civic|residential
+    name: str | None = None
 
 
-def draw_buildings(pir: ProjectedIR, gen_config_path: str | None = None) -> list[DrawBuilding]:
+def draw_buildings(pir: ProjectedIR, gen_config_path: str | None = None,
+                   uses: dict[str, tuple[str, str | None]] | None = None) -> list[DrawBuilding]:
     """Per-building simplified footprints for EXTRUSION (the recognisable
     silhouette). Colliders stay the merged boxes from simplify(); these are what
     the eye sees. Douglas-Peucker keeps them low-poly."""
@@ -185,6 +254,9 @@ def draw_buildings(pir: ProjectedIR, gen_config_path: str | None = None) -> list
     roofs = cfg["palette"]["roof"]
     tol = cfg.get("footprint_simplify_m", 1.5)
     min_area = cfg.get("footprint_min_area_m2", 6.0)
+    uses = uses or {}
+    storey = cfg["storey_height_m"]
+    clamp = cfg["height_clamp_m"]
     out: list[DrawBuilding] = []
     for b in pir.buildings:
         if len(b.footprint) < 3:
@@ -202,8 +274,13 @@ def draw_buildings(pir: ProjectedIR, gen_config_path: str | None = None) -> list
         if len(coords) < 3:
             continue
         seed = b.source_id
-        levels = [b.levels] if b.levels else []
-        h = _height(levels, seed, cfg)
+        use, name = uses.get(b.source_id, ("residential", None))
+        if b.levels:
+            h = _height([b.levels], seed, cfg)
+        else:
+            lo, hi = _USE_FLOORS.get(use, (2, 3))
+            lvl = lo + int(_unit(seed, "levels") * (hi - lo + 1))
+            h = round(min(max(lvl * storey, clamp["min"]), clamp["max"]), _MM)
         # wall colour coherent per neighbourhood block; roof varies per building
         cx = sum(p[0] for p in coords) / len(coords)
         cz = sum(p[1] for p in coords) / len(coords)
@@ -211,25 +288,52 @@ def draw_buildings(pir: ProjectedIR, gen_config_path: str | None = None) -> list
         block = f"{round(cx / cell)},{round(cz / cell)}"
         wall = walls[int(_unit(block, "wall") * len(walls))]
         roof = roofs[int(_unit(seed, "roof") * len(roofs))]
-        out.append(DrawBuilding(coords, h, wall, roof))
+        out.append(DrawBuilding(coords, h, wall, roof, use, name))
     out.sort(key=lambda b: (b.footprint[0][0], b.footprint[0][1]))
     return out
 
 
-def union_buildings(osm: list[PBuilding], overture: list[PBuilding]) -> list[PBuilding]:
-    """Hybrid density: keep every OSM building (tagged, has heights), then add
-    Overture ML footprints that fill OSM's GAPS (centroid not inside any OSM
-    footprint). This is how a partially-mapped TRNC old town gets fuller."""
-    from shapely import Point, Polygon
-    osm_polys = [Polygon(b.footprint) for b in osm if len(b.footprint) >= 3]
-    kept = list(osm)
-    for ob in overture:
-        if len(ob.footprint) < 3:
-            continue
+def union_buildings(osm: list[PBuilding], overture: list[PBuilding],
+                    max_overlap_frac: float = 0.15) -> list[PBuilding]:
+    """Hybrid density: keep every OSM building, then add only Overture ML
+    footprints that fill genuine GAPS. Rejects an ML footprint overlapping any
+    accepted building by >max_overlap_frac of its own area — the old centroid
+    test let offset overlaps through, producing z-fighting roofs.
+    Deterministic (sorted iteration); STRtree-indexed for speed."""
+    from shapely import Polygon, STRtree
+
+    def _poly(b: PBuilding):
+        if len(b.footprint) < 3:
+            return None
         try:
-            c = Polygon(ob.footprint).centroid
-            if not any(op.contains(c) for op in osm_polys):
-                kept.append(ob)
+            p = Polygon(b.footprint)
+            if not p.is_valid:
+                p = p.buffer(0)
+            return None if (p.is_empty or p.area <= 0) else p
         except Exception:
+            return None
+
+    accepted = [q for q in (_poly(b) for b in osm) if q is not None]
+    kept = list(osm)
+    tree = STRtree(accepted) if accepted else None
+
+    for ob in sorted(overture, key=lambda b: b.source_id):
+        op = _poly(ob)
+        if op is None:
             continue
+        clash = False
+        if tree is not None:
+            for idx in tree.query(op):
+                try:
+                    if op.intersection(accepted[int(idx)]).area / op.area > max_overlap_frac:
+                        clash = True
+                        break
+                except Exception:
+                    continue
+        if clash:
+            continue
+        kept.append(ob)
+        accepted.append(op)
+        tree = STRtree(accepted)
+
     return sorted(kept, key=lambda b: b.source_id)
