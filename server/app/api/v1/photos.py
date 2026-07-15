@@ -63,10 +63,13 @@ async def upload_photo(
     energy_granted = False
     rage_floor = 100
     quip = None
+    reduced_reason = None
     if tier == "rejected":
         quip = "photo.reject_not_animal"   # "That is a sandwich." — client localizes
     else:
         rage_floor = int(cfg["rage_floor_full" if tier == "full" else "rage_floor_reduced"])
+        if tier == "reduced":
+            reduced_reason = "duplicate" if dupe else ("not_live" if not live_capture else "low_signals")
         if tier == "full" and live_capture:
             energy_granted = await repo.grant_photo_energy(conn, player_id)
 
@@ -95,4 +98,5 @@ async def upload_photo(
         photo_id=str(photo_id), bonus_tier=tier, is_animal=cls.is_animal,
         classifier_label=cls.label, rage_floor=rage_floor,
         energy_granted=energy_granted, reject_quip_key=quip,
+        reduced_reason=reduced_reason,
     )

@@ -379,5 +379,6 @@ export interface PhotoDecision {
   rage_floor: number;
   energy_granted: boolean;
   reject_quip_key?: string | null;
+  reduced_reason?: "duplicate" | "not_live" | "low_signals" | null;
   [k: string]: unknown;
 }

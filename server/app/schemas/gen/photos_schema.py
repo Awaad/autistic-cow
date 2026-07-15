@@ -15,6 +15,13 @@ class BonusTier(Enum):
     rejected = 'rejected'
 
 
+class ReducedReason(Enum):
+    duplicate = 'duplicate'
+    not_live = 'not_live'
+    low_signals = 'low_signals'
+    NoneType_None = None
+
+
 class PhotoDecision(BaseModel):
     photo_id: UUID
     bonus_tier: BonusTier
@@ -23,6 +30,7 @@ class PhotoDecision(BaseModel):
     rage_floor: conint(ge=0, le=100)
     energy_granted: bool
     reject_quip_key: str | None = None
+    reduced_reason: ReducedReason | None = None
 
 
 class Photos(RootModel[PhotoDecision]):

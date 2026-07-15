@@ -110,7 +110,10 @@ export function App() {
     }
     commands.emit({ type: "photoCalm", rageFloor: d.rage_floor });
     if (d.energy_granted) setJudgeLine(t("photo.energy_granted"));
-    else if (d.bonus_tier === "reduced") setJudgeLine(t("photo.reduced"));
+    else if (d.bonus_tier === "reduced") {
+      const reason = (d as { reduced_reason?: string | null }).reduced_reason;
+      setJudgeLine(t(reason === "duplicate" ? "photo.reduced_duplicate" : "photo.reduced"));
+    }
   };
 
   const onRefuse = (): void => commands.emit({ type: "refusePhoto" });
