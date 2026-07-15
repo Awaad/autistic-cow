@@ -25,6 +25,7 @@ import { JudgeLog } from "../judge/log";
 import { HesitationDetector } from "../judge/hesitation";
 import { CommentEngine } from "../judge/engine";
 import { poolFor } from "../judge/pools";
+import { applyElevatedRenderer } from "../art/postfx";
 import { buildIceCream } from "../art/critters";
 
 const SESSION_S = tuning.session.target_minutes_min * 60;
@@ -60,6 +61,7 @@ export function bootGame(canvas: HTMLCanvasElement, opts?: { seed?: number; loca
       const { scene, cowBody, buildingColliders } = buildKyreniaGen(physics, ecs, reg);
 
       const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+      applyElevatedRenderer(renderer); // ACES filmic: art pass 2
       const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1500);
       const resize = (): void => {
         renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
