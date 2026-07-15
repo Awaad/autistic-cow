@@ -23,7 +23,7 @@ export type GameEvent =
 export type RageBand = "serene" | "irritated" | "furious" | "berserk";
 
 export type GameCommand =
-  | { type: "photoProvided" }   // any file accepted; Later: real pipeline
+  | { type: "photoCalm"; rageFloor: number } 
   | { type: "refusePhoto" }
   | { type: "pettingZoo" };
 

@@ -3,6 +3,7 @@ import { bootGame } from "@game/core/boot";
 import { bus, commands, type RageBand } from "../game/core/bus";
 import { t, setLocale, type Locale  } from "../i18n";
 import { startSync } from "@net/sync";
+import { uploadPetPhoto } from "@net/photos";
 import { bumpSessionsPlayed, getIdentity, sessionsPlayed } from "@net/account";
 import { CookieBanner } from "@ui/CookieBanner";
 import { Wall } from "@ui/Wall";
@@ -101,7 +102,17 @@ export function App() {
     return () => clearTimeout(id);
   }, [judgeLine]);
 
-  const onPhotoPicked = (): void => commands.emit({ type: "photoProvided" });
+  const onPhotoPicked = async (file: File, live: boolean): Promise<void> => {
+    const d = await uploadPetPhoto(file, live);
+    if (d.bonus_tier === "rejected") {
+      setJudgeLine(t(d.reject_quip_key ?? "photo.reject_not_animal"));
+      return; // one retry within the timer — the prompt stays open
+    }
+    commands.emit({ type: "photoCalm", rageFloor: d.rage_floor });
+    if (d.energy_granted) setJudgeLine(t("photo.energy_granted"));
+    else if (d.bonus_tier === "reduced") setJudgeLine(t("photo.reduced"));
+  };
+
   const onRefuse = (): void => commands.emit({ type: "refusePhoto" });
 
   const mm = remaining === null ? "-" : String(Math.floor(remaining / 60));
@@ -166,7 +177,8 @@ export function App() {
           <div style={{ fontSize: 40 }}>{Math.ceil(promptTimer)}</div>
           <label style={btn}>
             {t("maxrage.show_button")}
-            <input type="file" accept="image/*" style={{ display: "none" }} onChange={onPhotoPicked} />
+            <input type="file" accept="image/*" capture="environment" style={{ display: "none" }}
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) void onPhotoPicked(f, false); }} />
           </label>
           {pettingAvail && (
             <button style={btn} onClick={() => commands.emit({ type: "pettingZoo" })}>
