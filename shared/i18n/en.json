@@ -60,6 +60,9 @@
   "title.back": "Back",
   "energy.label": "Energy",
   "energy.empty": "She needs to rest",
-  "maxrage.petting_done": "The goat tolerated you. She's down to simmering — not calm. Survival, not victory."
+  "maxrage.petting_done": "The goat tolerated you. She's down to simmering — not calm. Survival, not victory.",
+  "photo.reject_not_animal": "That is not an animal. She is not calmed by objects.",
+  "photo.reduced": "Recycled love. She can tell. (Partial calm.)",
+  "photo.energy_granted": "A real one, taken just now. She sits. +1 energy."
 }
 
