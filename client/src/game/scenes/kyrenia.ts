@@ -165,10 +165,12 @@ export function buildKyrenia(
     R.RigidBodyDesc.dynamic()
       .setTranslation(KYRENIA.cowStart.x, 1.2, KYRENIA.cowStart.z)
       .lockRotations()
-      .setLinearDamping(2.5),
+      .setLinearDamping(2.5)
+      .setCcdEnabled(true),  // berserk speed vs thin colliders: 
   );
   const cowCollider = world.createCollider(
     R.ColliderDesc.capsule(0.6, 0.7)
+      .setFriction(0.0) // slide along facades instead of sticking
       .setCollisionGroups(CollisionGroups.cow)
       .setActiveEvents(R.ActiveEvents.COLLISION_EVENTS),
     cowBody,
