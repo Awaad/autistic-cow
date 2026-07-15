@@ -98,6 +98,7 @@ export function bootGame(canvas: HTMLCanvasElement, opts?: { seed?: number; loca
       let camelScheduledAt = SESSION_S * tuning.camel.scheduled_beat_pct;
       let camelSighted = false;
       let buildingHitCooldown = 0;
+      const camDesired = new THREE.Vector3();
       const seekBlacklist = new Map<number, number>();
       let blockedT = 0;
       let escapeSign = 0;
@@ -582,8 +583,19 @@ export function bootGame(canvas: HTMLCanvasElement, opts?: { seed?: number; loca
         }
 
         const cp = cowBody.translation();
-        camera.position.lerp(new THREE.Vector3(cp.x, cp.y + 12, cp.z + 16), 0.08);
-        camera.lookAt(cp.x, cp.y, cp.z);
+        {
+          // city rig: look where she's GOING; distance breathes with the band
+          const cv = cowBody.linvel();
+          const spd = Math.hypot(cv.x, cv.z);
+          const bandDist = { serene: 13, irritated: 15, furious: 17, berserk: 20 }[rage.band];
+          const tx = cp.x + cv.x * 0.55;
+          const tz = cp.z + cv.z * 0.55;
+          camDesired.set(tx, cp.y + bandDist * 0.62, tz + bandDist);
+          camera.position.lerp(camDesired, 1 - Math.exp(-4 * rawDt));
+          camera.lookAt(tx, cp.y + 1, tz);
+          camera.fov = 60 + Math.min(10, spd * 0.5);
+          camera.updateProjectionMatrix();
+        }
         // trauma shake: smooth oscillation + roll (impact, not malfunction)
         const sh = trauma * trauma;
         const tms = now / 1000;
