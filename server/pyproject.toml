@@ -19,6 +19,7 @@ dependencies = [
   "arq>=0.26",                # task queue (photo pipeline, retention)
   "httpx>=0.27",
   "pillow>=10.4.0",
+  "botocore>=1.34.0",
 ]
 
 [dependency-groups]
