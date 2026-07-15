@@ -43,7 +43,6 @@ async def active_district(conn: AsyncConnection, slug: str) -> UUID | None:
     return row[0] if row else None
 
 
-
 async def create_session(
     conn: AsyncConnection, player_id: UUID, district_id: UUID,
     spawn_seed: int, tuning_version: str, locale: str,
@@ -346,3 +345,69 @@ async def anon_session_count(conn: AsyncConnection, player_id: UUID) -> int | No
     if row is None or not row[0]:
         return None
     return int(row[1])
+
+
+async def insert_photo(
+    conn: AsyncConnection, player_id: UUID, storage_key: str, purpose: str,
+    label: str | None, confidence: float | None, auth_score: float,
+    bonus_tier: str, in_herd: bool, session_id: UUID | None,
+) -> UUID:
+    pid = new_id()
+    await conn.execute(
+        text("""INSERT INTO photos (id, player_id, storage_key, purpose,
+                  classifier_label, classifier_confidence, authenticity_score,
+                  bonus_tier, in_herd, session_id)
+                VALUES (:id, :pl, :sk, :pu, :cl, :cc, :au, :bt, :ih, :se)"""),
+        {"id": pid, "pl": player_id, "sk": storage_key, "pu": purpose,
+         "cl": label, "cc": confidence, "au": auth_score, "bt": bonus_tier,
+         "ih": in_herd, "se": session_id},
+    )
+    return pid
+
+
+async def insert_quarantine(
+    conn: AsyncConnection, photo_id: UUID, capture_source: str,
+    device_hint: str | None, exif_device: str | None, exif_present: bool,
+    delta_s: int | None, gps_region: str | None, phash: str,
+) -> None:
+    await conn.execute(
+        text("""INSERT INTO photo_meta_quarantine
+                  (photo_id, capture_source, device_hint, exif_device,
+                   exif_present, exif_datetime_delta_s, gps_region, phash,
+                   purge_after)
+                VALUES (:id, :cs, :dh, :ed, :ep, :dl, :gr, :ph,
+                        now() + interval '30 days')"""),
+        {"id": photo_id, "cs": capture_source, "dh": device_hint, "ed": exif_device,
+         "ep": exif_present, "dl": delta_s, "gr": gps_region, "ph": phash},
+    )
+
+
+async def phash_seen(conn: AsyncConnection, player_id: UUID, phash: str) -> bool:
+    row = (
+        await conn.execute(
+            text("""SELECT 1 FROM photo_meta_quarantine q
+                    JOIN photos p ON p.id = q.photo_id
+                    WHERE p.player_id = :pl AND q.phash = :ph LIMIT 1"""),
+            {"pl": player_id, "ph": phash},
+        )
+    ).first()
+    return row is not None
+
+
+async def grant_photo_energy(conn: AsyncConnection, player_id: UUID) -> bool:
+    """+1 energy for a passing LIVE photo, once per UTC day (tuning cap=1)."""
+    res = await conn.execute(
+        text("""UPDATE player_profiles
+                SET energy = energy + 1,
+                    photo_energy_granted_on = current_date
+                WHERE player_id = :pid
+                  AND (photo_energy_granted_on IS NULL
+                       OR photo_energy_granted_on < current_date)"""),
+        {"pid": player_id},
+    )
+    return bool(res.rowcount)
+
+
+async def herd_consented(conn: AsyncConnection, player_id: UUID) -> bool:
+    c = await latest_consents(conn, player_id)
+    return bool(c.get("herd_album"))
