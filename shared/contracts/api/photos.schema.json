@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "cowgame:api:photos",
+  "title": "Photos",
+  "anyOf": [{ "$ref": "#/definitions/PhotoDecision" }],
+  "definitions": {
+    "PhotoDecision": {
+      "title": "PhotoDecision", "type": "object",
+      "required": ["photo_id", "bonus_tier", "is_animal", "rage_floor", "energy_granted"],
+      "properties": {
+        "photo_id": { "type": "string", "format": "uuid" },
+        "bonus_tier": { "type": "string", "enum": ["full", "reduced", "rejected"] },
+        "is_animal": { "type": "boolean" },
+        "classifier_label": { "type": ["string", "null"] },
+        "rage_floor": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "energy_granted": { "type": "boolean" },
+        "reject_quip_key": { "type": ["string", "null"] }
+      }
+    }
+  }
+}
