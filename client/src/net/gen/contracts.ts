@@ -369,3 +369,15 @@ export interface LeaderboardEntry {
   level: number;
   [k: string]: unknown;
 }
+export type Photos = PhotoDecision;
+
+export interface PhotoDecision {
+  photo_id: string;
+  bonus_tier: "full" | "reduced" | "rejected";
+  is_animal: boolean;
+  classifier_label?: string | null;
+  rage_floor: number;
+  energy_granted: boolean;
+  reject_quip_key?: string | null;
+  [k: string]: unknown;
+}
