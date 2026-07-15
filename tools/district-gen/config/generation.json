@@ -12,6 +12,8 @@
     "footprint_simplify_m": 1.5,
     "footprint_min_area_m2": 6.0,
     "awning_probability": 0.35,
+    "palette_cluster_m": 45.0,
+    "_palette_doc": "Wall colour is seeded per ~45 m block so neighbours share a tone (coherent Mediterranean zones), not a per-building rainbow. Roofs still vary per building.",
     "palette": {
       "wall": ["wallWhite", "wallCream", "wallRose"],
       "roof": ["roofTerracotta", "roofOchre"]
@@ -35,7 +37,15 @@
     "wine_hides": { "count": 4 },
     "rescue_spots": { "count": 8 },
     "smashables": {
-      "max_dynamic": 250,
+      "max_dynamic": 240,
+      "_doc": "A smashing game needs things to smash EVERYWHERE, not one market pen. Scattered across the whole cell: along streets (kerbside clutter) and in plazas. Hard-capped at max_dynamic (perf budget: <=250 dynamic bodies at spawn).",
+      "target_dynamic": 220,
+      "along_roads_frac": 0.55,
+      "road_offset_m": 4.0,
+      "road_spacing_m": 18.0,
+      "min_gap_m": 3.0,
+      "kind_weights": { "crate": 0.44, "stall": 0.2, "scooter": 0.22, "planter": 0.14 },
+      "points": { "crate": 8, "stall": 24, "scooter": 18, "planter": 5 },
       "stalls_per_100m2": 0.5,
       "crates_per_100m2": 0.9,
       "scooter_count": 16
