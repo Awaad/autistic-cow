@@ -239,7 +239,7 @@ export function bootGame(canvas: HTMLCanvasElement, opts?: { seed?: number; loca
       };
 
       const unsubCommands = commands.subscribe((c) => {
-        if (c.type === "photoProvided" && maxRage.current === "waiting") {
+        if (c.type === "photoCalm" && maxRage.current === "waiting") {
           maxRage.calm();
           rage.setTo(tuning.maxrage.photo_rage_floor); // saved, still simmering
           bus.emit({ type: "maxRageResolved", via: "photo" });
