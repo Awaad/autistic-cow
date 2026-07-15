@@ -98,6 +98,11 @@ export function bootGame(canvas: HTMLCanvasElement, opts?: { seed?: number; loca
       let camelScheduledAt = SESSION_S * tuning.camel.scheduled_beat_pct;
       let camelSighted = false;
       let buildingHitCooldown = 0;
+      const seekBlacklist = new Map<number, number>();
+      let blockedT = 0;
+      let escapeSign = 0;
+      let lastCowX = 0;
+      let lastCowZ = 0;
       let timeScale = 1;    // slam cinematic slow-mo
       let slamT = 0;        // cinematic recovery countdown (real seconds)
 
@@ -309,17 +314,24 @@ export function bootGame(canvas: HTMLCanvasElement, opts?: { seed?: number; loca
             const cp0 = cowBody.translation();
             let best: { x: number; z: number } | null = null;
             let bestD = Infinity;
+            let bestEid = -1;
             for (const eid of smashQuery(ecs)) {
               if (eid === camelEid) continue;
+              const bl = seekBlacklist.get(eid);
+              if (bl !== undefined && bl > elapsed) continue; // she gave up on that one
               const b = reg.bodies.get(eid);
               if (!b) continue;
               const p = b.translation();
               const d = (p.x - cp0.x) ** 2 + (p.z - cp0.z) ** 2;
-              if (d < bestD) { bestD = d; best = { x: p.x, z: p.z }; }
+              if (d < bestD) { bestD = d; best = { x: p.x, z: p.z }; bestEid = eid; }
             }
             if (best) {
+              const dist = Math.sqrt(bestD);
               const toward = Math.atan2(best.x - cp0.x, best.z - cp0.z);
-              heading = lerpAngle(heading, toward, 1 - Math.exp(-SEEK * dt));
+              // close range: the bearing rotates faster than SEEK tracks -> orbit.
+              // Scaling gain by proximity turns the orbit into a LUNGE.
+              const gain = SEEK * (1 + 9 / Math.max(dist, 1.2));
+              heading = lerpAngle(heading, toward, 1 - Math.exp(-gain * dt));
             }
 
             // her one fear outranks her appetite
@@ -339,6 +351,23 @@ export function bootGame(canvas: HTMLCanvasElement, opts?: { seed?: number; loca
             }
 
             const speed = BASE_SPEED * params.speed;
+
+            // blocked detection: commanded speed vs actual displacement.
+            // A wall between her and her want = grinding, not moving.
+            const actual = Math.hypot(cp0.x - lastCowX, cp0.z - lastCowZ) / Math.max(dt, 1e-4);
+            lastCowX = cp0.x;
+            lastCowZ = cp0.z;
+            if (speed > 2 && actual < speed * 0.22) blockedT += dt;
+            else { blockedT = 0; escapeSign = 0; }
+            if (blockedT > 0.5) {
+              if (escapeSign === 0) escapeSign = Math.random() < 0.5 ? 1 : -1;
+              heading += escapeSign * 2.4 * dt; // her will slides along the wall
+              if (blockedT > 1.6 && bestEid !== -1) {
+                seekBlacklist.set(bestEid, elapsed + 4); // that crate can wait
+                blockedT = 0;
+              }
+            }
+
             const vy = cowBody.linvel().y;
             cowBody.setLinvel({ x: Math.sin(heading) * speed, y: vy, z: Math.cos(heading) * speed }, true);
           }
