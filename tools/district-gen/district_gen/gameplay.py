@@ -61,11 +61,14 @@ def _point_seg_dist(px: float, pz: float, ax: float, az: float, bx: float, bz: f
 # occupancy grid
 
 class Grid:
-    """Coarse occupancy grid over the district; cells covered by a building box
-    are 'occupied'. Everything else within the landward bounds is 'free'."""
+    """Coarse occupancy grid over the district. A cell is 'occupied' if a building
+    box covers it OR it is in the REAL sea (water polygons / coastline-derived).
+    Water occupancy is why smashables, beer, children and cowStart stop landing in
+    the harbour — the grid used to know only a faked waterline."""
 
     def __init__(self, half_w: float, half_d: float, waterline: float,
-                 buildings: list[SimplifiedBuilding], cell: float) -> None:
+                 buildings: list[SimplifiedBuilding], cell: float,
+                 sea: Any | None = None) -> None:
         self.cell = cell
         self.half_w = half_w
         self.half_d = half_d
@@ -76,6 +79,18 @@ class Grid:
         self.occ = [[False] * self.cols for _ in range(self.rows)]
         for b in buildings:
             self._mark(b)
+        if sea is not None and not sea.is_empty:
+            # test the cell's AREA, not its centre: a centre-only test lets cells
+            # straddling the shoreline through, and things land at the water's edge.
+            from shapely import box as _box
+            h = cell / 2.0
+            for r in range(self.rows):
+                for c in range(self.cols):
+                    if self.occ[r][c]:
+                        continue
+                    x, z = self.center(r, c)
+                    if sea.intersects(_box(x - h, z - h, x + h, z + h)):
+                        self.occ[r][c] = True   # any water in the cell -> not ground
 
     def _col(self, x: float) -> int:
         return min(self.cols - 1, max(0, int((x + self.half_w) / self.cell)))
@@ -357,8 +372,10 @@ def _scatter_smashables(grid: Grid, roads: list[PRoad], free: list[tuple[float, 
     for x, z in open_cells:
         if len(out) >= budget:
             break
-        jx = x + (rng.random() - 0.5) * grid.cell
-        jz = z + (rng.random() - 0.5) * grid.cell
+        # jitter stays well inside the cell: the cell passed the water/building
+        # test, its neighbours may not have
+        jx = x + (rng.random() - 0.5) * grid.cell * 0.5
+        jz = z + (rng.random() - 0.5) * grid.cell * 0.5
         if ok(jx, jz):
             k = pick_kind()
             out.append({"x": round(jx, _MM), "z": round(jz, _MM), "kind": k,
@@ -375,6 +392,7 @@ def build_gameplay(
     pois: list[PPoi],
     *,
     roads: list[PRoad] | None = None,
+    sea: Any | None = None,
     seed: int = 1,
     config_path: str | None = None,
 ) -> GameplayLayer:
@@ -382,18 +400,20 @@ def build_gameplay(
     rng = random.Random(seed)
     roads = roads or []
     hw, hd = bounds["halfW"], bounds["halfD"]
-    waterline = _waterline(buildings, hd)
-    grid = Grid(hw, hd, waterline, buildings, cfg["grid_cell_m"])
+    # real sea present -> the whole cell is in play and water is masked by the grid;
+    # otherwise fall back to the old estimate (and say so in DEVIATIONS).
+    waterline = hd if sea is not None else _waterline(buildings, hd)
+    grid = Grid(hw, hd, waterline, buildings, cfg["grid_cell_m"], sea=sea)
     free = grid.free_cells()
     warnings: list[str] = []
 
-    # 1. children FIRST. Prefer interior cells (away from edges).
+    # 1. children FIRST (ADR-019). Prefer interior cells (away from edges).
     interior = [(x, z) for (x, z) in free
                 if abs(x) < hw - grid.cell and -hd + grid.cell < z < waterline - grid.cell]
     child_cells = _farthest_point_sample(interior or free, cfg["child_zones"]["count"], rng)
     childZones = [_v(x, z) for x, z in child_cells]
 
-    # 2. camel lanes routed along real streets, clear of children
+    # 2. camel lanes routed along real streets, clear of children (ADR-019)
     camelLanes = _camel_lanes(grid, childZones, roads, cfg, warnings)
 
     # 3. cowStart: free cell farthest from any building (largest open space)
@@ -404,7 +424,7 @@ def build_gameplay(
     else:
         cowStart = _v(0, 0)
 
-    # petting-zoo pen: an open cell toward a corner (calming fallback).
+    # petting-zoo pen: an open cell toward a corner (calming fallback, §5.4).
     # Kept away from cowStart so it isn't underfoot at spawn.
     if free:
         pen = min(free, key=lambda p: (p[0] + p[1]))  # far SW-ish corner
