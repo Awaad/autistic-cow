@@ -12,11 +12,12 @@ from pathlib import Path
 
 from .bbox import BBox, KYRENIA_HARBOR_CENTER, KYRENIA_HARBOR_RADIUS_M
 from .extract import fetch_overpass, fetch_overture
-from .ir import normalize_overpass, normalize_overture, Poi
+from .ir import (normalize_overpass, normalize_overture, Poi)
 from .report import build_report
 from .roles import classify, validate_config
 from .project import load_ir, project_ir
-from .simplify import ProjectedIR, SimplifiedBuilding, simplify, draw_buildings, union_buildings
+from .simplify import (ProjectedIR, SimplifiedBuilding, simplify, draw_buildings,
+                       union_buildings, classify_uses)
 from .scene import build_scene, emit_scene_ts
 from .gameplay import build_gameplay, load_gameplay_config, validate_child_safety
 from . import emit as emitter
@@ -84,6 +85,7 @@ def cmd_roles(args: argparse.Namespace) -> int:
           file=sys.stderr)
     return 0
 
+
 def cmd_project(args: argparse.Namespace) -> int:
     out_dir = Path(args.out)
     proj_dir = out_dir / "projected"
@@ -117,6 +119,22 @@ def cmd_simplify(args: argparse.Namespace) -> int:
                   file=sys.stderr)
             continue
         pir = ProjectedIR.from_dict(json.loads(pj_path.read_text()))
+        # HYBRID here, not at emit: gameplay and emit-scene MUST see the same
+        # buildings, or cowStart lands inside an Overture building the grid never
+        # knew about and physics ejects her upward (the "flying cow").
+        if getattr(args, "hybrid", False):
+            ov = out_dir / "projected" / "overture.json"
+            if ov.exists():
+                before = len(pir.buildings)
+                pir.buildings = union_buildings(
+                    pir.buildings, ProjectedIR.from_dict(json.loads(ov.read_text())).buildings)
+                print(f"[hybrid] buildings {before} -> {len(pir.buildings)} "
+                      f"(+{len(pir.buildings) - before} Overture ML gap-fills)", file=sys.stderr)
+                (out_dir / "projected" / f"{provider}.union.json").write_text(
+                    json.dumps(pir.to_dict(), indent=2, sort_keys=True) + "\n")
+            else:
+                print("[hybrid] no overture projected file; run project --provider both",
+                      file=sys.stderr)
         buildings = simplify(pir)
         (simp_dir / f"{provider}.json").write_text(
             json.dumps([asdict(b) for b in buildings], indent=2, sort_keys=True) + "\n")
@@ -127,6 +145,15 @@ def cmd_simplify(args: argparse.Namespace) -> int:
         print(f"[{provider}] {before} footprints -> {after} colliders "
               f"(merged {merged}, -{pct}%) | budget 350: {status}", file=sys.stderr)
     return 0
+
+
+def _load_pir(out_dir: Path, provider: str) -> ProjectedIR:
+    """Prefer the hybrid union written by `simplify --hybrid` so gameplay and
+    emit-scene never disagree about which buildings exist."""
+    u = out_dir / "projected" / f"{provider}.union.json"
+    p = u if u.exists() else out_dir / "projected" / f"{provider}.json"
+    return ProjectedIR.from_dict(json.loads(p.read_text()))
+
 
 def cmd_gameplay(args: argparse.Namespace) -> int:
     out_dir = Path(args.out)
@@ -140,19 +167,23 @@ def cmd_gameplay(args: argparse.Namespace) -> int:
               file=sys.stderr)
         return 1
     buildings = [SimplifiedBuilding(**d) for d in json.loads(simp_path.read_text())]
-    geo_proj = ProjectedIR.from_dict(json.loads((out_dir / "projected" / f"{provider}.json").read_text()))
+    geo_proj = _load_pir(out_dir, provider)
     poi_proj = ProjectedIR.from_dict(json.loads(proj_path.read_text()))
+    from .render import derive_sea
+    sea_geom, sea_dev = derive_sea(geo_proj)
+    for d in sea_dev:
+        print(f"  DEVIATION: {d}", file=sys.stderr)
     # HYBRID: bounds from geometry provider; POIs from BOTH — OSM street furniture
     # (benches/bins/post boxes) + Overture commercial. classify() dedups OSM
     # commercial away, so no double-placing.
     all_pois = list(geo_proj.pois) + list(poi_proj.pois)
     # roads from the geometry provider are the camel's approach corridors
     layer = build_gameplay(provider, geo_proj.bounds, buildings, all_pois,
-                           roads=list(geo_proj.roads), seed=args.seed)
- 
+                           roads=list(geo_proj.roads), sea=sea_geom, seed=args.seed)
+
     excl = load_gameplay_config()["camel"]["child_exclusion_m"]
     validate_child_safety(layer, excl)  # HARD GATE (ADR-019) — raises to fail the build
- 
+
     (gp_dir / f"{provider}.json").write_text(
         json.dumps(layer.to_district_dict(), indent=2, sort_keys=True) + "\n")
     print(f"[{provider}] children={len(layer.childZones)} lanes={len(layer.camelLanes)} "
@@ -259,23 +290,25 @@ def cmd_emit_scene(args: argparse.Namespace) -> int:
         print("need projected/ and gameplay/ files; run project + simplify + gameplay first",
               file=sys.stderr)
         return 1
-    pir = ProjectedIR.from_dict(json.loads(proj_path.read_text()))
-
-    use_overture = False
-    if args.hybrid:
-        ov_path = out_dir / "projected" / "overture.json"
-        if ov_path.exists():
-            ov = ProjectedIR.from_dict(json.loads(ov_path.read_text()))
-            before = len(pir.buildings)
-            pir.buildings = union_buildings(pir.buildings, ov.buildings)
-            use_overture = True
-            print(f"[hybrid] buildings {before} -> {len(pir.buildings)} "
-                  f"(+{len(pir.buildings) - before} Overture ML footprints)", file=sys.stderr)
-        else:
-            print("[hybrid] no overture projected file; run project --provider both", file=sys.stderr)
+    # read whatever simplify produced (union if --hybrid was used there) so the
+    # scene and the gameplay layer agree on which buildings exist
+    pir = _load_pir(out_dir, args.provider)
+    use_overture = (out_dir / "projected" / f"{args.provider}.union.json").exists()
+    if use_overture:
+        print(f"[hybrid] using unioned buildings ({len(pir.buildings)})", file=sys.stderr)
 
     colliders = simplify(pir)
-    draw = draw_buildings(pir)
+    # type each building from the POIs inside it (Overture POIs are the rich set)
+    use_pois = list(pir.pois)
+    ov_poi_path = out_dir / "projected" / "overture.json"
+    if ov_poi_path.exists():
+        use_pois += ProjectedIR.from_dict(json.loads(ov_poi_path.read_text())).pois
+    uses = classify_uses(pir.buildings, use_pois)
+    draw = draw_buildings(pir, uses=uses)
+    from collections import Counter as _C
+    tally = _C(u for u, _ in uses.values())
+    print(f"[uses] typed {len(uses)} buildings: "
+          + ", ".join(f"{k}={v}" for k, v in sorted(tally.items())), file=sys.stderr)
     play = json.loads(gp_path.read_text())
     scene = build_scene(pir, colliders, draw, play)
 
@@ -333,6 +366,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("simplify", help="projected footprints -> BuildingSpec boxes + terrace merge")
     sp.add_argument("--provider", choices=["osm", "overture", "both"], default="osm")
     sp.add_argument("--out", default="./out/kyrenia-harbor")
+    sp.add_argument("--hybrid", action="store_true",
+                    help="fill OSM gaps with Overture ML footprints (needs project --provider both)")
     sp.set_defaults(func=cmd_simplify)
     
     gp = sub.add_parser("gameplay", help="place children/lanes/beer/venues from POI roles")
@@ -375,8 +410,8 @@ def build_parser() -> argparse.ArgumentParser:
     sd.add_argument("--slug", default="kyrenia-harbor")
     sd.add_argument("--region", default="north-cyprus")
     sd.set_defaults(func=cmd_seed)
-    
     return p
+ 
  
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
