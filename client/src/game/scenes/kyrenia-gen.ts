@@ -68,7 +68,22 @@ function flatShapeMesh(poly: number[][], color: number, y: number): THREE.Mesh {
   const m = new THREE.Mesh(g, flat(color));
   m.position.y = y;
   m.receiveShadow = true;
+  m.userData.sea = { baseY: y };
   return m;
+}
+
+/** Call once per frame from the render loop: `animateSea(scene, elapsed)`.
+ * Swells around each layer's OWN base height — never around a hardcoded y, or
+ * the water sinks back into the ground box (that was the original sea bug). */
+export function animateSea(scene: THREE.Scene, elapsed: number): void {
+  scene.traverse((o) => {
+    const sea = (o as THREE.Mesh).userData?.sea as { baseY: number } | undefined;
+    if (!sea) return;
+    const m = o as THREE.Mesh;
+    m.position.y = sea.baseY + Math.sin(elapsed * 0.8 + sea.baseY * 40) * 0.03;
+    const mat = m.material as THREE.MeshStandardMaterial;
+    if (mat?.color) mat.color.offsetHSL(0, 0, Math.sin(elapsed * 0.5) * 0.0008);
+  });
 }
 
 /** Water: foam rim → shallow band → deep water, each inset and stacked.
@@ -118,7 +133,7 @@ function addRoads(scene: THREE.Scene, roads: { pts: number[][]; width: number }[
   console.info(`[roads] merged → 1 draw call`);
 }
 
-interface GenBuilding { poly: number[][]; h: number; wall: string; roof: string; use?: string; name?: string | null }
+interface GenBuilding { poly: number[][]; h: number; wall: string; roof: string; use?: string; name?: string | null; hero?: string | null }
 
 /** Building shells merged BY MATERIAL: unique polygons can't instance, but they
  * can merge → 3 wall tones + 2 roof tones ≈ 5 draw calls for the whole city. */
@@ -133,6 +148,7 @@ function addBuildingShells(scene: THREE.Scene, buildings: GenBuilding[]): void {
 
   for (const b of buildings) {
     if (b.poly.length < 3) continue;
+    if (b.hero) continue;   // a hero model replaces this shell (else it buries it)
     const shape = shapeFromPoly(b.poly);
     // civic buildings are masonry, not painted plaster
     const wallKey = b.use === "civic" ? "stone" : b.wall;
@@ -307,10 +323,47 @@ export function buildKyreniaGen(physics: Physics, ecs: IWorld, reg: Registry): S
     }
   }
 
-  for (const lm of GEN.landmarks) {
+  for (const poly of GEN.sea as number[][][]) {
+    for (let i = 0; i < poly.length; i++) {
+      const [x0, z0] = poly[i];
+      const [x1, z1] = poly[(i + 1) % poly.length];
+      const len = Math.hypot(x1 - x0, z1 - z0);
+      if (len < 2) continue;
+      const yaw = -Math.atan2(z1 - z0, x1 - x0);
+      const b = world.createRigidBody(R.RigidBodyDesc.fixed()
+        .setTranslation((x0 + x1) / 2, 1, (z0 + z1) / 2));
+      b.setRotation({ x: 0, y: Math.sin(yaw / 2), z: 0, w: Math.cos(yaw / 2) }, true);
+      world.createCollider(R.ColliderDesc.cuboid(len / 2, 1.5, 0.4), b);
+    }
+  }
+
+   for (const lm of GEN.landmarks) {
+    const host = (lm as { host?: { cx: number; cz: number; w: number; d: number } }).host;
     const g = buildLandmark(lm.kind);
-    g.position.set(lm.x, 0, lm.z);
+    // Sit the hero ON its real footprint and scale it to fit. Previously it was
+    // dropped at the raw POI point at a fixed size, landing inside neighbouring
+    // shells — which is why the castle was invisible. The host footprint's shell
+    // is now skipped (see addBuildingShells), so the hero is what you see.
+    const isBig = lm.kind.includes("castle") || lm.kind.includes("historical");
+    const cx = host ? host.cx : lm.x;
+    const cz = host ? host.cz : lm.z;
+    let half = isBig ? 15 : 8;
+    if (host) {
+      const base = isBig ? 26 : 11;
+      g.scale.setScalar(Math.max(0.6, Math.min(2.6, Math.min(host.w, host.d) / base)));
+      half = Math.max(2, (Math.min(host.w, host.d) / 2) * 0.95);
+    }
+    g.position.set(cx, 0, cz);
+    g.traverse((o) => { if ((o as THREE.Mesh).isMesh) { o.castShadow = true; o.receiveShadow = true; } });
     scene.add(g);
+    const body = world.createRigidBody(R.RigidBodyDesc.fixed().setTranslation(cx, 6, cz));
+    const col = world.createCollider(
+      R.ColliderDesc.cuboid(half, 6, half).setActiveEvents(R.ActiveEvents.COLLISION_EVENTS),
+      body,
+    );
+    buildingColliders.add(col.handle);   // landmarks bite back like buildings (owner's edit)
+    console.info(`[landmark] ${lm.kind} "${lm.name}" @ ${cx.toFixed(0)},${cz.toFixed(0)}`
+      + (host ? ` fitted to ${host.w.toFixed(0)}x${host.d.toFixed(0)}m footprint` : " — NO host footprint"));
   }
   if (GEN.landmarks.length === 0) console.warn("[district] no hero landmarks in cell — widen the crop");
 
