@@ -6,7 +6,7 @@ import { tuning } from "../core/tuning";
 export type JudgeEventType =
   | "rescue_completed" | "rescue_ignored" | "child_scared" | "child_helped"
   | "destruction_spree" | "photo_calm_used" | "cameld" | "lure_executed"
-  | "wine_found" | "hesitation";
+  | "wine_found" | "hesitation" | "mission_completed" | "mission_abandoned";
 
 export interface JudgeEntry {
   type: JudgeEventType;

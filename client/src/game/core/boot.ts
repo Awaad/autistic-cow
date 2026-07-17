@@ -25,6 +25,7 @@ import { JudgeLog } from "../judge/log";
 import { HesitationDetector } from "../judge/hesitation";
 import { CommentEngine } from "../judge/engine";
 import { poolFor } from "../judge/pools";
+import { MissionTracker, type MissionDef } from "../systems/missions";
 import { applyElevatedRenderer } from "../art/postfx";
 import { buildIceCream } from "../art/critters";
 
@@ -47,7 +48,7 @@ const lerpAngle = (a: number, b: number, t: number): number => {
   return a + d * t;
 };
 
-export function bootGame(canvas: HTMLCanvasElement, opts?: { seed?: number; locale?: string  }): () => void {
+export function bootGame(canvas: HTMLCanvasElement, opts?: { seed?: number; locale?: string; mission?: MissionDef  }): () => void {
   let disposed = false;
   let cleanup: (() => void) | null = null;
 
@@ -76,6 +77,35 @@ export function bootGame(canvas: HTMLCanvasElement, opts?: { seed?: number; loca
       const rage = new RageMeter();
       const combo = new ComboTracker();
       const maxRage = new MaxRageDirector();
+      let mission: MissionTracker | null = null;
+      if (opts?.mission) {
+        mission = new MissionTracker(opts.mission, (u) => {
+          if (u.done) {
+            record("mission_completed", elapsed);
+            bus.emit({ type: "missionCompleted", missionId: opts.mission!.mission_id });
+          } else {
+            bus.emit({ type: "missionProgress", missionId: opts.mission!.mission_id,
+              progress: u.progress, label: u.label, reset: !!u.reset });
+          }
+        });
+      }
+      if (mission && mission.def.mission_type === "controlled_demolition") {
+        const candidates: number[] = [];
+        for (const eid of smashQuery(ecs)) candidates.push(eid);
+        // deterministic-ish spread: every 7th smashable
+        mission.markTargets(candidates.filter((_, i) => i % 7 === 3));
+        for (const eid of mission.markedTargets) {
+          const m = reg.meshes.get(eid);
+          if (!m) continue;
+          const ring = new THREE.Mesh(
+            new THREE.TorusGeometry(1.1, 0.08, 6, 24),
+            new THREE.MeshBasicMaterial({ color: 0xf0b429 }),
+          );
+          ring.rotation.x = Math.PI / 2;
+          ring.position.y = 0.15;
+          m.add(ring);
+        }
+      }
       const camel = new CamelBrain(BASE_SPEED);
       const judge = new JudgeLog();
       const comments = new CommentEngine(poolFor(opts?.locale ?? "en"));
@@ -148,6 +178,7 @@ export function bootGame(canvas: HTMLCanvasElement, opts?: { seed?: number; loca
         reg.remove(eid, physics.world, scene);
         removeEntity(ecs, eid);
         bus.emit({ type: "scoreChanged", destruction: destructionScore, rescue: rescueScore });
+        mission?.onSmash(eid);
         if (byCamel) record("lure_executed", t);
         else if (combo.chain >= 8 && elapsed - sinceSpreeEvent > 20) {
           sinceSpreeEvent = elapsed;
@@ -405,6 +436,7 @@ export function bootGame(canvas: HTMLCanvasElement, opts?: { seed?: number; loca
                   const isTreat = Rescueable.kind[eid] === 3;
                   rescueScore += Rescueable.points[eid];
                   record(isTreat ? "child_helped" : "rescue_completed", elapsed);
+                  if (!isTreat) mission?.onRescue();
                   bus.emit({ type: "scoreChanged", destruction: destructionScore, rescue: rescueScore });
                   reg.remove(eid, physics.world, scene);
                   removeEntity(ecs, eid);
@@ -423,7 +455,12 @@ export function bootGame(canvas: HTMLCanvasElement, opts?: { seed?: number; loca
               }
             }
             bus.emit({ type: "rescueHint", state: hintState, pct: hintPct });
-
+            if (mission && mission.def.mission_type === "bar_pilgrimage") {
+              const mc = mission.def.config as { x?: number; z?: number };
+              const md = Math.hypot((mc.x ?? 0) - cpr.x, (mc.z ?? 0) - cpr.z);
+              mission.onPosition(dt, rage.band === "serene", md);
+            }
+            
             // children: flee brains; scaring is seen; treats get dropped
             const cowSpd = Math.hypot(cowBody.linvel().x, cowBody.linvel().z);
             for (const eid of childQuery(ecs)) {
