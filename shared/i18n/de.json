@@ -65,5 +65,9 @@
   "photo.reduced": "Recycelte Liebe. Sie merkt das. (Teilberuhigung.)",
   "photo.energy_granted": "Ein echtes, gerade eben aufgenommen. Sie setzt sich. +1 Energie.",
   "end.share_clip": "Den Moment teilen",
-  "photo.reduced_duplicate": "Recycelte Liebe. Sie merkt das. (Teilberuhigung.)"
+  "photo.reduced_duplicate": "Recycelte Liebe. Sie merkt das. (Teilberuhigung.)",
+  "mission.accept": "Annehmen",
+  "mission.skip": "Heute nicht",
+  "leaderboard.title": "Ranglisten",
+  "leaderboard.empty": "Noch niemand hier. Verdächtig."
 }

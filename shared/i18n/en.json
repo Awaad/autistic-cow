@@ -65,6 +65,10 @@
   "photo.reduced": "Recycled love. She can tell. (Partial calm.)",
   "photo.energy_granted": "A real one, taken just now. She sits. +1 energy.",
   "end.share_clip": "Share the moment",
-  "photo.reduced_duplicate": "Recycled love. She can tell. (Partial calm.)"
+  "photo.reduced_duplicate": "Recycled love. She can tell. (Partial calm.)",
+  "mission.accept": "Accept",
+  "mission.skip": "Not today",
+  "leaderboard.title": "Leaderboards",
+  "leaderboard.empty": "Nobody here yet. Suspicious."
 }
 
