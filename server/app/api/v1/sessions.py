@@ -101,6 +101,12 @@ async def end_session(
         conn, session_id, player_id, d, r,
         body.peak_rage, body.nerves_lost, body.end_reason.value,
     )
+    for mr in (body.missions or []):
+        status = mr.status.value if hasattr(mr.status, "value") else str(mr.status)
+        await repo.mark_mission(conn, player_id, mr.mission_id, status, session_id)
+        if status == "completed" and not flagged:
+            await repo.add_currency(conn, player_id, await repo.mission_reward(conn, mr.mission_id))
+
     if not flagged:  # shadow exclusion: flagged sessions never reach the board (ADR-005)
         from app.api.v1.leaderboards import zadd_score
         await zadd_score(verdict["axis_band"], str(player_id), verdict["xp"])
