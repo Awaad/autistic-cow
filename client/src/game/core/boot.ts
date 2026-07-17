@@ -63,7 +63,7 @@ export function bootGame(canvas: HTMLCanvasElement, opts?: { seed?: number; loca
 
       const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
       applyElevatedRenderer(renderer); // ACES filmic: art pass 2
-      const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1500);
+      const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 300);
       const resize = (): void => {
         renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
         camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -102,7 +102,10 @@ export function bootGame(canvas: HTMLCanvasElement, opts?: { seed?: number; loca
       let camelSighted = false;
       let buildingHitCooldown = 0;
       const camDesired = new THREE.Vector3();
+      const camTarget = new THREE.Vector3(0, 0, 0);
       const seekBlacklist = new Map<number, number>();
+      let camDist = 15;
+      let camFov = 60;
       let blockedT = 0;
       let escapeSign = 0;
       let lastCowX = 0;
@@ -252,7 +255,7 @@ export function bootGame(canvas: HTMLCanvasElement, opts?: { seed?: number; loca
       const unsubCommands = commands.subscribe((c) => {
         if (c.type === "photoCalm" && maxRage.current === "waiting") {
           maxRage.calm();
-          rage.setTo(tuning.maxrage.photo_rage_floor); // saved, still simmering
+          rage.setTo(Math.max(0, Math.min(100, c.rageFloor)));
           bus.emit({ type: "maxRageResolved", via: "photo" });
           record("photo_calm_used", elapsed);
           maxRage.reset();
@@ -589,16 +592,22 @@ export function bootGame(canvas: HTMLCanvasElement, opts?: { seed?: number; loca
 
         const cp = cowBody.translation();
         {
-          // city rig: look where she's GOING; distance breathes with the band
+          // city rig v2: EVERYTHING has inertia. The camera is a steadicam
+          // operator, not a laser pointer — velocity spikes (slams, smashes,
+          // heading flips) must never reach the lens directly.
           const cv = cowBody.linvel();
-          const spd = Math.hypot(cv.x, cv.z);
-          const bandDist = { serene: 13, irritated: 15, furious: 17, berserk: 20 }[rage.band];
-          const tx = cp.x + cv.x * 0.55;
-          const tz = cp.z + cv.z * 0.55;
-          camDesired.set(tx, cp.y + bandDist * 0.62, tz + bandDist);
-          camera.position.lerp(camDesired, 1 - Math.exp(-4 * rawDt));
-          camera.lookAt(tx, cp.y + 1, tz);
-          camera.fov = 60 + Math.min(10, spd * 0.5);
+          const spd = Math.min(Math.hypot(cv.x, cv.z), 12); // clamp: slams don't whip the lens
+          const bandDist = { serene: 13, irritated: 15, furious: 17, berserk: 19 }[rage.band];
+          camDist += (bandDist - camDist) * (1 - Math.exp(-1.5 * rawDt));   // distance eases
+          const la = spd > 0.5 ? 0.5 : 0;                                    // no look-ahead at rest
+          camTarget.x += (cp.x + cv.x * la - camTarget.x) * (1 - Math.exp(-3 * rawDt));
+          camTarget.z += (cp.z + cv.z * la - camTarget.z) * (1 - Math.exp(-3 * rawDt));
+          camDesired.set(camTarget.x, cp.y + camDist * 0.62, camTarget.z + camDist);
+          camera.position.lerp(camDesired, 1 - Math.exp(-2.2 * rawDt));      // gentler chase
+          camera.lookAt(camTarget.x, cp.y + 1, camTarget.z);
+          const fovGoal = 60 + Math.min(8, spd * 0.4);
+          camFov += (fovGoal - camFov) * (1 - Math.exp(-2 * rawDt));         // fov never pumps
+          camera.fov = camFov;
           camera.updateProjectionMatrix();
         }
         // trauma shake: smooth oscillation + roll (impact, not malfunction)
