@@ -5,6 +5,7 @@ import { t, setLocale, type Locale  } from "../i18n";
 import { startSync } from "@net/sync";
 import { uploadPetPhoto } from "@net/photos";
 import { ReplayCapture, shareClip, type CapturedClip } from "./services/capture";
+import { Leaderboard } from "@ui/Leaderboard";
 import { bumpSessionsPlayed, getIdentity, sessionsPlayed } from "@net/account";
 import { CookieBanner } from "@ui/CookieBanner";
 import { Wall } from "@ui/Wall";
@@ -33,6 +34,8 @@ export function App() {
   const [forceWall, setForceWall] = useState(false);
   const captureRef = useRef<ReplayCapture | null>(null);
   const [clip, setClip] = useState<CapturedClip | null>(null);
+  const [showBoards, setShowBoards] = useState(false);
+  const [myBand, setMyBand] = useState<string | undefined>(undefined);
   const [pettingAvail, setPettingAvail] = useState(false);
   const [verdict, setVerdict] = useState<{ xp: number; level: number; levelUp: boolean; axisBand: string } | null>(null);
   
@@ -162,6 +165,8 @@ export function App() {
       {camelNear && !promptTimer && <div style={camelBanner}>{t("camel.warning")}</div>}
 
       {judgeLine && <div style={judgeToast}>{judgeLine}</div>}
+
+      {showBoards && <Leaderboard initialBand={myBand} onClose={() => setShowBoards(false)} />}
 
       {rescueHint.state !== "none" && !promptTimer && !endedReason && (
         <div style={rescueHintBox}>
