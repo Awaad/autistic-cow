@@ -14,6 +14,7 @@ export type GameEvent =
   | { type: "judgeComment"; text: string }
   | { type: "rescueHint"; state: "none" | "calm_needed" | "soothing"; pct: number }
   | { type: "judgeEventRecorded"; etype: string; rage: number }
+  | { type: "moment"; kind: string }
   | { type: "sessionStats"; destruction: number; rescue: number; peakRage: number; nervesLost: number }
   | { type: "serverVerdict"; xp: number; level: number; levelUp: boolean; axisBand: string }
   | { type: "bootError"; message: string }

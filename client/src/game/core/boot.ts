@@ -12,7 +12,7 @@ import { seededRng } from "./rng";
 import { createPhysics } from "../physics/world";
 import { Registry } from "../ecs/registry";
 import { ChildTag, Pickup, Rescueable, Smashable } from "../ecs/components";
-import { buildKyreniaGen } from "../scenes/kyrenia-gen";
+import { buildKyreniaGen, animateSea  } from "../scenes/kyrenia-gen";
 import { KYRENIA } from "../assets/kyrenia-harbor-gen";
 import { addComponent, addEntity } from "bitecs";
 import { spawnCamelEntity } from "../scenes/camelSpawn";
@@ -27,6 +27,7 @@ import { CommentEngine } from "../judge/engine";
 import { poolFor } from "../judge/pools";
 import { applyElevatedRenderer } from "../art/postfx";
 import { buildIceCream } from "../art/critters";
+
 
 const SESSION_S = tuning.session.target_minutes_min * 60;
 const SMASH_MIN_SPEED = 3;
@@ -162,6 +163,8 @@ export function bootGame(canvas: HTMLCanvasElement, opts?: { seed?: number; loca
       const record = (type: Parameters<JudgeLog["add"]>[0], t: number): void => {
         const n = judge.add(type, rage.rage, t);
         bus.emit({ type: "judgeEventRecorded", etype: type, rage: Math.round(rage.rage) });
+        if (type === "cameld" || type === "lure_executed" || type === "destruction_spree")
+          bus.emit({ type: "moment", kind: type }); // the share loop listens
         // escalating triggers: third scare, second camel'd, etc.
         const trigger =
           type === "child_scared" && n >= 3 ? "child_scared_x3" :
@@ -274,7 +277,7 @@ export function bootGame(canvas: HTMLCanvasElement, opts?: { seed?: number; loca
         const rawDt = Math.min(0.1, (now - last) / 1000);
         last = now;
         const dt = rawDt * timeScale; // slam cinematic slows the world, not the wall clock
-
+        
         // cinematic recovery runs on real time
         if (slamT > 0) {
           slamT -= rawDt;
@@ -604,7 +607,7 @@ export function bootGame(canvas: HTMLCanvasElement, opts?: { seed?: number; loca
         camera.position.x += Math.sin(tms * 47) * sh * 0.5;
         camera.position.y += Math.cos(tms * 39) * sh * 0.4;
         camera.rotation.z += Math.sin(tms * 53) * sh * 0.03;
-
+        
         renderer.render(scene, camera);
         raf = requestAnimationFrame(frame);
       };
