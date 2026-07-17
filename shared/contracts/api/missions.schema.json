@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "cowgame:api:missions",
+  "title": "Missions",
+  "anyOf": [
+    { "$ref": "#/definitions/MissionOffer" },
+    { "$ref": "#/definitions/MissionList" },
+    { "$ref": "#/definitions/MissionResult" }
+  ],
+  "definitions": {
+    "MissionOffer": {
+      "title": "MissionOffer", "type": "object",
+      "required": ["mission_id", "mission_type", "title", "brief", "config", "reward_currency"],
+      "properties": {
+        "mission_id": { "type": "string", "format": "uuid" },
+        "mission_type": { "type": "string",
+          "enum": ["bar_pilgrimage", "rescue_chain", "controlled_demolition", "wine_hunt"] },
+        "title": { "type": "string" },
+        "brief": { "type": "string" },
+        "config": { "type": "object" },
+        "reward_currency": { "type": "integer" }
+      }
+    },
+    "MissionList": {
+      "title": "MissionList", "type": "object", "required": ["missions"],
+      "properties": {
+        "missions": { "type": "array", "maxItems": 2,
+          "items": { "$ref": "#/definitions/MissionOffer" } }
+      }
+    },
+    "MissionResult": {
+      "title": "MissionResult", "type": "object",
+      "required": ["mission_id", "status"],
+      "properties": {
+        "mission_id": { "type": "string", "format": "uuid" },
+        "status": { "type": "string", "enum": ["completed", "abandoned"] }
+      }
+    }
+  }
+}

@@ -150,6 +150,30 @@
             "cameld",
             "player_exit"
           ]
+        },
+        "missions": {
+          "type": "array",
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "required": [
+              "mission_id",
+              "status"
+            ],
+            "properties": {
+              "mission_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "completed",
+                  "abandoned"
+                ]
+              }
+            }
+          }
         }
       }
     },

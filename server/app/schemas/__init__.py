@@ -14,3 +14,4 @@ from app.schemas.gen.leaderboards_schema import (  # noqa: F401
     LeaderboardEntry, LeaderboardResponse,
 )
 from app.schemas.gen.photos_schema import PhotoDecision  # noqa: F401
+from app.schemas.gen.missions_schema import MissionList, MissionOffer, MissionResult  # noqa: F401

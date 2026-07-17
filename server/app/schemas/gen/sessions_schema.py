@@ -57,6 +57,16 @@ class EndReason(Enum):
     player_exit = 'player_exit'
 
 
+class Status(Enum):
+    completed = 'completed'
+    abandoned = 'abandoned'
+
+
+class Mission(BaseModel):
+    mission_id: UUID
+    status: Status
+
+
 class SessionEndRequest(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
@@ -66,6 +76,7 @@ class SessionEndRequest(BaseModel):
     peak_rage: conint(ge=0, le=100)
     nerves_lost: conint(ge=0, le=3)
     end_reason: EndReason
+    missions: list[Mission] | None = Field(None, max_length=2)
 
 
 class SessionEndResponse(BaseModel):

@@ -79,6 +79,30 @@ export interface SessionEndRequest {
   peak_rage: number;
   nerves_lost: number;
   end_reason: "timer" | "cameld" | "player_exit";
+  /**
+   * @maxItems 2
+   */
+  missions?:
+    | []
+    | [
+        {
+          mission_id: string;
+          status: "completed" | "abandoned";
+          [k: string]: unknown;
+        }
+      ]
+    | [
+        {
+          mission_id: string;
+          status: "completed" | "abandoned";
+          [k: string]: unknown;
+        },
+        {
+          mission_id: string;
+          status: "completed" | "abandoned";
+          [k: string]: unknown;
+        }
+      ];
 }
 export interface SessionEndResponse {
   xp: number;
@@ -380,5 +404,30 @@ export interface PhotoDecision {
   energy_granted: boolean;
   reject_quip_key?: string | null;
   reduced_reason?: "duplicate" | "not_live" | "low_signals" | null;
+  [k: string]: unknown;
+}
+export type Missions = MissionOffer | MissionList | MissionResult;
+
+export interface MissionOffer {
+  mission_id: string;
+  mission_type: "bar_pilgrimage" | "rescue_chain" | "controlled_demolition" | "wine_hunt";
+  title: string;
+  brief: string;
+  config: {
+    [k: string]: unknown;
+  };
+  reward_currency: number;
+  [k: string]: unknown;
+}
+export interface MissionList {
+  /**
+   * @maxItems 2
+   */
+  missions: [] | [MissionOffer] | [MissionOffer, MissionOffer];
+  [k: string]: unknown;
+}
+export interface MissionResult {
+  mission_id: string;
+  status: "completed" | "abandoned";
   [k: string]: unknown;
 }
