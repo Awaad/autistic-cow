@@ -5,7 +5,9 @@ import { t, setLocale, type Locale  } from "../i18n";
 import { startSync } from "@net/sync";
 import { uploadPetPhoto } from "@net/photos";
 import { ReplayCapture, shareClip, type CapturedClip } from "./services/capture";
+import { acceptMission, fetchMission } from "@net/missions";
 import { Leaderboard } from "@ui/Leaderboard";
+import type { MissionOffer } from "@net/gen/contracts";
 import { bumpSessionsPlayed, getIdentity, sessionsPlayed } from "@net/account";
 import { CookieBanner } from "@ui/CookieBanner";
 import { Wall } from "@ui/Wall";
@@ -34,6 +36,10 @@ export function App() {
   const [forceWall, setForceWall] = useState(false);
   const captureRef = useRef<ReplayCapture | null>(null);
   const [clip, setClip] = useState<CapturedClip | null>(null);
+  const [offer, setOffer] = useState<MissionOffer | null>(null);
+  const activeMission = useRef<MissionOffer | null>(null);
+  const missionDone = useRef(false);
+  const [tracker, setTracker] = useState<{ label: string; progress: number; done: boolean } | null>(null);
   const [showBoards, setShowBoards] = useState(false);
   const [myBand, setMyBand] = useState<string | undefined>(undefined);
   const [pettingAvail, setPettingAvail] = useState(false);
@@ -84,6 +90,8 @@ export function App() {
       if (e.type === "judgeComment") setJudgeLine(e.text);
       if (e.type === "rescueHint") setRescueHint({ state: e.state, pct: e.pct });
       if (e.type === "moment") captureRef.current?.onMoment(e.kind);
+      if (e.type === "missionProgress") setTracker({ label: e.label, progress: e.progress, done: false });
+      if (e.type === "missionCompleted") { missionDone.current = true; setTracker({ label: "", progress: 1, done: true }); }
       if (e.type === "timerTick") setRemaining(e.remainingS);
       if (e.type === "nervesChanged") setNerves(e.remaining);
       if (e.type === "camelStateChanged") setCamelNear(e.state === "approaching");
@@ -166,6 +174,35 @@ export function App() {
 
       {judgeLine && <div style={judgeToast}>{judgeLine}</div>}
 
+      {offer && !endedReason && (
+        <div style={offerCard}>
+          <b>{offer.title}</b>
+          <div style={{ fontSize: 13, opacity: 0.85 }}>{offer.brief}</div>
+          <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+            <button style={smallBtn} onClick={() => {
+              activeMission.current = offer;
+              void acceptMission(offer.mission_id);
+              setOffer(null);
+              setRunKey((k) => k + 1); // reboot the session with the mission live
+            }}>{t("mission.accept")}</button>
+            <button style={{ ...smallBtn, opacity: 0.6 }} onClick={() => setOffer(null)}>
+              {t("mission.skip")}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {tracker && !endedReason && activeMission.current && (
+        <div style={trackerBox}>
+          {activeMission.current.title} {tracker.done ? "✓" : tracker.label}
+          {!tracker.done && (
+            <div style={soothTrack}>
+              <div style={{ ...soothFill, width: `${Math.round(tracker.progress * 100)}%` }} />
+            </div>
+          )}
+        </div>
+      )}
+
       {showBoards && <Leaderboard initialBand={myBand} onClose={() => setShowBoards(false)} />}
 
       {rescueHint.state !== "none" && !promptTimer && !endedReason && (
@@ -229,6 +266,9 @@ export function App() {
           {clip && (
             <button style={btn} onClick={() => void shareClip(clip)}>{t("end.share_clip")}</button>
           )}
+          <button style={{ ...btn, fontSize: 14 }} onClick={() => setShowBoards(true)}>
+            {t("leaderboard.title")}
+          </button>
           <button style={btn} onClick={() => setRunKey((k) => k + 1)}>{t("session.again")}</button>
         </div>
       )}
@@ -262,5 +302,14 @@ const rageFill: React.CSSProperties = { height: "100%", transition: "width 120ms
 const overlay: React.CSSProperties = { ...mono, position: "absolute", inset: 0, display: "flex",
   flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#1a1a2ecc", gap: 12 };
 const btn: React.CSSProperties = { fontFamily: "monospace", fontSize: 18, padding: "8px 24px", cursor: "pointer" };
+const offerCard: React.CSSProperties = { position: "absolute", top: 110, left: 0, right: 0,
+  margin: "0 auto", width: 320, maxWidth: "86vw", background: "#0d0d18e8", color: "#fff",
+  fontFamily: "monospace", padding: "12px 16px", borderRadius: 8, textAlign: "center",
+  display: "flex", flexDirection: "column", gap: 8, zIndex: 15 };
+const smallBtn: React.CSSProperties = { fontFamily: "monospace", fontSize: 14,
+  padding: "5px 16px", cursor: "pointer" };
+const trackerBox: React.CSSProperties = { position: "absolute", top: 46, left: 12,
+  color: "#fff", fontFamily: "monospace", fontSize: 13, background: "#0d0d1899",
+  padding: "6px 10px", borderRadius: 6 };
 const gear: React.CSSProperties = { position: "absolute", top: 46, right: 12, fontSize: 20,
   background: "transparent", color: "#fff", border: "none", cursor: "pointer", zIndex: 20 };

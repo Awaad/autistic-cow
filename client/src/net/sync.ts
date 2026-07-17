@@ -9,12 +9,14 @@ import { api } from "./api";
 import { EventBatcher } from "./batcher";
 import { ensureAnon } from "./account";
 
+export interface MissionEndResult { mission_id: string; status: "completed" | "abandoned" }
+
 export interface SyncHandle {
   seed: number | undefined;
   dispose: () => void;
 }
 
-export async function startSync(locale: string): Promise<SyncHandle> {
+export async function startSync(locale: string, missionResult?: () => MissionEndResult | null): Promise<SyncHandle> {
   const id = await ensureAnon(locale);
   if (!id) return { seed: undefined, dispose: () => undefined };
 
@@ -53,6 +55,7 @@ export async function startSync(locale: string): Promise<SyncHandle> {
         peak_rage: stats.peakRage,
         nerves_lost: stats.nervesLost,
         end_reason: "player_exit",
+        missions: missionResult?.() ? [missionResult()] : [],
       }),
     });
   };
@@ -72,6 +75,7 @@ export async function startSync(locale: string): Promise<SyncHandle> {
             peak_rage: stats.peakRage,
             nerves_lost: stats.nervesLost,
             end_reason: e.reason,
+            missions: missionResult?.() ? [missionResult()] : [],
           });
           bus.emit({
             type: "serverVerdict",
