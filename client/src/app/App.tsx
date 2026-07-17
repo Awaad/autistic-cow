@@ -4,6 +4,7 @@ import { bus, commands, type RageBand } from "../game/core/bus";
 import { t, setLocale, type Locale  } from "../i18n";
 import { startSync } from "@net/sync";
 import { uploadPetPhoto } from "@net/photos";
+import { ReplayCapture, shareClip, type CapturedClip } from "./services/capture";
 import { bumpSessionsPlayed, getIdentity, sessionsPlayed } from "@net/account";
 import { CookieBanner } from "@ui/CookieBanner";
 import { Wall } from "@ui/Wall";
@@ -30,6 +31,8 @@ export function App() {
   const [phase, setPhase] = useState<"title" | "playing">("title");
   const [noEnergyIn, setNoEnergyIn] = useState<number | null>(null);
   const [forceWall, setForceWall] = useState(false);
+  const captureRef = useRef<ReplayCapture | null>(null);
+  const [clip, setClip] = useState<CapturedClip | null>(null);
   const [pettingAvail, setPettingAvail] = useState(false);
   const [verdict, setVerdict] = useState<{ xp: number; level: number; levelUp: boolean; axisBand: string } | null>(null);
   
@@ -43,16 +46,19 @@ export function App() {
     setPromptTimer(null);
     setCamelNear(false);
     const canvas = canvasRef.current;
-    const locale = navigator.language.startsWith("de") ? "de" : navigator.language.startsWith("ru") ? "ru" : "en";
+    const locale: Locale = navigator.language.startsWith("de") ? "de"
+                         : navigator.language.startsWith("ru") ? "ru" : "en";
+    setLocale(locale);
     let disposeGame: (() => void) | null = null;
     let disposeSync: (() => void) | null = null;
     let cancelled = false;
-    setLocale(locale);
+    
     void startSync(locale).then((sync) => {
       if (cancelled) { sync.dispose(); return; }
       
       disposeSync = sync.dispose;
       disposeGame = bootGame(canvas, { seed: sync.seed, locale });
+      captureRef.current = new ReplayCapture(canvas);
     })
     .catch((err) => {
       const detail = (err as { detail?: { detail?: { error?: string; next_energy_in_s?: number } } }).detail?.detail;
@@ -74,6 +80,7 @@ export function App() {
       if (e.type === "scoreChanged") { setScore(e.destruction); setGrace(e.rescue); }
       if (e.type === "judgeComment") setJudgeLine(e.text);
       if (e.type === "rescueHint") setRescueHint({ state: e.state, pct: e.pct });
+      if (e.type === "moment") captureRef.current?.onMoment(e.kind);
       if (e.type === "timerTick") setRemaining(e.remainingS);
       if (e.type === "nervesChanged") setNerves(e.remaining);
       if (e.type === "camelStateChanged") setCamelNear(e.state === "approaching");
@@ -82,7 +89,7 @@ export function App() {
         setPromptTimer(null);
         if (e.via === "petting") setJudgeLine(t("maxrage.petting_done"));
       }
-      if (e.type === "sessionEnded") { setEndedReason(e.reason); setPromptTimer(null); bumpSessionsPlayed(); }
+      if (e.type === "sessionEnded") { setEndedReason(e.reason); setPromptTimer(null); bumpSessionsPlayed(); void captureRef.current?.harvest().then(setClip); }
       if (e.type === "bootError") setBootError(e.message);
       if (e.type === "serverVerdict") setVerdict({ xp: e.xp, level: e.level, levelUp: e.levelUp, axisBand: e.axisBand });
     });
@@ -181,7 +188,7 @@ export function App() {
           <label style={btn}>
             {t("maxrage.show_button")}
             <input type="file" accept="image/*" capture="environment" style={{ display: "none" }}
-              onChange={(e) => { const f = e.target.files?.[0]; if (f) void onPhotoPicked(f, false); }} />
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) void onPhotoPicked(f, Date.now() - f.lastModified < 90_000); }} />
           </label>
           {pettingAvail && (
             <button style={btn} onClick={() => commands.emit({ type: "pettingZoo" })}>
@@ -213,6 +220,9 @@ export function App() {
               {t("end.level")} {verdict.level} · {verdict.xp} XP
               {verdict.levelUp ? ` — ${t("end.level_up")}` : ""} · {t(`judge.title.${verdict.axisBand}`)}
             </p>
+          )}
+          {clip && (
+            <button style={btn} onClick={() => void shareClip(clip)}>{t("end.share_clip")}</button>
           )}
           <button style={btn} onClick={() => setRunKey((k) => k + 1)}>{t("session.again")}</button>
         </div>
