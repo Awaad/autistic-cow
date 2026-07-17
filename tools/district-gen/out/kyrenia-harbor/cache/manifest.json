@@ -93,6 +93,19 @@
     },
     {
       "bbox": [
+        35.3354084,
+        33.3149939,
+        35.3443916,
+        33.3260061
+      ],
+      "elements": 1119,
+      "endpoint": "https://overpass-api.de/api/interpreter",
+      "key": "osm-e7d8e52b60cc16fb",
+      "provider": "osm",
+      "query": "[out:json][timeout:180];\n(\n  way[\"building\"](35.3354084,33.3149939,35.3443916,33.3260061);\n  way[\"highway\"](35.3354084,33.3149939,35.3443916,33.3260061);\n  way[\"natural\"=\"coastline\"](35.3354084,33.3149939,35.3443916,33.3260061);\n  way[\"natural\"=\"water\"](35.3354084,33.3149939,35.3443916,33.3260061);\n  way[\"water\"](35.3354084,33.3149939,35.3443916,33.3260061);\n  way[\"waterway\"=\"riverbank\"](35.3354084,33.3149939,35.3443916,33.3260061);\n  node[\"amenity\"](35.3354084,33.3149939,35.3443916,33.3260061);\n  node[\"shop\"](35.3354084,33.3149939,35.3443916,33.3260061);\n  node[\"tourism\"](35.3354084,33.3149939,35.3443916,33.3260061);\n  node[\"historic\"](35.3354084,33.3149939,35.3443916,33.3260061);\n);\nout geom;\n"
+    },
+    {
+      "bbox": [
         35.3380068,
         33.315095,
         35.3451932,
@@ -101,6 +114,23 @@
       "endpoint": "cli",
       "features": 1230,
       "key": "overture-2eab9fba0c2b58c3",
+      "provider": "overture",
+      "types": [
+        "building",
+        "segment",
+        "place"
+      ]
+    },
+    {
+      "bbox": [
+        35.3354084,
+        33.3149939,
+        35.3443916,
+        33.3260061
+      ],
+      "endpoint": "cli",
+      "features": 1882,
+      "key": "overture-483a36706fa97fe6",
       "provider": "overture",
       "types": [
         "building",
