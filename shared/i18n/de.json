@@ -63,5 +63,7 @@
   "maxrage.petting_done": "Die Ziege hat Sie geduldet. Sie köchelt nur noch — ruhig ist sie nicht. Überleben, kein Sieg.",
   "photo.reject_not_animal": "Das ist kein Tier. Gegenstände beruhigen sie nicht.",
   "photo.reduced": "Recycelte Liebe. Sie merkt das. (Teilberuhigung.)",
-  "photo.energy_granted": "Ein echtes, gerade eben aufgenommen. Sie setzt sich. +1 Energie."
+  "photo.energy_granted": "Ein echtes, gerade eben aufgenommen. Sie setzt sich. +1 Energie.",
+  "end.share_clip": "Den Moment teilen",
+  "photo.reduced_duplicate": "Recycelte Liebe. Sie merkt das. (Teilberuhigung.)"
 }
