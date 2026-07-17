@@ -11,6 +11,8 @@ def test_all_expected_routes_registered() -> None:
         "/api/v1/consents",
          "/api/v1/me", "/api/v1/me/export", "/api/v1/me/delete",
         "/api/v1/leaderboards/{band}",
+        "/api/v1/photos",
+        "/api/v1/missions", "/api/v1/missions/{mission_id}/accept",
     }
     missing = expected - paths
     assert not missing, f"routes missing: {missing}"
