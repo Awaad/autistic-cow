@@ -411,3 +411,58 @@ async def grant_photo_energy(conn: AsyncConnection, player_id: UUID) -> bool:
 async def herd_consented(conn: AsyncConnection, player_id: UUID) -> bool:
     c = await latest_consents(conn, player_id)
     return bool(c.get("herd_album"))
+
+
+async def offered_missions(
+    conn: AsyncConnection, player_id: UUID, district_slug: str, locale: str,
+) -> list[dict[str, Any]]:
+    rows = await conn.execute(
+        text("""SELECT m.id, m.mission_type, m.config, m.reward, m.text
+                FROM missions m
+                JOIN districts d ON d.id = m.district_id
+                LEFT JOIN mission_progress mp
+                  ON mp.mission_id = m.id AND mp.player_id = :pid
+                WHERE d.slug = :slug AND m.active
+                  AND (mp.status IS NULL OR mp.status IN ('offered', 'abandoned'))
+                LIMIT 2"""),
+        {"pid": player_id, "slug": district_slug},
+    )
+    out = []
+    for mid, mtype, config, reward, txt in rows:
+        loc = (txt or {}).get(locale) or (txt or {}).get("en") or {}
+        out.append({
+            "mission_id": str(mid), "mission_type": str(mtype),
+            "title": loc.get("title", ""), "brief": loc.get("brief", ""),
+            "config": config or {}, "reward_currency": int((reward or {}).get("currency", 0)),
+        })
+    return out
+
+
+async def mark_mission(
+    conn: AsyncConnection, player_id: UUID, mission_id: UUID,
+    status: str, session_id: UUID | None,
+) -> None:
+    await conn.execute(
+        text("""INSERT INTO mission_progress (player_id, mission_id, session_id, status)
+                VALUES (:pid, :mid, :sid, :st)
+                ON CONFLICT (player_id, mission_id)
+                DO UPDATE SET status = :st, session_id = :sid, updated_at = now()"""),
+        {"pid": player_id, "mid": mission_id, "sid": session_id, "st": status},
+    )
+
+
+async def mission_reward(conn: AsyncConnection, mission_id: UUID) -> int:
+    row = (
+        await conn.execute(
+            text("SELECT reward FROM missions WHERE id = :mid"), {"mid": mission_id},
+        )
+    ).first()
+    return int(((row[0] if row else {}) or {}).get("currency", 0))
+
+
+async def add_currency(conn: AsyncConnection, player_id: UUID, amount: int) -> None:
+    await conn.execute(
+        text("""UPDATE player_profiles SET currency_balance = currency_balance + :a
+                WHERE player_id = :pid"""),
+        {"a": amount, "pid": player_id},
+    )
